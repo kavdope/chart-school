@@ -236,7 +236,28 @@ const H = {chart, walk, plot, mirrorW, K, ladder, bars, curve, anatomy, rng};
 /* ---------------- Router / shell ---------------- */
 const view = $('#view');
 const SEARCH_BTN = '<button class="sbtn" id="sbtn" aria-label="Search" title="Search (/)" onclick="location.hash=\'#search\'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>';
-function setTop(title, left = '', right = '', noSearch) { $('#tt').textContent = title; $('#tl').innerHTML = left; $('#tr').innerHTML = right + (noSearch ? '' : SEARCH_BTN); }
+/* ---------------- Theme (light / dark / system) ----------------
+   Preference in localStorage 'chartschool.theme' = 'light' | 'dark' | 'system' (default). The inline script in index.html
+   applies it before first paint; colours live in CSS variables (styles.css), including every chart colour (--sv-*). */
+const THEME_KEY = 'chartschool.theme', DARK_MQ = matchMedia('(prefers-color-scheme: dark)');
+const THEME_BAR = {light: '#000000', dark: '#141414'};
+const svVar = c => { let h = String(c).replace('#', '').toLowerCase(); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return `var(--sv-${h}, ${c})`; };
+function themePref() { let t = null; try { t = localStorage.getItem(THEME_KEY); } catch (e) {} return t === 'light' || t === 'dark' ? t : 'system'; }
+const themeNow = () => document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+function applyTheme(pref) {
+  if (pref) { try { if (pref === 'system') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, pref); } catch (e) {} }
+  const p = themePref(), mode = p === 'system' ? (DARK_MQ.matches ? 'dark' : 'light') : p, el = document.documentElement;
+  el.dataset.theme = mode; el.dataset.themePref = p;
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', THEME_BAR[mode]));
+  const b = document.getElementById('thbtn'); if (b) b.outerHTML = themeBtn();
+  document.querySelectorAll('.seg.th button').forEach(x => x.classList.toggle('on', x.dataset.th === p));
+}
+const SUN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>';
+const themeBtn = () => { const d = themeNow() === 'dark'; return `<button class="thbtn" id="thbtn" aria-label="${d ? 'Switch to light mode' : 'Switch to dark mode'}" title="${d ? 'Light mode' : 'Dark mode'}" onclick="applyTheme(themeNow() === 'dark' ? 'light' : 'dark')">${d ? SUN : MOON}</button>`; };
+(DARK_MQ.addEventListener ? DARK_MQ.addEventListener.bind(DARK_MQ, 'change') : DARK_MQ.addListener.bind(DARK_MQ))(() => { if (themePref() === 'system') applyTheme(); });
+applyTheme();
+function setTop(title, left = '', right = '', noSearch) { $('#tt').textContent = title; $('#tl').innerHTML = left; $('#tr').innerHTML = right + themeBtn() + (noSearch ? '' : SEARCH_BTN); }
 const back = (href, t) => `<button onclick="location.hash='${href}'">‹ ${t}</button>`;
 let timer = null;
 const ROUTES = {};
@@ -266,7 +287,7 @@ ROUTES.home = function () {
   const qs = LESSONS.map(l => S.q[l.id]).filter(v => v != null), avg = qs.length ? Math.round(qs.reduce((a, b) => a + b, 0) / qs.length) + '%' : '–';
   const nx = nextLesson();
   let h = `<h1>Good to see you</h1><p class="sub">From your first candle to trading like a professional.</p>
-  <div class="stats"><div><b>${done}<small style="font-size:11px;color:#8a8a8a;font-weight:400">/${total}</small></b><span>Lessons</span></div><div><b>${streak()} day${streak() === 1 ? '' : 's'}</b><span>Streak</span></div><div><b>${avg}</b><span>Quiz avg</span></div></div>
+  <div class="stats"><div><b>${done}<small style="font-size:11px;color:var(--mute);font-weight:400">/${total}</small></b><span>Lessons</span></div><div><b>${streak()} day${streak() === 1 ? '' : 's'}</b><span>Streak</span></div><div><b>${avg}</b><span>Quiz avg</span></div></div>
   ${nx ? `<a class="cont" href="#lesson/${nx.id}"><div><div class="k">${passed(nx.id) ? 'Review' : 'Continue'} · Level ${nx.level}</div><div style="font-weight:600">${nx.t}</div></div><span class="go">Start →</span></a>` : '<div class="cont"><div><div class="k">All done</div><div style="font-weight:600">Every lesson passed. Keep reviewing.</div></div></div>'}
   <div class="label">Curriculum · ${LEVELS.length} levels · ${total} lessons</div><ul class="levels">`;
   LEVELS.forEach(L => {
@@ -280,7 +301,7 @@ ROUTES.home = function () {
     if (!un) h += `<li class="sub" style="font-size:11px">Pass every Level ${L.n - 1} quiz (80%+) to unlock, or turn on Unlock all in Tools → Settings.</li>`;
     h += '</ul></li>';
   });
-  h += `</ul><p class="sub" style="margin-top:10px">Starting point: ${START_NAMES[S.start] || 'Level ' + S.start}${S.unlockAll ? ' · Unlock all is on' : ''}. <a href="#settings" style="color:#000">Settings</a></p>${FOOT}`;
+  h += `</ul><p class="sub" style="margin-top:10px">Starting point: ${START_NAMES[S.start] || 'Level ' + S.start}${S.unlockAll ? ' · Unlock all is on' : ''}. <a href="#settings" style="color:var(--fg)">Settings</a></p>${FOOT}`;
   view.innerHTML = h;
   view.querySelectorAll('.lvl .head').forEach(e => e.onclick = () => e.parentNode.classList.toggle('open'));
 };
@@ -601,7 +622,7 @@ ROUTES.take = function () {
 function decide(take) {
   const f = TK.f, all = CHECK.every(c => f[c[0]]), right = take === all;
   let tickOK = 0;
-  view.querySelectorAll('#checks input').forEach(i => { const k = i.dataset.k, ok = i.checked === f[k]; if (ok) tickOK++; i.disabled = true; view.querySelector(`[data-m="${k}"]`).innerHTML = f[k] ? '<b>present</b>' : '<span style="color:#c0392b">missing</span>'; });
+  view.querySelectorAll('#checks input').forEach(i => { const k = i.dataset.k, ok = i.checked === f[k]; if (ok) tickOK++; i.disabled = true; view.querySelector(`[data-m="${k}"]`).innerHTML = f[k] ? '<b>present</b>' : '<span style="color:var(--bear)">missing</span>'; });
   S.take.total++; if (right) S.take.right++; save();
   $('#tksc').textContent = `${S.take.right}/${S.take.total}`;
   $('#tkc').innerHTML = chart(TK.w.c, Object.assign({h: 210, pt: 14, pb: 14, pr: 8}, TK.ann)).svg;
@@ -695,8 +716,8 @@ function bindCalc(root) {
     el.querySelectorAll('.fx').forEach(x => x.style.display = p.kind === 'forex' ? '' : 'none');
     const r = calcSize(p);
     $('#cout').innerHTML = r.error ? `<p class="sub">${r.error}</p>` : `<div class="big" id="csize" style="font-size:30px">${r.size} <span style="font-size:14px">${r.unit}</span></div>
-      <p class="sub">Max risk ${money(r.risk)} · actual risk at this size <b style="color:#000">${money(r.actual)}</b> · stop distance ${+r.dist.toFixed(6)}</p>
-      ${r.extra ? `<p class="sub">${r.extra}</p>` : ''}${r.size === 0 ? '<p class="sub" style="color:#c0392b">Stop is too wide for this risk. Use a smaller contract (micros), a tighter valid stop, or skip the trade.</p>' : ''}
+      <p class="sub">Max risk ${money(r.risk)} · actual risk at this size <b style="color:var(--fg)">${money(r.actual)}</b> · stop distance ${+r.dist.toFixed(6)}</p>
+      ${r.extra ? `<p class="sub">${r.extra}</p>` : ''}${r.size === 0 ? '<p class="sub" style="color:var(--bear)">Stop is too wide for this risk. Use a smaller contract (micros), a tighter valid stop, or skip the trade.</p>' : ''}
       <p class="sub">Targets: 1R ${r.targets[0]} · 2R ${r.targets[1]} · 3R ${r.targets[2]}</p>`;
   };
   el.querySelectorAll('input,select').forEach(i => i.oninput = upd);
@@ -753,7 +774,7 @@ ROUTES.tools = function () {
     <li><a href="#clock"><div><b>Killzone clock</b><span>Sessions and Silver Bullet windows</span></div><em>›</em></a></li>
     <li><a href="#search"><div><b>Search</b><span>Lessons, glossary, drills and trades · press / on desktop</span></div><em>›</em></a></li>
     <li><a href="#bookmarks"><div><b>Bookmarks</b><span>Saved lessons, terms, drills and trades</span></div><em>${Object.keys(S.bm).length}</em></a></li>
-    <li><a href="#settings"><div><b>Settings</b><span>Unlock all, placement, reset</span></div><em>›</em></a></li>
+    <li><a href="#settings"><div><b>Settings</b><span>Appearance, unlock all, placement, reset</span></div><em>›</em></a></li>
     <li><a href="#about"><div><b>About &amp; disclaimer</b><span>Not financial advice · how your data is stored</span></div><em>›</em></a></li></ul>${FOOT}`;
 };
 ROUTES.settings = function () {
@@ -761,10 +782,12 @@ ROUTES.settings = function () {
   view.innerHTML = `<h1>Settings</h1>
     <ul class="menu" style="margin-top:10px"><li><label class="tog"><div><b>Unlock all levels</b><span>For experienced traders who want to jump around</span></div><input type="checkbox" id="unlockall" ${S.unlockAll ? 'checked' : ''}></label></li>
     <li><a href="#placement"><div><b>Starting level</b><span>Currently ${START_NAMES[S.start] || 'Level ' + S.start} · retake placement</span></div><em>›</em></a></li>
+    <li><div class="row" style="padding:10px 0;justify-content:space-between"><div><b style="display:block;font-size:13px">Appearance</b><span class="sub">System follows your device setting</span></div><div class="seg th" id="thseg">${['light', 'dark', 'system'].map(t => `<button data-th="${t}" class="${themePref() === t ? 'on' : ''}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div></li>
     <li><a href="#about"><div><b>About &amp; disclaimer</b><span>What Chart School is, risks, your data</span></div><em>›</em></a></li>
     <li><a href="#" id="reset"><div><b>Reset all progress</b><span>Quizzes, drills, trades viewed, flashcards, bookmarks, streak</span></div><em>›</em></a></li></ul>
     <p class="sub" style="margin-top:12px">Progress is stored only in this browser on this device.</p>${FOOT}`;
   $('#unlockall').onchange = e => { S.unlockAll = e.target.checked; save(); };
+  view.querySelectorAll('#thseg button').forEach(b => b.onclick = () => applyTheme(b.dataset.th));
   $('#reset').onclick = e => { e.preventDefault(); if (confirm('Reset all progress on this device?')) { localStorage.removeItem(KEY); S = load(); save(); location.hash = '#placement'; } };
 };
 
@@ -876,10 +899,10 @@ ROUTES.clock = function () {
       <div class="now"><div class="tz sub" style="font-size:10px;text-transform:uppercase;letter-spacing:.08em">Active now</div>`;
     if (act.length) h += act.map(a => `<div class="st">${a.name}</div><div class="sub">Ends in <span class="cd">${dur(a.end - now)}</span> · at ${fmtT(a.end, NY)} NY</div>`).join('');
     else h += `<div class="st">No killzone</div><div class="sub">Off-hours. A good time to review, not to force trades.</div>`;
-    h += `<hr style="margin:8px 0"><div class="sub">Next: <b style="color:#000">${st.upcoming.name}</b> in <span class="cd">${dur(st.upcoming.next - now)}</span></div>
+    h += `<hr style="margin:8px 0"><div class="sub">Next: <b style="color:var(--fg)">${st.upcoming.name}</b> in <span class="cd">${dur(st.upcoming.next - now)}</span></div>
       ${wkend ? '<div class="sub" style="margin-top:4px">It\'s the weekend in New York: most markets are closed until Sunday evening.</div>' : ''}</div>
       <div class="label">24h · New York time</div><div class="timeline">${timelineSVG(st)}</div>
-      <ul class="sess">${st.list.slice().sort((a, b) => a.s - b.s).map(s => `<li class="${s.active ? 'act' : ''}"><span class="sw" style="background:${s.col}"></span>${s.name}${s.active ? '<span class="pill">NOW</span>' : ''}
+      <ul class="sess">${st.list.slice().sort((a, b) => a.s - b.s).map(s => `<li class="${s.active ? 'act' : ''}"><span class="sw" style="background:${svVar(s.col)}"></span>${s.name}${s.active ? '<span class="pill">NOW</span>' : ''}
         <span class="tt">${fmtT(s.start, NY)}–${fmtT(s.end, NY)} NY${sameTz ? '' : `<br>${fmtT(s.start, LOCAL)}–${fmtT(s.end, LOCAL)} yours`}</span></li>`).join('')}</ul>
       <p class="sub" style="margin-top:8px">Times follow New York daylight saving automatically. Killzones are tendencies, not rules.</p>`;
     $('#ck').innerHTML = h;
@@ -969,7 +992,7 @@ ROUTES.drills = function () {
   const list = drList(), tries = DR.reduce((a, d) => a + ((S.dr[d.id] || {}).n || 0), 0), rights = DR.reduce((a, d) => a + ((S.dr[d.id] || {}).r || 0), 0);
   const first = list.find(d => (S.dr[d.id] || {}).best !== 100) || list[0];
   view.innerHTML = `<h1>Chart drills</h1><p class="sub">Hand-built charts. Tap the candle, level or zone, or pick an answer.</p>
-    <div class="stats"><div><b>${drSolved()}<small style="font-size:11px;color:#8a8a8a;font-weight:400">/${DR.length}</small></b><span>Solved</span></div><div><b>${tries ? Math.round(rights / tries * 100) + '%' : '–'}</b><span>Accuracy</span></div><div><b>${tries}</b><span>Attempts</span></div></div>
+    <div class="stats"><div><b>${drSolved()}<small style="font-size:11px;color:var(--mute);font-weight:400">/${DR.length}</small></b><span>Solved</span></div><div><b>${tries ? Math.round(rights / tries * 100) + '%' : '–'}</b><span>Accuracy</span></div><div><b>${tries}</b><span>Attempts</span></div></div>
     <div class="label">Concept</div><div class="chips" id="dkf"><button data-k="all" class="${S.drf.k === 'all' ? 'on' : ''}">All</button>${Object.entries(DK).map(([k, v]) => `<button data-k="${k}" class="${S.drf.k === k ? 'on' : ''}">${v[0]}</button>`).join('')}</div>
     <div class="label">Difficulty</div><div class="seg" id="dlf">${[0, 1, 2, 3].map(l => `<button data-l="${l}" class="${S.drf.lv === l ? 'on' : ''}">${l ? DIFF[l] : 'All'}</button>`).join('')}</div>
     ${first ? `<a class="btn block" style="margin-top:12px" id="dstart" href="#drill/${first.id}">Start · ${list.length} drill${list.length === 1 ? '' : 's'}</a>` : ''}
@@ -985,7 +1008,7 @@ ROUTES.drill = function (id) {
   setTop(DK[d.k][0], back('#drills', 'Drills'), `<span>${pos + 1}/${list.length}</span>`);
   const st = S.dr[d.id] || {};
   view.innerHTML = `<div class="crumb row"><span>${DK[d.k][0]} · ${DIFF[d.lv]}${st.best === 100 ? ' · solved' : st.n ? ` · ${st.r || 0}/${st.n} right` : ''}</span>${bmBtn('d:' + d.id)}</div>
-    <h1>${esc(d.t)}</h1><p class="sub" id="dq" style="color:#333;font-size:13px">${d.q}</p>
+    <h1>${esc(d.t)}</h1><p class="sub" id="dq" style="color:var(--t3);font-size:13px">${d.q}</p>
     ${d.card ? `<div class="card">${d.card.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
     <div class="chart spot" id="dc"></div>
     ${d.type === 'choice' ? `<div id="dopts" style="margin-top:8px">${d.ans.opts.map((o, i) => `<button class="opt" data-i="${i}">${String.fromCharCode(65 + i)}. ${o}</button>`).join('')}</div>` : `<p class="cap" style="margin-top:4px">${{candle: 'Tap the candle on the chart.', level: 'Tap the price level on the chart.', zone: 'Tap inside the zone on the chart.'}[d.type]}</p>`}
@@ -1337,7 +1360,7 @@ ROUTES.trades = function () {
   const seen = WT.filter(w => wViewed(w.id)).length;
   view.innerHTML = `<h1>Trades</h1><p class="sub">Top-down examples: what to mark on the 4H, 15m and 5m, where to enter, and where the stop and target go. Plus what not to do.</p>
     <div class="seg twseg" style="margin-top:10px"><button class="on">Walkthroughs</button><button onclick="location.hash='#mistakes'">Mistake library</button></div>
-    <div class="stats"><div><b>${TW.models.length}</b><span>Models</span></div><div><b>${seen}<small style="font-size:11px;color:#8a8a8a;font-weight:400">/${WT.length}</small></b><span>Viewed</span></div><div><b>${MI.length}</b><span>Mistakes</span></div></div>
+    <div class="stats"><div><b>${TW.models.length}</b><span>Models</span></div><div><b>${seen}<small style="font-size:11px;color:var(--mute);font-weight:400">/${WT.length}</small></b><span>Viewed</span></div><div><b>${MI.length}</b><span>Mistakes</span></div></div>
     <ul class="menu twl" style="margin-top:12px">${TW.models.map(m => { const ws = WT.filter(w => w.m === m), done = ws.every(w => wViewed(w.id));
       return `<li data-m="${m.id}"><div class="twm"><a href="#trade/${ws[0].id}/1"><span class="dm ${done ? 'ok' : ws.some(w => S.tv[w.id]) ? 'x' : ''}">${done ? '✓' : ''}</span><div><b>${esc(tok(m.name, false).replace(/ Buy Model$/, ' Buy/Sell Model'))}</b><span>${esc(tok(m.sum, false))}</span></div></a>
       <div class="chips twv">${ws.map(w => `<a class="chip${wViewed(w.id) ? ' on' : ''}" href="#trade/${w.id}/1" data-w="${w.id}">${wViewed(w.id) ? '✓ ' : ''}${esc(wVar(w))}</a>`).join('')}</div></div></li>`; }).join('')}</ul>

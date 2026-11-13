@@ -1,0 +1,3937 @@
+/* Chart School content registry. Level files call CS.level({...}); glossary.js calls CS.terms([...]). */
+window.CS = {levels: [], glossary: [], level(L) { this.levels.push(L); }, terms(a) { this.glossary.push(...a); }};
+/* Glossary: [key, name, abbreviation, definition]. Keys are referenced in lessons as [[key]]. */
+CS.terms([
+// Basics
+['market', 'Market', '', 'A place where buyers and sellers trade something, such as stocks, currencies, futures or crypto. Price moves when one side is more eager than the other.'],
+['price', 'Price', '', 'The last amount at which a trade happened. Every chart is a record of price over time.'],
+['bid', 'Bid', '', 'The highest price a buyer is currently willing to pay.'],
+['ask', 'Ask (offer)', '', 'The lowest price a seller is currently willing to accept.'],
+['spread', 'Spread', '', 'The gap between the bid and the ask. It is a cost you pay on every trade, and it often widens around news or in quiet hours.'],
+['volume', 'Volume', '', 'How much was traded in a given period. High volume means lots of participation.'],
+['volatility', 'Volatility', '', 'How much and how fast price moves. High volatility means bigger swings, which means bigger risk per position.'],
+['liquidity_market', 'Market liquidity', '', 'How easily you can buy or sell without moving the price. Big markets like ES or EURUSD are very liquid.'],
+['long', 'Long', '', 'A position that profits if price rises. You buy first and sell later.'],
+['short', 'Short', '', 'A position that profits if price falls. You sell first and buy back later.'],
+['bullish', 'Bullish', '', 'Expecting or showing rising prices. A bullish candle closes above its open.'],
+['bearish', 'Bearish', '', 'Expecting or showing falling prices. A bearish candle closes below its open.'],
+['broker', 'Broker', '', 'A company that gives you access to a market and executes your orders. Choose one regulated in your country.'],
+['exchange', 'Exchange', '', 'A central marketplace where trades are matched, such as the CME for futures or NYSE and Nasdaq for stocks.'],
+['stock', 'Stock (share)', '', 'A small piece of ownership in a company.'],
+['etf', 'Exchange-traded fund', 'ETF', 'A fund that trades like a stock and holds a basket of assets, such as SPY tracking the S&P 500.'],
+['index', 'Index', '', 'A number that tracks a group of stocks, such as the S&P 500, Nasdaq-100 or Dow Jones.'],
+['forex', 'Forex', 'FX', 'The foreign exchange market, where currencies are traded in pairs like EURUSD.'],
+['currency_pair', 'Currency pair', '', 'Two currencies quoted against each other. In EURUSD, EUR is the base and USD the quote: the price is how many dollars one euro costs.'],
+['futures', 'Futures contract', '', 'A standardised contract to buy or sell something at a future date. Traders use futures like ES and NQ to speculate on indices with leverage.'],
+['micro', 'Micro futures', '', 'Smaller versions of popular futures contracts (e.g. MES is one tenth of ES), ideal for learning with small risk.'],
+['options', 'Options', '', 'Contracts giving the right, but not the obligation, to buy (call) or sell (put) at a set price before a set date.'],
+['call', 'Call option', '', 'An option that gains value when the underlying price rises above the strike.'],
+['put', 'Put option', '', 'An option that gains value when the underlying price falls below the strike.'],
+['strike', 'Strike price', '', 'The price at which an option lets you buy (call) or sell (put) the underlying.'],
+['premium_option', 'Option premium', '', 'The price you pay to buy an option. For a buyer it is the maximum loss.'],
+['theta', 'Theta (time decay)', '', 'How much value an option loses each day as expiry approaches, all else equal.'],
+['expiry', 'Expiration', '', 'The date an option or futures contract ends.'],
+['crypto', 'Cryptocurrency', '', 'Digital assets such as Bitcoin and Ether that trade 24/7 on crypto exchanges.'],
+['cfd', 'Contract for difference', 'CFD', 'A leveraged product that pays the difference in price between open and close. Not available to retail traders in the US.'],
+['leverage', 'Leverage', '', 'Controlling a large position with a small amount of money. It magnifies both gains and losses.'],
+['margin', 'Margin', '', 'The money a broker requires you to hold to open a leveraged position. It is a deposit, not the maximum you can lose.'],
+['margin_call', 'Margin call', '', 'A demand from your broker to add money when losses push your account below the margin requirement. Positions may be closed automatically.'],
+['pip', 'Pip', '', 'A standard small price step in forex: 0.0001 for most pairs (0.01 for JPY pairs). On one standard lot of EURUSD a pip is worth about $10.'],
+['lot', 'Lot', '', 'The trade size unit in forex. A standard lot is 100,000 units, a mini 10,000 and a micro 1,000.'],
+['tick', 'Tick', '', 'The smallest price step a market can move. ES ticks are 0.25 points, worth $12.50 per contract.'],
+['point_value', 'Point value', '', 'How many dollars one full point of movement is worth per contract (ES $50, NQ $20, MES $5, MNQ $2).'],
+['session', 'Trading session', '', 'A block of hours when a region\'s market is most active: Asia, London and New York.'],
+['market_order', 'Market order', '', 'An order to buy or sell immediately at the best available price. Guaranteed fill, price not guaranteed.'],
+['limit_order', 'Limit order', '', 'An order to buy at or below (or sell at or above) a chosen price. Price guaranteed, fill not guaranteed.'],
+['stop_order', 'Stop order', '', 'An order that becomes a market order once price reaches a trigger level. Used for stop losses and breakout entries.'],
+['oco', 'One-cancels-other / bracket', 'OCO', 'A pair of orders (stop and target) where filling one automatically cancels the other.'],
+['stop_loss', 'Stop loss', 'SL', 'A pre-set order that closes your trade at a planned loss if price reaches your invalidation level.'],
+['take_profit', 'Take profit', 'TP', 'A pre-set order that closes all or part of your trade at a target price.'],
+['slippage', 'Slippage', '', 'The difference between the price you expected and the price you got, common in fast markets and on stop orders.'],
+['commission', 'Commission', '', 'A fee charged by the broker or exchange per trade or contract.'],
+['paper_trading', 'Paper / simulated trading', '', 'Practising with fake money on a simulator. Ideal for learning and forward testing.'],
+['economic_calendar', 'Economic calendar', '', 'A schedule of upcoming news releases (CPI, NFP, FOMC). High-impact events are often marked red.'],
+['cpi', 'Consumer Price Index', 'CPI', 'A monthly US inflation report that often causes large moves at 8:30 am NY time.'],
+['nfp', 'Non-Farm Payrolls', 'NFP', 'The monthly US jobs report, usually the first Friday of the month at 8:30 am NY time.'],
+['fomc', 'Federal Open Market Committee', 'FOMC', 'The US Federal Reserve committee that sets interest rates. Its 2:00 pm NY announcements can move every market.'],
+['timeframe', 'Timeframe', 'TF', 'How much time each candle represents: 1 minute, 5 minutes, 1 hour, 1 day and so on.'],
+['htf', 'Higher timeframe', 'HTF', 'The bigger-picture charts (daily, 4H, 1H) used for bias, draws on liquidity and key levels.'],
+['ltf', 'Lower timeframe', 'LTF', 'The smaller charts (15m, 5m, 1m) used to time entries and confirm structure shifts.'],
+// Candles
+['candle', 'Candlestick', '', 'A chart bar showing open, high, low and close for one period. In this app hollow (white) candles are bullish and filled (black) are bearish.'],
+['ohlc', 'Open, high, low, close', 'OHLC', 'The four prices each candle records.'],
+['body', 'Candle body', '', 'The thick part of a candle, between the open and close.'],
+['wick', 'Wick (shadow)', '', 'The thin line above or below the body, showing prices that traded but did not hold by the close.'],
+['doji', 'Doji', '', 'A candle with almost no body: open and close nearly equal. It shows indecision.'],
+['engulfing', 'Engulfing candle', '', 'A candle whose body fully covers the previous candle\'s body, signalling a strong shift in control.'],
+['hammer', 'Hammer / pin bar', '', 'A candle with a long lower wick and small body near the top, showing that sellers pushed down but buyers rejected it.'],
+['gap', 'Gap', '', 'A price area skipped between one candle\'s close and the next candle\'s open.'],
+// Structure
+['swing_high', 'Swing high', '', 'A candle high with lower highs on both sides. A local peak.'],
+['swing_low', 'Swing low', '', 'A candle low with higher lows on both sides. A local valley.'],
+['sth', 'Short-term high / low', 'STH / STL', 'A three-candle swing point on the timeframe you\'re trading. The smallest building block of structure.'],
+['ith', 'Intermediate-term high / low', 'ITH / ITL', 'A swing high (low) with higher short-term highs (lower lows) on both sides of it. More significant than a short-term swing.'],
+['lth', 'Long-term high / low', 'LTH / LTL', 'A swing high (low) that has intermediate-term swings lower (higher) on both sides. Major structural points.'],
+['higher_high', 'Higher high / higher low', 'HH / HL', 'The pattern of an uptrend: each peak and each pullback low is above the previous one.'],
+['lower_low', 'Lower high / lower low', 'LH / LL', 'The pattern of a downtrend: each peak and low is below the previous one.'],
+['trend', 'Trend', '', 'The general direction of price: up (higher highs and lows), down (lower highs and lows) or sideways (range).'],
+['range', 'Range (consolidation)', '', 'A sideways period where price moves between a ceiling and a floor.'],
+['support', 'Support', '', 'A price area where buying has stopped declines before. In ICT terms, the stops resting below it are liquidity.'],
+['resistance', 'Resistance', '', 'A price area where selling has stopped rallies before. In ICT terms, the stops above it are liquidity.'],
+['bos', 'Break of structure', 'BOS', 'Price breaking a swing in the direction of the trend, confirming continuation (a new higher high in an uptrend).'],
+['mss', 'Market structure shift', 'MSS', 'Price breaking the most recent short-term swing against the trend, with displacement, after a liquidity sweep. The first sign of a reversal.'],
+['choch', 'Change of character', 'CHoCH', 'A term used in smart-money teaching for the first break of structure against the trend. Similar to an MSS.'],
+['cisd', 'Change in state of delivery', 'CISD', 'Price closing beyond the opening price of the series of candles that delivered the last move, showing the delivery has flipped direction.'],
+['displacement', 'Displacement', '', 'A strong, fast move with large-bodied candles that usually leaves a fair value gap. It shows real intent behind the move.'],
+['inducement', 'Inducement', 'IDM', 'A small, obvious level near your entry area that tempts traders in early, creating liquidity that price takes before the real move.'],
+['failure_swing', 'Failure swing', '', 'A move that fails to take the previous swing (e.g. a higher low that does not break the old low), often creating a mitigation block.'],
+['sd_projection', 'Standard deviation projection', 'SD', 'Projecting multiples of a manipulation leg (e.g. −1, −2, −2.5, −4) to estimate where a move may end.'],
+['fib', 'Fibonacci retracement', 'Fib', 'A tool that draws levels (0.5, 0.618, 0.705, 0.79 and extensions) across a price leg to find retracement entries and targets.'],
+['ote', 'Optimal trade entry', 'OTE', 'The 62%-79% retracement zone of a displacement leg (70.5% is the sweet spot), where ICT looks for entries.'],
+// Liquidity
+['liquidity', 'Liquidity', '', 'Resting orders, mostly stop losses and pending entries, clustered above highs and below lows. Price is drawn to it because large players need it to fill orders.'],
+['bsl', 'Buy-side liquidity', 'BSL', 'Buy stops resting above old highs (shorts\' stops and breakout buy orders).'],
+['ssl', 'Sell-side liquidity', 'SSL', 'Sell stops resting below old lows (longs\' stops and breakout sell orders).'],
+['eqhl', 'Equal highs / equal lows', 'EQH / EQL', 'Two or more highs (or lows) at nearly the same price. They look like strong resistance or support but hold lots of stops, so they are magnets for price.'],
+['relative_equal', 'Relative equal highs / lows', 'REH / REL', 'Highs or lows that are close but not exactly equal. Treated like equal highs/lows as liquidity pools.'],
+['sweep', 'Liquidity sweep (raid)', '', 'Price trading briefly beyond a high or low to trigger stops, then returning. A key ingredient of most ICT entries.'],
+['run', 'Run on liquidity', '', 'Price taking a liquidity pool and continuing in that direction, rather than reversing.'],
+['stop_hunt', 'Stop hunt', '', 'Informal name for a liquidity sweep: a move that seems designed to trigger obvious stops before reversing.'],
+['dol', 'Draw on liquidity', 'DOL', 'The liquidity pool or imbalance price is most likely heading toward next. Your target and the core of your bias.'],
+['erl', 'External range liquidity', 'ERL', 'Liquidity outside the current dealing range: above the range high or below the range low.'],
+['irl', 'Internal range liquidity', 'IRL', 'Imbalances (FVGs) inside the dealing range. Price tends to move from external to internal liquidity and back.'],
+['pdh', 'Previous day high / low', 'PDH / PDL', 'Yesterday\'s high and low. Very common liquidity targets.'],
+['pwh', 'Previous week high / low', 'PWH / PWL', 'Last week\'s high and low. Higher-timeframe liquidity targets.'],
+['session_hl', 'Session high / low', '', 'The highest and lowest prices of the Asian, London or New York session. Common intraday liquidity pools.'],
+['trendline_liq', 'Trendline liquidity', '', 'Stops gathered along an obvious trendline, which price often runs before reversing.'],
+['old_high', 'Old high / old low', '', 'A previous swing high or low that has not yet been taken. Unswept levels attract price.'],
+// PD arrays
+['pd_array', 'PD array', '', 'Premium/discount array: any price level or zone that price is likely to react to, such as FVGs, order blocks, breakers and old highs/lows.'],
+['pd_matrix', 'PD array matrix', '', 'ICT\'s ranked list of PD arrays from premium to discount, used to decide which levels to buy in discount or sell in premium.'],
+['fvg', 'Fair value gap', 'FVG', 'A three-candle gap where the wicks of candle 1 and candle 3 do not overlap, leaving a one-sided price area. Price often returns to it.'],
+['bisi', 'Buy-side imbalance, sell-side inefficiency', 'BISI', 'A bullish FVG: price moved up so fast that only buyers were filled in that area.'],
+['sibi', 'Sell-side imbalance, buy-side inefficiency', 'SIBI', 'A bearish FVG: price moved down so fast that only sellers were filled in that area.'],
+['ce', 'Consequent encroachment', 'CE', 'The 50% midpoint of a fair value gap (or wick). A common reaction and entry level.'],
+['ifvg', 'Inversion fair value gap', 'IFVG', 'An FVG that price closes through. It flips roles, so a failed bullish FVG can act as resistance.'],
+['implied_fvg', 'Implied fair value gap', '', 'A gap implied by long wicks overlapping a big candle\'s body, where wick midpoints do not overlap even though wicks do.'],
+['bpr', 'Balanced price range', 'BPR', 'The overlap of a bullish and a bearish FVG. Price has been offered both ways there, and it can act as a strong reaction zone.'],
+['volume_imbalance', 'Volume imbalance', 'VI', 'A gap between the bodies of two consecutive candles while their wicks overlap. A small inefficiency price often revisits.'],
+['liquidity_void', 'Liquidity void', '', 'A large, fast one-directional move with little two-sided trading. Price often retraces into it later.'],
+['ob', 'Order block', 'OB', 'The last opposite-coloured candle before a displacement move. A bullish OB is the last down candle before a strong move up.'],
+['mean_threshold', 'Mean threshold', '', 'The 50% level of an order block\'s body. If price closes beyond it, the OB is weakening.'],
+['breaker', 'Breaker block', '', 'A failed order block: after a liquidity sweep, price breaks through it, and the block then acts as support or resistance on the retest.'],
+['mitigation', 'Mitigation block', '', 'Like a breaker, but formed after a failure swing (no sweep of the prior low/high). Slightly less reliable.'],
+['rejection_block', 'Rejection block', '', 'The wicks at a swing high or low where price was rejected. The body-to-wick-extreme area is the zone.'],
+['propulsion_block', 'Propulsion block', '', 'A candle that trades into an order block and then propels price further. It becomes a reaction level of its own.'],
+['vacuum_block', 'Vacuum block', '', 'A gap created by a volatile event (such as news or an opening gap) where no trading happened. Price often returns to fill it.'],
+['unicorn', 'Unicorn model', '', 'A setup where a breaker block and a fair value gap overlap. The overlap is the entry.'],
+['ndog', 'New day opening gap', 'NDOG', 'The gap between the previous day\'s 5 pm NY close and the 6 pm open of the new futures day.'],
+['nwog', 'New week opening gap', 'NWOG', 'The gap between Friday\'s close and Sunday\'s open. Often acts as a reference and magnet for the week.'],
+['opening_range', 'Opening range gap', 'ORG', 'The gap between the previous 4:15 pm close and the 9:30 am equities open. It is often revisited during the day.'],
+// Premium/discount
+['dealing_range', 'Dealing range', '', 'The current high-to-low range price is trading in, usually the most recent swing high and swing low on your timeframe.'],
+['equilibrium', 'Equilibrium', 'EQ', 'The 50% midpoint of a dealing range: the dividing line between premium and discount.'],
+['premium', 'Premium', '', 'The upper half of a dealing range. Expensive: where you prefer to sell.'],
+['discount', 'Discount', '', 'The lower half of a dealing range. Cheap: where you prefer to buy.'],
+// Time
+['killzone', 'Killzone', 'KZ', 'A time window with high volatility and the best setups: Asian, London open (2-5 am NY), NY AM (7-10 am NY), London close (10 am-12 pm NY).'],
+['silver_bullet', 'Silver Bullet', 'SB', 'A one-hour model (3-4 am, 10-11 am, 2-3 pm NY): trade the first displacement FVG toward nearby liquidity.'],
+['macro', 'ICT macro', '', 'Short windows (e.g. 9:50-10:10, 10:50-11:10 NY) when ICT teaches the algorithm often seeks liquidity or rebalances an FVG.'],
+['asian_range', 'Asian range', '', 'The high and low formed during the Asian session (roughly 8 pm-midnight NY). London often raids one side.'],
+['cbdr', 'Central bank dealers range', 'CBDR', 'The 2 pm-8 pm NY range. When small, its standard deviations can project the next day\'s high or low.'],
+['flout', 'Flout', '', 'The combined range of the CBDR and Asian session, used when the CBDR is too large.'],
+['midnight_open', 'Midnight open', '', 'The price at 12:00 am New York time. ICT\'s "true day open": in a bullish day you want to buy below it.'],
+['true_open', 'True open', '', 'In quarterly theory, the start of the second quarter of any cycle (e.g. midnight for the day). A premium/discount reference.'],
+['po3', 'Power of Three', 'Po3 / AMD', 'Accumulation, manipulation, distribution: a candle (or day) often ranges, fakes one way, then makes its real move the other way.'],
+['judas', 'Judas swing', '', 'A false move at a session open against the day\'s real direction, usually taking liquidity before the reversal.'],
+['lunch', 'NY lunch', '', 'Roughly 12-1 pm NY. Usually choppy and low-volume; many ICT traders avoid it.'],
+['quarterly_theory', 'Quarterly theory', 'QT', 'The idea that each time cycle splits into four quarters following accumulation, manipulation, distribution and continuation/reversal.'],
+['seasonal', 'Seasonal tendency', '', 'Recurring patterns at certain times of the year. Useful as background context, never as a trade trigger.'],
+['tgif', 'TGIF setup', '', 'A Friday setup where price retraces into the weekly range (often 20-30% of it) after the week\'s high or low is in.'],
+['weekly_profile', 'Weekly profile', '', 'A template for how the week\'s high and low might form (e.g. low of week on Tuesday in a bullish week).'],
+['opening_price', 'Opening price', '', 'The first price of a period (day, week, month). Price above the open is premium for that period, below is discount.'],
+// Bias & models
+['bias', 'Bias', '', 'Your expectation of direction for the session or day, based on higher-timeframe liquidity and structure. You only take trades in line with it.'],
+['narrative', 'Narrative', '', 'The story of where price came from and where it is likely going, combining HTF bias, liquidity taken and liquidity remaining.'],
+['top_down', 'Top-down analysis', '', 'Analysing from the higher timeframes down to the lower ones: monthly/weekly, daily, 4H/1H, then entry timeframe.'],
+['ipda', 'Interbank Price Delivery Algorithm', 'IPDA', 'ICT\'s name for the idea that price is delivered algorithmically between liquidity and imbalances, with 20, 40 and 60-day look-back ranges.'],
+['smt', 'SMT divergence', 'SMT', 'When correlated markets disagree at a swing (one makes a new high/low, the other does not), signalling a likely reversal.'],
+['hm', 'Market maker models', 'MMBM / MMSM', 'Templates where price moves in stair steps to a HTF array, reverses (smart money reversal) and returns to the original consolidation.'],
+['smr', 'Smart money reversal', 'SMR', 'The turning point of a market maker model: a sweep at a HTF array followed by displacement and an MSS.'],
+['reaccumulation', 'Reaccumulation', '', 'A pause in an uptrend where buyers add positions before the next leg higher.'],
+['redistribution', 'Redistribution', '', 'A pause in a downtrend where sellers add positions before the next leg lower.'],
+['accumulation', 'Accumulation', '', 'A range at a low where large players build long positions before a rise.'],
+['distribution', 'Distribution', '', 'A range at a high where large players sell positions before a fall. Also the "D" of AMD: the real move of the day.'],
+['turtle_soup', 'Turtle soup', '', 'Fading a failed breakout: price runs an old high/low, fails to continue, and reverses back inside.'],
+['model_2022', '2022 Mentorship model', '', 'ICT\'s core setup: liquidity raid, displacement with MSS, entry at the FVG, target opposing liquidity.'],
+['order_flow', 'Institutional order flow', '', 'The direction big money is pushing, read from which PD arrays are respected and which are traded through.'],
+['dxy', 'US Dollar Index', 'DXY', 'Measures the dollar against a basket of major currencies (mostly the euro). Usually moves opposite to EURUSD.'],
+['yields', 'Bond yields', '', 'The return on government bonds. Yields rise when bond prices fall. Rising yields often pressure stocks and support the dollar.'],
+['cot', 'Commitment of Traders', 'COT', 'A weekly CFTC report (Friday 3:30 pm ET, Tuesday data) showing futures positioning by commercials, large speculators and small traders.'],
+['commercials', 'Commercials (hedgers)', '', 'Businesses that use futures to hedge real-world exposure. Often viewed as "smart money" at positioning extremes.'],
+['correlation', 'Correlation', '', 'How closely two markets move together. ES and NQ are highly positively correlated; DXY and EURUSD negatively.'],
+['risk_on', 'Risk-on / risk-off', '', 'Market mood: risk-on favours stocks and higher-yield currencies; risk-off favours safe havens like bonds, JPY and sometimes gold.'],
+// Entry
+['confirmation', 'Confirmation entry', '', 'Entering only after the market shows intent: sweep, displacement and MSS, then a retracement entry.'],
+['anticipation', 'Anticipation entry', '', 'Entering before confirmation at a level you expect to hold. Better price, lower win rate.'],
+['invalidation', 'Invalidation', '', 'The price at which your trade idea is proven wrong. Your stop belongs just beyond it.'],
+['breakeven', 'Breakeven', 'BE', 'Moving your stop to your entry price so the trade can no longer lose (apart from slippage and fees).'],
+['partial', 'Partial profit', '', 'Closing part of a position at a target while leaving the rest to run.'],
+['trailing_stop', 'Trailing stop', '', 'A stop that you move in the direction of the trade as it progresses, e.g. under each new swing low.'],
+['refinement', 'Entry refinement', '', 'Narrowing a large zone to a precise entry, e.g. the CE of an FVG inside an order block.'],
+['checklist', 'Pre-entry checklist', '', 'The fixed list of conditions that must all be true before you enter a trade.'],
+['a_setup', 'A+ setup', '', 'A setup where every checklist item is present with strong confluence. The only kind many professionals trade.'],
+['confluence', 'Confluence', '', 'Several independent reasons pointing to the same level or direction.'],
+// Risk
+['rr', 'Reward-to-risk ratio', 'R:R', 'Potential profit divided by potential loss. 2:1 means you aim to make twice what you risk.'],
+['r_multiple', 'R multiple', 'R', 'A result measured in units of initial risk. Risk $100 and make $300 = +3R.'],
+['risk_percent', 'Risk per trade (%)', '', 'The percentage of your account you are willing to lose if the stop is hit. Often 0.25-1%.'],
+['position_size', 'Position size', '', 'How many shares, contracts or lots you trade. Size = $ risk ÷ (stop distance × value per point).'],
+['expectancy', 'Expectancy', '', 'Average result per trade over many trades: win rate × average win − loss rate × average loss.'],
+['win_rate', 'Win rate', '', 'The percentage of trades that are winners. Meaningless without the average win and loss.'],
+['profit_factor', 'Profit factor', 'PF', 'Gross profit divided by gross loss. Above 1.0 is profitable.'],
+['drawdown', 'Drawdown', 'DD', 'The fall from an equity peak to a trough, as a percentage. Max drawdown is the largest one.'],
+['risk_of_ruin', 'Risk of ruin', '', 'The probability of losing enough that you can no longer trade. It rises fast with risk per trade.'],
+['trailing_dd', 'Trailing drawdown', '', 'A prop firm limit that moves up with your peak balance (end-of-day or intraday), often stopping once it reaches the starting balance.'],
+['daily_loss', 'Daily loss limit', '', 'The maximum you allow yourself (or a firm allows) to lose in one day before you must stop.'],
+['consistency_rule', 'Consistency rule', '', 'A prop firm rule limiting how much of your total profit can come from a single day.'],
+['prop_firm', 'Proprietary trading firm', 'Prop firm', 'A company that lets traders use its capital (often simulated) after passing an evaluation, in exchange for a profit split.'],
+['evaluation', 'Evaluation (challenge)', '', 'A prop firm test with a profit target and loss limits that you must pass to get a funded account.'],
+['averaging_down', 'Averaging down', '', 'Adding to a losing position to lower the average price. Dangerous and against professional risk rules.'],
+['mfe', 'MFE / MAE', '', 'Maximum favourable / adverse excursion: how far a trade went in your favour and against you before closing, measured in R.'],
+// Psychology & pro
+['fomo', 'Fear of missing out', 'FOMO', 'The urge to enter late because price is moving without you. Leads to chasing and poor entries.'],
+['revenge', 'Revenge trading', '', 'Trading to win back a loss immediately, usually bigger and sloppier.'],
+['overtrading', 'Overtrading', '', 'Taking more or bigger trades than your plan allows.'],
+['tilt', 'Tilt', '', 'An emotional state where frustration or excitement overrides your rules.'],
+['loss_aversion', 'Loss aversion', '', 'The tendency to feel losses more strongly than equal gains, leading to holding losers and cutting winners.'],
+['process', 'Process over outcome', '', 'Judging trades by whether you followed your rules, not by whether they won.'],
+['journal', 'Trading journal', '', 'A record of every trade with data, screenshots and emotions, used to find your edge and your mistakes.'],
+['trading_plan', 'Trading plan', '', 'Your written rulebook: markets, times, setups, checklist, risk, limits, management and review.'],
+['backtest', 'Backtesting', '', 'Testing fixed rules on historical charts, bar by bar, to measure how they would have performed.'],
+['forward_test', 'Forward testing', '', 'Trading your rules in real time on a simulator to see whether you can execute them.'],
+['curve_fitting', 'Curve-fitting', '', 'Over-tuning rules to past data so they look perfect historically but fail in the future.'],
+['edge', 'Edge', '', 'A repeatable advantage that gives positive expectancy over many trades.'],
+['playbook', 'Playbook', '', 'Your collection of best-example screenshots for each setup, with notes.'],
+['sec1256', 'Section 1256 contract', '', 'US tax category including regulated futures and broad-based index options: 60% long-term / 40% short-term treatment, marked to market at year end.'],
+['short_term_gains', 'Short-term capital gains', '', 'In the US, profits on assets held a year or less, taxed at ordinary income rates.'],
+['wash_sale', 'Wash sale rule', '', 'A US rule that disallows a loss on stocks/options if you buy a substantially identical security within 30 days before or after the sale.'],
+]);
+CS.level({n: 0, name: 'Absolute Basics', d: 'Markets, orders, leverage, candles, the math of losing', lessons: [
+{id: '0-1', t: 'What a market is', m: 5,
+ intro: 'A market is just a place where people who want to buy meet people who want to sell. The price is whatever they agree on right now.',
+ chart: {f: H => H.ladder([{p: 101.5, label: 'Sellers asking', note: 'want a higher price', kind: 'sell'}, {p: 100.25, label: 'Last trade', note: 'buyer and seller agreed', kind: 'cur'}, {p: 99, label: 'Buyers bidding', note: 'want a lower price', kind: 'buy'}]), cap: 'Every trade needs a buyer and a seller who agree on a price.'},
+ body: `## The simple version
+Imagine a card at school that everyone suddenly wants. If lots of kids want it and only a few have it, they'll pay more. If everyone is trying to get rid of theirs, the price drops. Financial markets work the same way, just with millions of people and computers.
+
+## Why price moves
+Price moves when one side is more eager than the other. If buyers are willing to pay up to get in, price rises. If sellers are desperate to get out, price falls. News, earnings, interest rates, fear and greed all change how eager each side is.
+
+## Who is in the market
+- **Retail traders:** individuals like you, trading their own money.
+- **Institutions:** banks, hedge funds, pension funds and insurers moving huge amounts.
+- **Market makers:** firms that always quote a price to buy and sell, earning the small difference.
+- **Algorithms:** computer programs that trade automatically, often in milliseconds.
+
+> Big players need lots of orders on the other side to fill their size. That's the seed of the whole idea of [[liquidity]] you'll learn in Level 2.
+
+## Trading vs investing
+**Investing** means buying something to hold for years because you think it will grow. **Trading** means trying to profit from price moves over minutes, hours or days. Both are legitimate. This course focuses on trading, which needs more skill and more discipline.`,
+ take: ['A market matches buyers and sellers; price is the latest agreement.', 'Price rises when buyers are more aggressive, falls when sellers are.', 'Large institutions move markets and need a lot of orders to fill.'],
+ miss: ['Thinking price moves for one single reason.', 'Assuming every big move is "manipulation" instead of supply and demand.', 'Confusing trading (short-term) with investing (long-term).'],
+ quiz: [
+  ['What makes a price go up?', ['Buyers are more eager than sellers', 'Sellers are more eager than buyers', 'The exchange decides', 'It moves randomly with no cause'], 0, 'When buyers are willing to pay more to get filled, the agreed price rises.'],
+  ['Which of these is a market maker?', ['A firm that constantly quotes prices to buy and sell', 'A person buying one share', 'A government agency', 'A news website'], 0, 'Market makers provide quotes on both sides and earn the spread.'],
+  ['Trading differs from investing mainly in…', ['Time horizon and activity', 'Being illegal', 'Only using stocks', 'Never losing money'], 0, 'Trading is shorter-term and more active; investing is long-term holding.'],
+ ]},
+{id: '0-2', t: 'Stocks and indices', m: 6,
+ intro: 'A stock is a tiny slice of ownership in a company. An index is a scoreboard that tracks a group of stocks together.',
+ body: `## Stocks
+When you buy one share of Apple, you own a tiny piece of Apple. If the company grows and people want its shares, the price tends to rise. Stocks trade on exchanges like the NYSE and Nasdaq. Regular US stock hours are **9:30 am to 4:00 pm New York time**, with extra pre-market and after-hours sessions that are thinner and jumpier.
+
+## Indices
+An index measures a basket of stocks so you can see how "the market" is doing:
+- **S&P 500 (SPX):** 500 large US companies, weighted by size.
+- **Nasdaq-100 (NDX):** the 100 largest non-financial Nasdaq companies, tech-heavy.
+- **Dow Jones (DJI):** 30 large companies, weighted by share price.
+- **Russell 2000 (RUT):** 2,000 smaller companies.
+
+You can't buy an index directly. Traders use **ETFs** (like SPY or QQQ) or **index futures** (like ES and NQ) to trade them.
+
+## Why ICT traders care
+Most ICT-style day traders focus on index futures such as ES and NQ, because they're very liquid, trade almost 24 hours and move cleanly during the New York session. You'll see them throughout this course.
+
+## Correlation
+Indices usually move together because they share many of the same companies. When they *don't* agree, that disagreement can be useful information (that's [[smt]], an advanced topic in Level 9).`,
+ take: ['A share is partial ownership of a company.', 'Indices track groups of stocks; ETFs and futures let you trade them.', 'ES (S&P 500) and NQ (Nasdaq-100) futures are the main ICT day-trading markets.'],
+ miss: ['Trading pre-market or after-hours without realising spreads are wider.', 'Thinking you can buy "the S&P 500" itself rather than a product that tracks it.', 'Ignoring that tech-heavy NQ moves more than ES on the same day.'],
+ quiz: [
+  ['Owning a share of stock means you…', ['Own a small part of the company', 'Lent the company money', 'Bet on the weather', 'Control the company'], 0, 'A share is fractional ownership.'],
+  ['Which index is the most tech-heavy?', ['Nasdaq-100', 'Dow Jones', 'Russell 2000', 'None of them'], 0, 'The Nasdaq-100 is dominated by large technology companies.'],
+  ['What do ES and NQ refer to?', ['Futures on the S&P 500 and Nasdaq-100', 'Two individual stocks', 'Currency pairs', 'Crypto coins'], 0, 'ES and NQ are CME E-mini index futures.'],
+ ]},
+{id: '0-3', t: 'Forex, futures and crypto', m: 7,
+ intro: 'Besides stocks, you can trade currencies, contracts on future prices, and digital coins. Each works a little differently.',
+ body: `## Forex (foreign exchange)
+Currencies trade in **pairs**. In EUR/USD at 1.0850, one euro costs 1.0850 US dollars. Buying the pair means betting the euro strengthens against the dollar. Forex runs **24 hours a day, 5 days a week**, from Sunday evening to Friday evening New York time. Major pairs include EUR/USD, GBP/USD, USD/JPY and AUD/USD.
+
+## Futures
+A futures contract is an agreement to buy or sell something at a set price on a future date. Most traders never take delivery; they close the trade before expiry and keep the profit or loss. Futures exist for indices (ES, NQ), oil (CL), gold (GC), bonds and more. They trade on the CME nearly 24 hours a day, Sunday to Friday, with a short daily break. Each contract has a fixed value per point, which you'll learn in the contract-size lesson.
+
+## Crypto
+Bitcoin, Ether and other coins trade **24/7**, including weekends. Crypto is very volatile and less regulated, and exchanges vary in safety.
+
+<table class="t"><tr><th>Market</th><th>Hours</th><th>Leverage</th><th>Notes</th></tr><tr><td>Stocks</td><td>9:30-4:00 NY</td><td>Low</td><td>Company-specific news</td></tr><tr><td>Forex</td><td>24/5</td><td>High</td><td>Pairs, pips</td></tr><tr><td>Futures</td><td>~23/5</td><td>High</td><td>Fixed $ per point</td></tr><tr><td>Crypto</td><td>24/7</td><td>Varies</td><td>Very volatile</td></tr></table>
+
+> ICT concepts like liquidity and fair value gaps apply to any liquid market, but they were taught mostly on forex and index futures.`,
+ take: ['Forex trades currency pairs 24/5.', 'Futures are standardised contracts with a fixed value per point.', 'Crypto trades 24/7 and is highly volatile.'],
+ miss: ['Reading a forex pair backwards (buying EUR/USD is buying euros).', 'Holding futures into expiry by accident.', 'Using an unregulated crypto exchange for large amounts.'],
+ quiz: [
+  ['If you buy EUR/USD, you profit when…', ['The euro rises against the dollar', 'The dollar rises against the euro', 'Both fall', 'Stocks rise'], 0, 'Buying a pair means buying the first (base) currency.'],
+  ['Most futures traders…', ['Close positions before expiry instead of taking delivery', 'Receive barrels of oil', 'Can only trade once a month', 'Never use leverage'], 0, 'Speculators close or roll contracts before expiry.'],
+  ['Which market trades on weekends?', ['Crypto', 'US stocks', 'Index futures', 'Forex'], 0, 'Crypto trades 24/7.'],
+ ]},
+{id: '0-4', t: 'Options basics', m: 7,
+ intro: 'An option is a ticket that gives you the right, but not the duty, to buy or sell something at a set price before a deadline.',
+ chart: {f: H => H.curve([{pts: [90, 95, 100, 103, 105, 110, 115, 120].map(p => Math.max(0, p - 100) - 3), label: 'Long call P/L'}], {h: 150, fmt: v => (v > 0 ? '+' : '') + v.toFixed(0), xlab: 'stock price at expiry: 90 → 120 (strike 100, cost 3)'}), cap: 'Buying a call: loss is capped at the premium (3); profit grows as price rises above strike + premium (103).'},
+ body: `## Calls and puts
+- A **call** gives the right to **buy** at the [[strike]] price. You buy calls if you think price will rise.
+- A **put** gives the right to **sell** at the strike. You buy puts if you think price will fall.
+
+You pay a [[premium]] for the option. On US stocks, one option contract usually controls **100 shares**, so a premium of $3 costs $300.
+
+## Buyers vs sellers
+The **buyer** can lose at most the premium. The **seller** (writer) collects the premium but takes on the obligation, and their risk can be large, unlimited for an uncovered call.
+
+## Time decay and volatility
+Options lose value as expiry approaches ([[theta]]), so being right too late can still lose money. Their price also rises when the market expects big moves (implied volatility), which is why options get expensive before earnings.
+
+## Why this matters for you
+Many beginners jump into cheap short-dated options because they look like lottery tickets. Most expire worthless. Learn to read price first (Levels 1-8), and treat options as an advanced tool.`,
+ take: ['Calls profit from rises; puts profit from falls.', 'Option buyers risk only the premium; sellers can risk much more.', 'Time decay works against option buyers every day.'],
+ miss: ['Buying far out-of-the-money options because they are cheap.', 'Forgetting one contract usually equals 100 shares.', 'Selling options without understanding the open-ended risk.'],
+ quiz: [
+  ['A put option gives the buyer the right to…', ['Sell at the strike price', 'Buy at the strike price', 'Receive dividends', 'Vote at meetings'], 0, 'Puts are the right to sell; calls are the right to buy.'],
+  ['The most an option buyer can lose is…', ['The premium paid', 'Unlimited', 'Twice the premium', 'The strike price'], 0, 'A buyer can only lose what they paid.'],
+  ['What does theta describe?', ['Time decay of an option', 'Its strike', 'The company size', 'The spread'], 0, 'Theta measures how much value an option loses as time passes.'],
+ ]},
+{id: '0-5', t: 'Brokers, bid, ask and spread', m: 5,
+ intro: 'A broker connects you to the market. There are always two prices: the price you can sell at and the slightly higher price you can buy at.',
+ chart: {f: H => H.ladder([{p: 100.02, label: 'ASK 100.02', note: 'you BUY here', kind: 'sell'}, {p: 100.0, label: 'BID 100.00', note: 'you SELL here', kind: 'buy'}], {h: 120}), cap: 'The gap between bid and ask is the spread: a small cost on every round trip.'},
+ body: `## Brokers
+A broker holds your money and sends your orders to the market. Choose a **regulated** broker (for example, regulated by the SEC/FINRA or CFTC/NFA in the US, the FCA in the UK). Compare commissions, platform quality, data fees and how fast they fill orders.
+
+## Bid, ask, spread
+- **Bid:** the highest price someone is willing to pay right now. You sell at the bid.
+- **Ask (offer):** the lowest price someone is willing to sell at right now. You buy at the ask.
+- **[[spread]]:** ask minus bid. If you buy and immediately sell, you lose the spread.
+
+Liquid markets like ES or EUR/USD have tiny spreads. Thin markets, small stocks and news releases have wide spreads.
+
+## Slippage
+[[slippage]] is getting filled at a worse price than you expected, common during fast moves and news. Market orders and stop orders can slip; limit orders can't, but they might not fill at all.`,
+ take: ['You buy at the ask and sell at the bid.', 'The spread is a built-in cost; tighter is better.', 'Slippage happens in fast markets, especially with market and stop orders.'],
+ miss: ['Using an unregulated offshore broker for big leverage.', 'Trading during news when spreads blow out.', 'Ignoring commissions and fees when judging a strategy.'],
+ quiz: [
+  ['When you place a market buy order, you usually pay the…', ['Ask', 'Bid', 'Midpoint', 'Previous close'], 0, 'Buyers lift the ask.'],
+  ['Bid 1.0850, ask 1.0852. The spread is…', ['0.0002 (2 pips)', '0.0020', '1.0851', 'Zero'], 0, 'Ask minus bid = 0.0002, which is 2 pips.'],
+  ['Slippage is…', ['Getting filled worse than the expected price', 'A type of candle', 'A broker fee', 'A trend'], 0, 'Fast markets can fill you at a worse price.'],
+ ]},
+{id: '0-6', t: 'Order types', m: 7,
+ intro: 'An order tells your broker exactly how you want to buy or sell. Picking the right type protects you from bad fills.',
+ chart: {f: H => H.ladder([{p: 104, label: 'Buy STOP', note: 'buy if price breaks up', kind: 'buy'}, {p: 103, label: 'Sell LIMIT', note: 'sell at a better (higher) price', kind: 'sell'}, {p: 100, label: 'Current price', kind: 'cur'}, {p: 97, label: 'Buy LIMIT', note: 'buy at a better (lower) price', kind: 'buy'}, {p: 96, label: 'Sell STOP', note: 'sell if price breaks down (stop loss)', kind: 'sell'}], {h: 190}), cap: 'Limits wait for a better price. Stops trigger when price moves against the current level.'},
+ body: `## The four core orders
+- **Market order:** fill me now at the best available price. Fast, but you can get slippage.
+- **Limit order:** fill me only at this price or better. A buy limit sits *below* price, a sell limit *above*. No slippage, but it may never fill.
+- **Stop order:** when price touches this level, send a market order. A buy stop sits *above* price, a sell stop *below*. Used for [[stop_loss]] orders and breakout entries.
+- **Stop-limit:** when the stop price is touched, place a limit order. Protects against slippage but might not fill in a fast move, which is dangerous for a stop loss.
+
+## Brackets and OCO
+A **bracket order** attaches a stop loss and a [[take_profit]] to your entry. **OCO** (one-cancels-other) means when one fills, the other is cancelled. Professionals place the stop the moment they enter.
+
+## How ICT traders use them
+A common ICT entry is a **limit order** at a fair value gap or order block, with a **stop order** beyond the swing that would prove the idea wrong. You'll learn exactly where in Level 8.
+
+> Remember: your stop loss sits where other traders' stops also sit. Those clusters are what ICT calls liquidity.`,
+ take: ['Market = now; limit = this price or better; stop = trigger when reached.', 'Buy limits go below price, buy stops above it.', 'Always attach a stop loss when you enter.'],
+ miss: ['Using a stop-limit as a stop loss and not getting filled in a crash.', 'Placing a buy limit above the current price (it fills immediately).', 'Entering without a stop "just for a minute".'],
+ quiz: [
+  ['You want to buy only if price drops to 97 (now 100). Use a…', ['Buy limit at 97', 'Buy stop at 97', 'Market order', 'Sell stop at 97'], 0, 'A buy limit below price waits for a better price.'],
+  ['A stop loss on a long trade is usually a…', ['Sell stop below entry', 'Buy limit below entry', 'Sell limit above entry', 'Buy stop above entry'], 0, 'If price falls to the stop, a sell order closes the long.'],
+  ['The main risk of a stop-limit order is…', ['It may not fill in a fast move', 'It always slips', 'It costs more commission', 'It cannot be cancelled'], 0, 'If price gaps through the limit, the order sits unfilled.'],
+  ['OCO means…', ['One-cancels-other: when one order fills, the other is cancelled', 'Open-close-open', 'Order-confirm-order', 'Only close orders'], 0, 'OCO pairs a target and a stop so only one executes.'],
+ ]},
+{id: '0-7', t: 'Long vs short', m: 5,
+ intro: 'Going long means you make money if price goes up. Going short means you make money if price goes down.',
+ chart: [{spec: {pts: [100, 104, 102.5, 108], legs: [5, 3, 5], seed: 3, h: 130, ann: [['line', 0, 'buy'], ['txt', 3, 'profit ↑', 'above']]}, cap: 'Long: buy low, sell higher.'},
+  {spec: {pts: [108, 104, 105.5, 100], legs: [5, 3, 5], seed: 5, h: 130, ann: [['line', 0, 'sell'], ['txt', 3, 'profit ↓', 'below']]}, cap: 'Short: sell first, buy back lower.'}],
+ body: `## Long
+You buy, hoping to sell higher later. Your maximum loss is what you put in (without leverage), because price can't go below zero.
+
+## Short
+You sell first and buy back later. With stocks, your broker lends you shares to sell; you return them when you buy back. With futures, forex and CFDs, shorting is as easy as clicking sell. Since price can rise without limit, an unprotected short has **unlimited risk**. A stop loss is essential.
+
+## Why both matter
+Markets fall faster than they rise, often because fear is stronger than greed. Traders who can only buy miss half the opportunities. ICT models work in both directions: a [[bullish]] setup for longs, a [[bearish]] setup for shorts.
+
+## Short squeeze
+When many traders are short and price rises, their stop losses are buy orders. Those buys push price higher, triggering more stops. That's a squeeze, and it's a perfect example of [[bsl|buy-side liquidity]] being run.`,
+ take: ['Long profits from rising prices, short from falling prices.', 'An unprotected short has unlimited risk.', 'Short sellers\' stops are buy orders that can fuel a squeeze.'],
+ miss: ['Shorting without a stop.', 'Only ever buying and ignoring downtrends.', 'Forgetting borrow fees when shorting stocks.'],
+ quiz: [
+  ['You sell short at 108 and buy back at 100. You…', ['Made 8 points', 'Lost 8 points', 'Broke even', 'Lost 108'], 0, 'Selling high and buying back lower is a profit.'],
+  ['Why is an unprotected short risky?', ['Price can rise without limit', 'Price can fall to zero', 'Shorts never fill', 'It is illegal'], 0, 'Theoretical loss on a short is unlimited.'],
+  ['Stop losses of short sellers are…', ['Buy orders above price', 'Sell orders below price', 'Limit orders at the open', 'Not real orders'], 0, 'To exit a short you must buy, so their stops are buy orders above.'],
+ ]},
+{id: '0-8', t: 'Leverage and margin', m: 7,
+ intro: 'Leverage lets you control a big position with a small deposit. It multiplies wins and losses equally, which is why it wipes out most beginners.',
+ chart: {f: H => H.bars([{label: '1x leverage', v: -2, note: '−2% of account'}, {label: '10x leverage', v: -20, note: '−20%'}, {label: '30x leverage', v: -60, note: '−60%'}, {label: '50x leverage', v: -100, note: 'account gone'}], {max: 100}), cap: 'The same 2% move against you, at different leverage.'},
+ body: `## Margin
+[[margin]] is the deposit your broker requires to open a leveraged position. If your losses eat into it, you get a **margin call**: add money or the broker closes your positions for you, usually at the worst moment.
+
+## Leverage in numbers
+With **10:1** leverage, $1,000 controls $10,000. A 1% move is a 10% change in your account. At 50:1, a 2% move against you wipes the account out.
+
+Futures have leverage built in. One MES contract controls about $5 times the S&P 500 index (roughly $25,000-$35,000 depending on the level) for a margin of a few thousand dollars or less at many brokers.
+
+## The real rule
+Leverage isn't the enemy; **position size** is. A professional using leverage still risks a small, fixed amount (often 0.25-1%) per trade by sizing correctly. You'll learn the formula in Level 10.
+
+## Pattern day trading (US stocks)
+In the US, margin accounts that make four or more day trades within five business days have historically needed at least $25,000 in equity. Rules can change, so check your broker's current requirements.`,
+ take: ['Leverage multiplies gains and losses equally.', 'Margin calls force-close positions at bad prices.', 'Control risk with position size, not by hoping.'],
+ miss: ['Using maximum leverage because the broker allows it.', 'Adding to a losing leveraged trade.', 'Not knowing the dollar value of a move in your contract.'],
+ quiz: [
+  ['With 20:1 leverage, a 5% move against you costs…', ['100% of the margin used', '5%', '20%', '1%'], 0, '5% × 20 = 100%.'],
+  ['A margin call means…', ['Your account has dropped below required margin', 'You earned interest', 'A trade hit its target', 'The market closed'], 0, 'You must add funds or positions get closed.'],
+  ['What really controls risk on a leveraged trade?', ['Position size and stop placement', 'The broker\'s logo', 'The time of day only', 'Luck'], 0, 'Size the trade so a stop-out costs a small fixed percentage.'],
+ ]},
+{id: '0-9', t: 'Pips, points and ticks', m: 6,
+ intro: 'Traders measure moves in small standard units so everyone speaks the same language.',
+ body: `## Forex: pips
+A **[[pip]]** is the fourth decimal place on most pairs (0.0001). EUR/USD moving from 1.0850 to 1.0870 is **20 pips**. For yen pairs a pip is the second decimal (0.01): USD/JPY from 150.20 to 150.50 is 30 pips. Many brokers quote a fifth decimal, called a **pipette** (a tenth of a pip).
+
+## Futures: points and ticks
+A **point** is a whole-number move in the price. A **[[tick]]** is the smallest possible move.
+<table class="t"><tr><th>Contract</th><th>Tick size</th><th>$ per tick</th><th>$ per point</th></tr><tr><td>ES</td><td>0.25</td><td>$12.50</td><td>$50</td></tr><tr><td>MES</td><td>0.25</td><td>$1.25</td><td>$5</td></tr><tr><td>NQ</td><td>0.25</td><td>$5.00</td><td>$20</td></tr><tr><td>MNQ</td><td>0.25</td><td>$0.50</td><td>$2</td></tr><tr><td>YM</td><td>1</td><td>$5.00</td><td>$5</td></tr><tr><td>CL (oil)</td><td>0.01</td><td>$10.00</td><td>$1,000</td></tr><tr><td>GC (gold)</td><td>0.10</td><td>$10.00</td><td>$100</td></tr></table>
+
+So a 10-point stop on NQ costs $200 per contract, but only $20 on MNQ.
+
+## Stocks
+Stocks move in cents. A $0.50 move on 100 shares is $50.
+
+> Always convert your stop into dollars before you enter. Points mean nothing until you know what they cost.`,
+ take: ['A pip is 0.0001 on most pairs, 0.01 on yen pairs.', 'A tick is the smallest futures move; each contract has its own tick value.', 'Convert stop distance to dollars before every trade.'],
+ miss: ['Mixing up pips and pipettes.', 'Trading NQ thinking it costs the same per point as MNQ.', 'Ignoring tick value when choosing a market.'],
+ quiz: [
+  ['EUR/USD moves from 1.0800 to 1.0835. That is…', ['35 pips', '3.5 pips', '350 pips', '0.35 pips'], 0, '0.0035 ÷ 0.0001 = 35 pips.'],
+  ['A 10-point stop on one NQ contract risks…', ['$200', '$20', '$50', '$500'], 0, 'NQ is $20 per point × 10 = $200.'],
+  ['The same 10-point stop on MNQ risks…', ['$20', '$200', '$2', '$5'], 0, 'MNQ is $2 per point.'],
+  ['On ES, one tick (0.25) is worth…', ['$12.50', '$50', '$1.25', '$5'], 0, '$50 per point ÷ 4 ticks.'],
+ ]},
+{id: '0-10', t: 'Lot sizes and contract sizes', m: 6,
+ intro: 'Lots and contracts are the "package sizes" you trade in. Smaller packages let you risk smaller amounts.',
+ body: `## Forex lots
+<table class="t"><tr><th>Lot</th><th>Units</th><th>~Pip value (USD-quoted pairs)</th></tr><tr><td>Standard</td><td>100,000</td><td>$10</td></tr><tr><td>Mini</td><td>10,000</td><td>$1</td></tr><tr><td>Micro</td><td>1,000</td><td>$0.10</td></tr></table>
+For pairs where USD is *not* the second currency (like USD/JPY), pip value changes with the exchange rate. Your platform or the calculator in Tools handles this.
+
+## Futures contracts
+Each futures contract has a fixed **multiplier**. ES is $50 times the index, so at 5,000 one ES controls $250,000. **Micro** contracts (MES, MNQ, MYM, M2K, MCL, MGC) are one-tenth the size of the E-minis and are perfect for learning with real money.
+
+## Stocks
+Stocks trade in shares; many brokers now allow fractional shares.
+
+## Choosing size
+Your size should come from your **risk**, not from what you can afford to open. If a valid stop on NQ is 30 points ($600 per contract) and you only want to risk $100, NQ is too big: use MNQ ($60 per contract) and trade one.`,
+ take: ['Standard/mini/micro forex lots are 100k/10k/1k units.', 'Micro futures are one-tenth of E-minis.', 'Pick the contract that lets your stop fit your risk.'],
+ miss: ['Starting with full-size ES/NQ on a small account.', 'Assuming pip value is always $10 per lot.', 'Choosing size by margin available instead of by risk.'],
+ quiz: [
+  ['A mini lot in forex is…', ['10,000 units', '100,000 units', '1,000 units', '1 unit'], 0, 'Mini = 10k units.'],
+  ['MES is what fraction of ES?', ['One-tenth', 'One-half', 'One-hundredth', 'The same'], 0, 'Micro E-minis are 1/10th of E-minis.'],
+  ['A valid stop costs $600 per NQ contract but you want to risk $120. Best choice?', ['Trade 2 MNQ ($60 each)', 'Trade 1 NQ anyway', 'Remove the stop', 'Trade 3 NQ'], 0, '2 × $60 = $120, exactly your risk.'],
+ ]},
+{id: '0-11', t: 'Sessions and market hours', m: 6,
+ intro: 'Markets are busier at certain times of day. Knowing when the big players are active is half the game.',
+ body: `## The three main sessions (New York time)
+<table class="t"><tr><th>Session</th><th>Approx. hours (NY)</th><th>Character</th></tr><tr><td>Asia (Tokyo/Sydney)</td><td>7 pm - 4 am</td><td>Quieter, often ranges</td></tr><tr><td>London</td><td>3 am - 12 pm</td><td>Big volume; often sets the high or low of the day</td></tr><tr><td>New York</td><td>8 am - 5 pm</td><td>Highest volume, especially 8:30-11 am</td></tr></table>
+The **London-New York overlap** (about 8 am to 12 pm NY) is usually the most active window of the day.
+
+## Exchange hours
+- **US stocks:** 9:30 am - 4:00 pm NY (pre-market from 4 am, after-hours to 8 pm).
+- **CME index futures:** Sunday 6 pm - Friday 5 pm NY with a daily break from 5-6 pm.
+- **Forex:** Sunday ~5 pm to Friday ~5 pm NY.
+- **Crypto:** always open.
+
+## Why ICT focuses on time
+ICT teaches that the best setups cluster inside specific windows called [[killzone|killzones]]. You'll study these in depth in Level 6. The killzone clock in this app shows them live in your time zone.
+
+{{clock}}
+
+## Daylight saving
+The US and UK change clocks on different dates, so for a few weeks a year the gap between London and New York is 4 hours instead of 5. Always think in **New York time**, as ICT does.`,
+ take: ['Asia is quieter, London and New York carry the volume.', 'The London-NY overlap is typically the busiest window.', 'Think in New York time; watch for daylight-saving shifts.'],
+ miss: ['Trading the dead hours and wondering why nothing moves.', 'Forgetting the daily futures break.', 'Mixing up your local time with NY time.'],
+ quiz: [
+  ['Which window is usually most active?', ['London-New York overlap', 'Asian lunch', 'Friday evening', 'Sunday morning'], 0, 'Two major centres trading together brings the most volume.'],
+  ['CME index futures take a daily break at…', ['5-6 pm NY', '12-1 pm NY', '9:30-10 am NY', 'They never stop'], 0, 'Globex halts daily from 5 to 6 pm NY.'],
+  ['ICT tells you to think in which time zone?', ['New York', 'Tokyo', 'Your local time only', 'UTC only'], 0, 'All ICT windows are defined in New York time.'],
+ ]},
+{id: '0-12', t: 'Reading a candlestick', m: 6,
+ intro: 'Each candle is a tiny story of one time period: where price started, where it finished, and how far it travelled in between.',
+ chart: {f: H => H.anatomy(), cap: 'White (hollow) = closed higher than it opened. Black (filled) = closed lower. Wicks show the extremes.'},
+ body: `## The four prices (OHLC)
+- **Open:** first price of the period.
+- **High:** highest price reached.
+- **Low:** lowest price reached.
+- **Close:** last price of the period.
+
+The thick **body** spans open to close. The thin lines above and below are **[[wick|wicks]]** (or shadows), showing prices that were reached but rejected.
+
+In this app, **hollow candles are bullish** (close above open) and **filled black candles are bearish** (close below open). Many platforms use green and red instead.
+
+## What candles tell you
+- **Big body, small wicks:** one side was in control the whole time. In ICT terms, this can be [[displacement]].
+- **Long lower wick:** sellers pushed down but buyers rejected it.
+- **Long upper wick:** buyers pushed up but sellers rejected it.
+- **Tiny body (doji):** indecision.
+
+## Wicks and liquidity
+A wick that pokes above an old high and snaps back often means stops above that high were triggered and price was rejected. That's a [[sweep]], a key idea from Level 2 onward.`,
+ take: ['Each candle shows open, high, low and close.', 'Body = open to close; wicks = rejected extremes.', 'Big bodies show conviction; long wicks show rejection.'],
+ miss: ['Reading a single candle without context.', 'Confusing the close with the high.', 'Thinking colour alone tells you direction for the next candle.'],
+ quiz: [
+  ['A hollow (bullish) candle closed…', ['Above its open', 'Below its open', 'At its low', 'With no body'], 0, 'Bullish = close higher than open.'],
+  ['The wicks of a candle show…', ['Prices reached but rejected', 'Volume', 'The spread', 'Next candle\'s direction'], 0, 'Wicks mark the high and low beyond the body.'],
+  ['A large-bodied candle with tiny wicks suggests…', ['Strong one-sided control', 'Indecision', 'No trading', 'A holiday'], 0, 'One side dominated the whole period.'],
+ ]},
+{id: '0-13', t: 'Timeframes', m: 5,
+ intro: 'The same price action can be shown with one candle per minute, per hour or per day. Bigger timeframes show the big picture; smaller ones show the detail.',
+ chart: {f: H => { const c = [H.K(100, 101.2, 99.6, 100.9), H.K(100.9, 101.5, 99.8, 100.1), H.K(100.1, 100.4, 98.9, 99.3), H.K(99.3, 102.6, 99.1, 102.3)]; const all = [...c, H.K(100, 100, 100, 100), H.K(100, 102.6, 98.9, 102.3)]; const ch = H.chart(all, {h: 150, pr: 6, dim: i => i === 4, marks: [(x, y) => `<text x="${(x(0) + x(3)) / 2}" y="146" text-anchor="middle" font-size="8.5" fill="#555">four 15-minute candles</text><text x="${x(5)}" y="146" text-anchor="middle" font-size="8.5" fill="#555">= one 1-hour candle</text>`]}); return ch.svg.replace(/<g opacity="0.35">.*?<\/g>/, ''); }, cap: 'The 1-hour candle uses the first open, the highest high, the lowest low and the last close.'},
+ body: `## Common timeframes
+Monthly, weekly, daily, 4-hour (4H), 1-hour (1H), 15-minute (15m), 5-minute (5m), 1-minute (1m). A higher timeframe candle contains many lower timeframe candles.
+
+## Higher vs lower
+- **Higher timeframes (HTF)** show direction and the key levels that matter. They move slowly and carry more weight.
+- **Lower timeframes (LTF)** show precise entries but are noisier.
+
+ICT-style trading is **top-down**: decide direction on the daily and 4H, find the setup on the 15m, and time the entry on the 5m or 1m. You'll do this properly in Level 7.
+
+## Fractal markets
+Patterns repeat on every timeframe: a trend on the daily looks just like a trend on the 1-minute. That's why concepts like [[fvg|fair value gaps]] and [[liquidity]] work on any timeframe, but the higher timeframe ones are more significant.`,
+ take: ['Higher timeframe candles contain many lower timeframe candles.', 'HTF for direction, LTF for timing.', 'Patterns repeat across timeframes, but HTF levels matter more.'],
+ miss: ['Trading only the 1-minute chart with no idea of the bigger trend.', 'Switching timeframes until you find one that agrees with you.', 'Giving a 1-minute level the same weight as a daily level.'],
+ quiz: [
+  ['A 1-hour candle\'s high equals…', ['The highest high of its four 15m candles', 'The last 15m close', 'The average price', 'The first 15m high'], 0, 'It takes the highest point reached in the hour.'],
+  ['Top-down analysis means…', ['Start with higher timeframes, then drill down', 'Start on the 1-minute', 'Only use the daily', 'Ignore timeframes'], 0, 'Direction from HTF, timing from LTF.'],
+  ['Which level usually matters more?', ['A daily swing high', 'A 1-minute swing high', 'They are always equal', 'Neither'], 0, 'Higher timeframe levels carry more weight.'],
+ ]},
+{id: '0-14', t: 'Charting platforms', m: 5,
+ intro: 'You need a good charting tool to see price, draw levels and practise. TradingView is the most popular free option.',
+ body: `## TradingView basics
+- **Symbol search:** type ES1!, NQ1!, EURUSD, BTCUSD, AAPL. "1!" means the front-month continuous futures contract.
+- **Timeframe selector:** switch between 1m, 5m, 15m, 1H, 4H, D, W.
+- **Drawing tools:** horizontal lines for highs and lows, rectangles for zones like FVGs and order blocks, the Fibonacci tool for premium/discount and OTE.
+- **Replay mode:** step through past price candle by candle. This is how you practise without risk (paid plans include more replay).
+- **Time zone:** set the chart to **New York (UTC-5/-4)** so killzones line up.
+- **Sessions indicator:** shade the Asian, London and New York sessions.
+
+## Other platforms
+NinjaTrader, Tradovate, Sierra Chart and others are popular for futures execution. MetaTrader 4/5 is common in forex. Many traders chart on TradingView and execute on their broker's platform.
+
+## Keep it clean
+ICT traders typically use **clean charts**: price, a few key levels and time. A chart covered in indicators makes it harder to see liquidity and structure.`,
+ take: ['TradingView is a free, popular charting platform.', 'Set your chart to New York time.', 'Use replay mode to practise risk-free.'],
+ miss: ['Covering the chart with ten indicators.', 'Leaving the chart in UTC or local time.', 'Practising only live instead of using replay.'],
+ quiz: [
+  ['On TradingView, "NQ1!" refers to…', ['The front-month continuous Nasdaq futures', 'A stock', 'A crypto coin', 'An indicator'], 0, '"1!" is the continuous front-month contract.'],
+  ['Why set the chart to New York time?', ['So sessions and killzones line up', 'It looks nicer', 'It is required by law', 'It changes the prices'], 0, 'ICT times are in NY time.'],
+  ['Replay mode lets you…', ['Practise on past data candle by candle', 'Trade with real money', 'Predict the future', 'Lower commissions'], 0, 'Replay is risk-free practice.'],
+ ]},
+{id: '0-15', t: 'What a trading plan is', m: 5,
+ intro: 'A trading plan is your written rulebook: what you trade, when, how you enter, how much you risk, and when you stop.',
+ body: `## Why you need one
+Without a plan, every decision is made in the moment, when emotions are loudest. A plan makes your trading **repeatable and measurable**. If you don't follow the same rules each time, you can't tell whether your method works.
+
+## What goes in it
+1. Markets you trade.
+2. Hours you trade.
+3. How you decide direction ([[bias]]).
+4. Your setups and the exact entry checklist.
+5. Risk per trade and daily loss limit.
+6. How you manage and exit trades.
+7. Routine before and after the session.
+8. Rules for when *not* to trade.
+
+## Start simple
+Your first plan can fit on one page. You'll refine it as you learn. Level 12 walks you through a complete professional plan, and the **Trading plan builder** in Tools gives you a fill-in template you can start today.`,
+ take: ['A plan is a written set of rules you follow every time.', 'It makes your results measurable.', 'Start with one page and refine it.'],
+ miss: ['Keeping the plan "in your head".', 'Changing the rules after every loss.', 'Writing a plan and never reading it again.'],
+ quiz: [
+  ['The main purpose of a trading plan is to…', ['Make decisions consistent and measurable', 'Guarantee profit', 'Impress others', 'Replace practice'], 0, 'Consistency lets you measure whether your method works.'],
+  ['Which belongs in a trading plan?', ['Risk per trade and daily loss limit', 'Your favourite colour', 'Tips from social media', 'A promise to win'], 0, 'Risk rules are a core section.'],
+  ['When should you change your plan?', ['After reviewing a meaningful sample of trades', 'After every losing trade', 'Mid-trade', 'Never'], 0, 'Refine from data, not emotion.'],
+ ]},
+{id: '0-16', t: 'Compounding and the math of losses', m: 7,
+ intro: 'Losses hurt more than gains help. Lose half your money and you need to double what is left just to get back to where you started.',
+ chart: [{f: H => H.bars([{label: 'Lose 10%', v: 11.1, note: 'need +11%'}, {label: 'Lose 20%', v: 25, note: 'need +25%'}, {label: 'Lose 30%', v: 42.9, note: 'need +43%'}, {label: 'Lose 50%', v: 100, note: 'need +100%'}, {label: 'Lose 75%', v: 300, note: 'need +300%'}], {max: 300}), cap: 'Gain needed to recover = loss ÷ (1 − loss).'},
+  {f: H => { const a = [], b = []; let x = 10000, y = 10000; for (let i = 0; i <= 24; i++) { a.push(x); b.push(y); x *= 1.03; y *= 1.01; } return H.curve([{pts: a, label: '3% a month'}, {pts: b, label: '1% a month', dash: 1}], {fmt: v => '$' + Math.round(v / 1000) + 'k', xlab: '24 months from $10k'}); }, cap: 'Small, steady gains compound. Avoiding big losses matters more than chasing big wins.'}],
+ body: `## The recovery formula
+Gain needed = loss ÷ (1 − loss). Lose 20%: 0.20 ÷ 0.80 = **25%**. Lose 50%: 0.50 ÷ 0.50 = **100%**. This is why protecting capital is the first job of every trader.
+
+## Compounding
+Compounding means earning returns on your returns. $10,000 growing 2% per month becomes about $12,682 after a year, not $12,400, because each month's gain builds on the last. The flip side: a few big losses destroy the compounding engine.
+
+## Small risk wins
+If you risk 1% per trade, ten losses in a row (which happens) costs about 9.6%. If you risk 10% per trade, the same streak costs about 65% and needs a 186% gain to recover. Professionals keep risk small so they survive the bad streaks that are guaranteed to come.
+
+## Realistic returns
+Consistent professionals are often very happy with 1-5% a month on their own capital. Anyone promising 50% a month is selling something.`,
+ take: ['Recovery gain = loss ÷ (1 − loss).', 'A 50% loss needs a 100% gain to recover.', 'Small fixed risk lets you survive inevitable losing streaks.'],
+ miss: ['Risking big to "make it back" after a loss.', 'Expecting huge monthly returns.', 'Ignoring that losing streaks always come.'],
+ quiz: [
+  ['You lose 50% of your account. To get back to even you need…', ['+100%', '+50%', '+75%', '+150%'], 0, '0.5 ÷ 0.5 = 100%.'],
+  ['You lose 20%. What gain recovers it?', ['25%', '20%', '22%', '40%'], 0, '0.2 ÷ 0.8 = 25%.'],
+  ['Why do professionals risk only around 0.5-1% per trade?', ['To survive losing streaks', 'Because brokers require it', 'To avoid taxes', 'It guarantees wins'], 0, 'Small risk keeps drawdowns recoverable.'],
+  ['Compounding means…', ['Earning returns on previous returns', 'Adding money every day', 'Doubling your position after losses', 'Using more leverage'], 0, 'Gains build on gains.'],
+ ]},
+]});
+CS.level({n: 1, name: 'Foundations of Price', d: 'Swings, trends, structure, ranges, S/R, candles, volume', lessons: [
+{id: '1-1', t: 'Swing highs and swing lows', m: 6,
+ intro: 'Price moves in waves. The tops of the waves are swing highs and the bottoms are swing lows. Almost everything in ICT is built on marking these points.',
+ chart: {spec: {pts: [100, 104, 101.5, 106, 102.5, 105, 100.5], legs: [5, 3, 4, 4, 3, 4], seed: 21, ann: [['lab', 1, 'SH'], ['lab', 2, 'SL'], ['lab', 3, 'SH'], ['lab', 4, 'SL'], ['lab', 5, 'SH']]}, cap: 'Swing highs (SH) and swing lows (SL): turning points where price reversed.'},
+ body: `## The three-candle definition
+ICT uses a simple, objective rule:
+- A **[[swing_high]]** is a candle with a lower high on both sides of it.
+- A **[[swing_low]]** is a candle with a higher low on both sides of it.
+
+That's it: three candles, the middle one sticking out. You can find them on any timeframe.
+
+## Why they matter
+Every swing high is a place where some traders sold short and put their stop loss just above it. Every swing low is where buyers placed stops just below it. So swing points are **where orders collect**. That's why the market keeps returning to take them out, which you'll study in Level 2.
+
+## Significant vs minor swings
+Not all swings are equal. A swing that caused a big move, or that sits on a higher timeframe, is more important than a tiny wiggle on the 1-minute chart. Later you'll learn to rank them as short-term, intermediate-term and long-term highs and lows (Level 4).
+
+## Practice habit
+Open any chart and mark the last five swing highs and lows. Doing this daily trains your eye faster than anything else.`,
+ take: ['Swing high = candle with lower highs either side; swing low = higher lows either side.', 'Swing points are where stop orders collect.', 'Bigger, higher-timeframe swings matter more.'],
+ miss: ['Marking every tiny wiggle as a key swing.', 'Using closes instead of wicks to mark swing extremes.', 'Forgetting to mark swings on the higher timeframe first.'],
+ quiz: [
+  ['A swing high is a candle whose high is…', ['Higher than the candles on both sides', 'Lower than both sides', 'Equal to the previous close', 'The daily open'], 0, 'The middle candle sticks out above its neighbours.'],
+  ['Why do swing lows attract price later?', ['Stop losses of buyers rest below them', 'They are always support forever', 'The exchange marks them', 'They have no meaning'], 0, 'Orders collect beyond swing points.'],
+  ['Which swing is usually more important?', ['A daily swing that started a big move', 'A 1-minute wiggle', 'They are all equal', 'The most recent one only'], 0, 'Significance grows with timeframe and the size of the move it caused.'],
+ ]},
+{id: '1-2', t: 'Trends', m: 5,
+ intro: 'A trend is just price generally heading one way. Up, down or sideways: knowing which one you are in tells you which side to look for.',
+ chart: {spec: {pts: [100, 103, 101.5, 105, 103.4, 107.5, 105.8, 110], legs: [4, 3, 4, 3, 4, 3, 4], seed: 33, ann: [['lab', 2, 'HL'], ['lab', 3, 'HH'], ['lab', 4, 'HL'], ['lab', 5, 'HH'], ['lab', 6, 'HL']]}, cap: 'An uptrend: each low is higher than the last, each high is higher than the last.'},
+ body: `## Three states
+- **Uptrend:** higher highs and higher lows. Buyers are in control.
+- **Downtrend:** lower highs and lower lows. Sellers are in control.
+- **Range (sideways):** price bounces between a ceiling and a floor.
+
+## Trading with the trend
+Most of the money in trading is made by going *with* the larger trend. In an uptrend you look for long setups at the higher lows; in a downtrend you look for shorts at the lower highs. Fighting the trend is like swimming against a current.
+
+## Trends end
+No trend lasts forever. Trends often end when price runs an obvious pool of stops and then breaks the pattern of highs and lows the other way. That's the [[mss|market structure shift]] (Level 4), and it's one of the most important signals in ICT.
+
+## Which trend?
+The 5-minute chart can be in a downtrend while the daily is in an uptrend. Both are true. Your **higher timeframe** tells you the main direction; the lower timeframe shows the pullbacks inside it.`,
+ take: ['Uptrend = HH + HL; downtrend = LH + LL.', 'Trade with the higher-timeframe trend.', 'Trends end with a liquidity run and a structure break.'],
+ miss: ['Calling a trend reversal after one red candle.', 'Shorting a strong uptrend because it "looks too high".', 'Ignoring which timeframe the trend is on.'],
+ quiz: [
+  ['A downtrend makes…', ['Lower highs and lower lows', 'Higher highs and higher lows', 'Equal highs only', 'No swings'], 0, 'Sellers push each swing lower.'],
+  ['In an uptrend, where do you usually look to buy?', ['At or near higher lows (pullbacks)', 'At the highest high', 'Anywhere', 'After a break of a low'], 0, 'Buy the pullback, not the top.'],
+  ['The 5m is falling and the daily is rising. Which is true?', ['Both can be true; the 5m is a pullback in the daily uptrend', 'The daily is wrong', 'The 5m is wrong', 'Trends cannot differ'], 0, 'Different timeframes can trend differently.'],
+ ]},
+{id: '1-3', t: 'Market structure: HH, HL, LH, LL', m: 7,
+ intro: 'Market structure is the sequence of swing highs and lows. Reading it tells you who is in control and when that control changes.',
+ chart: {spec: {pts: [100, 103.5, 101.8, 106, 104, 107.2, 102.5, 104.6, 99.8, 101.6, 97], legs: [4, 3, 4, 3, 3, 5, 3, 4, 3, 4], seed: 41, ann: [['lab', 2, 'HL'], ['lab', 3, 'HH'], ['lab', 4, 'HL'], ['lab', 5, 'HH'], ['line', 4, '', {to: 6}], ['lab', 6, 'LL'], ['lab', 7, 'LH'], ['lab', 8, 'LL'], ['lab', 9, 'LH']]}, cap: 'Uptrend structure breaks when price closes below the last higher low, then lower highs and lower lows follow.'},
+ body: `## The labels
+- **HH** higher high, **HL** higher low: bullish structure.
+- **LH** lower high, **LL** lower low: bearish structure.
+
+## Which swing protects the trend?
+In an uptrend, the **most recent higher low** is the line in the sand. As long as price holds above it, the uptrend is intact. A decisive close below it is the first sign that sellers have taken over. In a downtrend, the most recent lower high plays the same role.
+
+## Break of structure
+When price takes out a swing in the direction of the trend (a new HH in an uptrend), that's a [[bos|break of structure]]: confirmation of continuation. When it breaks the protective swing *against* the trend, that's a shift. Level 4 covers this precisely.
+
+## Wicks vs bodies
+Some traders need a candle **body** to close beyond a swing to count a break; others accept a wick. ICT generally looks for a decisive move, ideally with [[displacement]], rather than a weak poke. A wick through a level that snaps back is often a [[sweep]], not a break.`,
+ take: ['HH/HL = bullish; LH/LL = bearish.', 'The latest HL protects an uptrend; the latest LH protects a downtrend.', 'A strong close through the protective swing signals a change.'],
+ miss: ['Treating a wick through a swing as a confirmed break.', 'Labelling swings on a timeframe that is too small to matter.', 'Ignoring which swing actually protects the trend.'],
+ quiz: [
+  ['In an uptrend, which swing is the "line in the sand"?', ['The most recent higher low', 'The first low on the chart', 'The highest high', 'The daily open'], 0, 'If the latest HL breaks, the uptrend is in question.'],
+  ['LH followed by LL indicates…', ['Bearish structure', 'Bullish structure', 'A range', 'Nothing'], 0, 'Lower highs and lower lows are bearish.'],
+  ['A wick pokes below the last HL and the candle closes back above. This is more likely…', ['A sweep of stops, not a confirmed break', 'A confirmed downtrend', 'A bullish BOS', 'An FVG'], 0, 'Breaks need decisive closes; snap-backs are often sweeps.'],
+ ]},
+{id: '1-4', t: 'Ranges and consolidation', m: 5,
+ intro: 'Sometimes price goes nowhere, bouncing between a ceiling and a floor. That box is called a range, and it stores up energy for the next big move.',
+ chart: {spec: {pts: [100, 104, 100.4, 103.9, 100.2, 104.05, 100.5, {p: 99.6, close: 100.6}, 106], legs: [4, 4, 4, 4, 4, 3, 2, {n: 3, disp: true}], seed: 52, ann: [['line', 1, 'range high'], ['line', 2, 'range low'], ['txt', 7, 'sweep', 'below']]}, cap: 'Price ranges, sweeps the lows, then expands out of the range.'},
+ body: `## What a range is
+A range forms when neither buyers nor sellers are in control. Price bounces between the **range high** and **range low**. The middle of the range is called [[equilibrium]].
+
+## Why ranges matter to ICT
+Every touch of the range high leaves stops above it; every touch of the low leaves stops below it. The longer the range lasts, the more [[liquidity]] builds on both sides. When price finally moves, it often runs one side first (a false breakout) and then expands hard the other way. This is the core of the [[po3|Power of Three]]: accumulation (range), manipulation (false move), distribution (real move).
+
+## Trading ranges
+- Beginners often buy breakouts of the range high and get trapped when it reverses.
+- A more patient approach: wait for one side to be swept, then look for the reversal back through the range.
+- Don't trade the middle of a range; there's no edge there.`,
+ take: ['A range is a balance between buyers and sellers.', 'Liquidity builds above and below the range.', 'Ranges often end with a sweep of one side and expansion the other way.'],
+ miss: ['Buying every breakout of a range high.', 'Trading in the middle of the range.', 'Expecting a range to last forever.'],
+ quiz: [
+  ['Where does liquidity build during a range?', ['Above the range high and below the range low', 'Only in the middle', 'Nowhere', 'Only at the open'], 0, 'Stops collect beyond both extremes.'],
+  ['A common way ranges end in ICT terms is…', ['A sweep of one side, then expansion the other way', 'Price stops moving forever', 'A gradual drift', 'An exchange halt'], 0, 'That is accumulation, manipulation, distribution.'],
+  ['The middle of a range is called…', ['Equilibrium', 'Premium', 'Discount', 'A breaker'], 0, 'The 50% level is equilibrium.'],
+ ]},
+{id: '1-5', t: 'Support, resistance and the ICT reframe', m: 7,
+ intro: 'Classic trading says price bounces off support and resistance. ICT says those obvious levels are where everyone’s stops sit, so they are targets.',
+ chart: {spec: {pts: [104, 100, 102.6, 100.05, 102.2, 100.1, {p: 99.2, close: 100.4}, 105], legs: [4, 3, 3, 3, 3, 2, {n: 3, disp: true}], seed: 61, ann: [['line', 1, 'support'], ['lab', 1, '1'], ['lab', 3, '2'], ['lab', 5, '3'], ['txt', 6, 'stops run', 'below']]}, cap: '"Triple-bottom support" collects stops. Price runs them, then reverses.'},
+ body: `## The classic view
+- **Support:** a level where buying stops a fall.
+- **Resistance:** a level where selling stops a rise.
+- The more touches, the "stronger" the level.
+
+## The ICT reframe
+Every textbook trader buys at support and puts a stop **just below it**. That turns a clean support level into a big pool of sell stops, which ICT calls [[ssl|sell-side liquidity]]. Large players who need to buy a lot want those sell orders to buy into. So price often dips *through* support, fills those orders, and then rallies.
+
+The same thing happens at resistance in reverse: stops of short sellers above it form [[bsl|buy-side liquidity]].
+
+> More touches don't make a level stronger. They make it more obvious, and more obvious means more liquidity resting beyond it.
+
+## What to do instead
+Instead of buying the third touch of support, wait for price to **sweep** below it and show a reversal ([[displacement]] and a [[mss|structure shift]]). Then you're trading with the large players instead of being their liquidity.`,
+ take: ['Obvious support and resistance levels have stops just beyond them.', 'ICT treats those levels as liquidity targets, not walls.', 'Wait for the sweep and reversal rather than buying the touch.'],
+ miss: ['Putting your stop exactly where everyone else does.', 'Believing more touches mean a stronger level.', 'Buying support with no confirmation.'],
+ quiz: [
+  ['In ICT terms, the area just below obvious support holds…', ['Sell-side liquidity (sell stops)', 'Buy-side liquidity', 'Nothing', 'A fair value gap'], 0, 'Long traders\' stops below support are sell orders.'],
+  ['Why might price dip through support before rallying?', ['To fill large buy orders using the sell stops resting there', 'Because support is fake', 'Because of the spread', 'It never does'], 0, 'Big buyers need sellers; stops provide them.'],
+  ['A better approach than buying the third touch of support is…', ['Waiting for a sweep and a reversal signal', 'Buying with a bigger size', 'Removing your stop', 'Shorting the touch'], 0, 'Let the liquidity get taken first, then confirm.'],
+ ]},
+{id: '1-6', t: 'Classic candlestick patterns', m: 6,
+ intro: 'A few candle shapes show up again and again. They are worth knowing, but only mean something at the right place.',
+ chart: {f: H => { const K = H.K, z = H.K(0, 0, 0, 0); const c = [K(101, 101.3, 98, 101.1), z, K(99, 102.2, 98.9, 99.2), z, K(100.5, 100.7, 99.6, 99.8), K(99.7, 101.5, 99.5, 101.3), z, K(100.2, 101, 99.4, 100.25), z, K(99.5, 101.6, 99.2, 101.2), K(101, 101.3, 100, 100.6)]; const s = H.chart(c.map(k => k.h ? k : K(100, 100, 100, 100)), {h: 150, pr: 6, dim: i => !c[i].h, marks: [(x, y) => ['Hammer', '', 'Shooting star', '', 'Engulfing', '', '', 'Doji', '', 'Inside bar', ''].map((t, i) => t ? `<text x="${i === 4 || i === 9 ? (x(i) + x(i + 1)) / 2 : x(i)}" y="146" text-anchor="middle" font-size="8" fill="#555">${t}</text>` : '').join('')]}).svg; return s.replace(/<g opacity="0.35">.*?<\/g>/g, ''); }, cap: 'Five patterns worth knowing. Context decides whether they matter.'},
+ body: `## The useful few
+- **Hammer / pin bar:** long lower wick, small body near the top. Sellers pushed down and got rejected.
+- **Shooting star:** long upper wick, small body near the bottom. Buyers got rejected.
+- **Engulfing:** a candle whose body completely covers the previous candle's body, showing a sudden change of control.
+- **Doji:** open and close almost equal. Indecision.
+- **Inside bar:** a candle inside the previous candle's range. Pause before expansion.
+
+## How ICT sees them
+A hammer is really a **[[sweep]] in one candle**: price ran below a low (taking stops) and closed back up. An engulfing candle after a sweep often marks the start of [[displacement]]. So candle patterns are useful as clues of liquidity being taken, but only **at a key level** and in line with your bias.
+
+## Don't overrate them
+A hammer in the middle of nowhere means very little. A hammer that swept the previous day's low during the London killzone, in line with a bullish daily bias, means a lot.`,
+ take: ['Hammers and shooting stars show rejection.', 'Engulfing candles show a sudden change of control.', 'Patterns only matter at key levels and in context.'],
+ miss: ['Trading every hammer you see.', 'Ignoring where the pattern formed.', 'Memorising 50 pattern names instead of understanding why they form.'],
+ quiz: [
+  ['A hammer has…', ['A long lower wick and small body near the top', 'A long upper wick', 'No wicks', 'A huge body'], 0, 'It shows a rejection of lower prices.'],
+  ['In ICT language, a hammer at a prior low is often…', ['A one-candle sweep of sell-side liquidity', 'A fair value gap', 'A breaker', 'Meaningless always'], 0, 'It ran stops below the low and closed back up.'],
+  ['When does a candle pattern matter most?', ['At a key level, in line with bias and time', 'Anywhere on the chart', 'Only on Sundays', 'Only on the 1-minute'], 0, 'Context gives patterns meaning.'],
+ ]},
+{id: '1-7', t: 'Volume basics', m: 5,
+ intro: 'Volume is how much was traded. A move on big volume means many people took part; a move on tiny volume can be fragile.',
+ chart: {f: H => { const w = H.walk([100, 101, 100.5, 101.3, 100.8, {p: 99.8, close: 100.9}, 105, 103.8], [4, 3, 3, 3, 2, {n: 3, disp: true}, 3], 71); const vol = w.c.map((k, i) => 20 + Math.abs(k.c - k.o) * 35 + (i % 3) * 4); const mx = Math.max(...vol); return H.chart(w.c, {h: 190, pb: 46, pr: 6, marks: [(x, y, sp) => vol.map((v, i) => `<rect x="${x(i) - sp * .3}" y="${184 - v / mx * 34}" width="${sp * .6}" height="${v / mx * 34}" fill="#cfcfcf"/>`).join('') + `<text x="8" y="146" font-size="8" fill="#8a8a8a">volume</text>`]}).svg; }, cap: 'Volume expands on the sweep and the displacement candles.'},
+ body: `## What volume shows
+Volume counts how many shares or contracts changed hands in each candle. In futures and stocks you see real exchange volume. In spot forex there's no central exchange, so platforms show **tick volume** (number of price changes), which is a rough stand-in.
+
+## Simple rules of thumb
+- Strong moves with **rising volume** have participation behind them.
+- Breakouts on **low volume** fail more often.
+- **Spikes in volume** at a high or low often mark where large orders were filled: frequently at a sweep of liquidity.
+
+## ICT and volume
+ICT teaches mostly price and time rather than volume indicators. But volume confirms the same story: big volume appears when [[liquidity]] is taken and during [[displacement]]. Some traders add volume profile to find where the most trading happened, but it's optional.`,
+ take: ['Volume = how much traded; it shows participation.', 'Volume spikes often occur at liquidity sweeps and displacement.', 'Forex shows tick volume, not true volume.'],
+ miss: ['Treating forex tick volume as exact.', 'Relying on volume indicators instead of price and time.', 'Buying low-volume breakouts.'],
+ quiz: [
+  ['A breakout on very low volume is…', ['More likely to fail', 'Guaranteed to work', 'Impossible', 'Always a sweep'], 0, 'Low participation makes breakouts fragile.'],
+  ['Spot forex platforms usually show…', ['Tick volume', 'Exact exchange volume', 'No candles', 'Only daily volume'], 0, 'There is no central forex exchange.'],
+  ['Volume spikes often appear…', ['When liquidity is swept and during displacement', 'Only at lunch', 'Only on weekends', 'Never'], 0, 'That is when large orders fill.'],
+ ]},
+]});
+CS.level({n: 2, name: 'Liquidity', d: 'BSL, SSL, equal highs/lows, ERL/IRL, sweeps, inducement, DOL', lessons: [
+{id: '2-1', t: 'What liquidity really is', m: 6,
+ intro: 'Liquidity means orders waiting to be filled. Big traders can only buy if someone sells to them, so price is drawn to wherever lots of orders are waiting.',
+ chart: {spec: {pts: [100, 104, 101, 104.6, 100.6, 103, 99.6], legs: [4, 3, 3, 4, 3, 4], seed: 81, ann: [['line', 3, 'stops above'], ['line', 4, 'stops below']]}, cap: 'Above every high and below every low, orders collect.'},
+ body: `## The problem big players have
+A fund that wants to buy $500 million of ES can't just click buy: there aren't enough sellers at one price. It needs a **lot of sell orders** to buy into without pushing price far against itself. Where do sell orders gather? Below lows, where buyers keep their stop losses (a stop on a long is a sell order). Where do buy orders gather? Above highs, where short sellers keep their stops.
+
+## So price hunts orders
+This is why price keeps returning to old highs and lows and briefly running through them. It isn't random; that's where the orders are. In ICT, [[liquidity]] mostly means these **resting orders** beyond obvious highs and lows.
+
+## Two kinds of orders resting there
+- **Stop losses** of traders already in a position.
+- **Breakout orders** from traders waiting to enter when the level breaks (buy stops above highs, sell stops below lows).
+
+Both get triggered when price runs the level, creating a burst of orders that larger players can trade against.
+
+> The key ICT question for every chart: *where is the liquidity, and which pool is price most likely to go for next?*`,
+ take: ['Liquidity = resting orders, mostly stops and breakout entries.', 'They cluster above highs and below lows.', 'Large players need that liquidity to fill their size.'],
+ miss: ['Thinking liquidity just means "a busy market".', 'Placing stops exactly at the obvious spot every time.', 'Forgetting breakout traders\' orders also rest there.'],
+ quiz: [
+  ['Why does a large fund need liquidity?', ['To fill its big order without moving price too far', 'To pay lower taxes', 'To see the chart', 'It doesn\'t'], 0, 'Big orders need lots of opposite orders.'],
+  ['A stop loss on a long position is…', ['A sell order below price', 'A buy order above price', 'A limit buy', 'Not an order'], 0, 'Exiting a long means selling.'],
+  ['What also rests above an obvious high, besides short sellers\' stops?', ['Breakout buy-stop orders', 'Sell limits only', 'Nothing', 'Dividends'], 0, 'Breakout traders buy when the high breaks.'],
+ ]},
+{id: '2-2', t: 'Buy-side and sell-side liquidity (BSL / SSL)', m: 9,
+ intro: 'Buy-side liquidity sits above highs. Sell-side liquidity sits below lows. Price constantly moves from one pool to the other.',
+ chart: [{spec: {pts: [102, 105.2, 101.4, 105.15, 98.6, 102.4, 98.65, 103.5], legs: [4, 4, 4, 5, 3, 3, 4], seed: 91, h: 210, ann: [['line', 1, 'BSL'], ['line', 4, 'SSL'], ['lab', 1, '='], ['lab', 3, '='], ['lab', 4, '='], ['lab', 6, '=']]}, cap: 'Equal highs = a clean pool of buy-side liquidity above. Equal lows = sell-side liquidity below.'},
+  {spec: {pts: [101, 104, 101.8, 104.05, 102.4, {p: 104.9, close: 103.9}, 100.6, 101.8, 99.2], legs: [4, 3, 3, 3, 2, {n: 3, disp: true}, 3, 4], seed: 93, h: 190, ann: [['line', 1, 'BSL', {to: 5}], ['fvg', 0, 'FVG'], ['txt', 8, '→ SSL next', 'below']]}, cap: 'Price runs buy-side liquidity, displaces lower, and heads for sell-side liquidity.'}],
+ body: `## Definitions
+- **[[bsl|Buy-side liquidity (BSL)]]:** buy orders resting **above** highs. These are stop losses of short sellers plus buy-stop breakout entries.
+- **[[ssl|Sell-side liquidity (SSL)]]:** sell orders resting **below** lows. These are stop losses of long traders plus sell-stop breakout entries.
+
+Memory trick: **BSL is above, because short sellers must BUY to get out. SSL is below, because buyers must SELL to get out.**
+
+## Where to find them
+- Swing highs and lows on any timeframe.
+- [[eqhl|Equal highs and equal lows]] (cleanest pools).
+- Previous day, week and month highs and lows ([[pdh|PDH/PDL]], [[pwh|PWH/PWL]]).
+- Session highs and lows: the Asian range, London high/low.
+- Trendline touches: the stops sit just beyond a "perfect" trendline.
+
+## How price uses them
+ICT describes price as moving **from one pool of liquidity to another**, often via imbalances along the way:
+1. Price runs BSL (takes out a high).
+2. The stops fire, giving sellers the buy orders they need to sell into.
+3. Price reverses and delivers lower toward SSL.
+
+Or the reverse for a bullish move. A **sweep of SSL into a bullish higher-timeframe bias** is one of the classic long setups; a **sweep of BSL into a bearish bias** is the classic short.
+
+## Run vs reversal
+Taking liquidity doesn't always mean a reversal. Sometimes price takes BSL and keeps going because the **real target** is even higher (a higher-timeframe high). Whether a raid is a reversal or a continuation depends on the [[dol|draw on liquidity]] and your [[htf|higher-timeframe bias]], plus confirmation like [[displacement]] and an [[mss|MSS]] (Level 8).
+
+## Pro detail: internal vs external
+The liquidity at the extremes of the current dealing range is **external** ([[erl|ERL]]); imbalances inside the range are **internal** ([[irl|IRL]]). Price typically alternates: from external liquidity to internal (FVG) and from internal back to external. That's lesson 2.5.`,
+ take: ['BSL rests above highs; SSL rests below lows.', 'Equal highs/lows and previous day/week/session extremes are prime pools.', 'Price moves from one pool to the other; bias decides which one.', 'A raid can be a reversal or a continuation; confirmation decides.'],
+ miss: ['Mixing up BSL and SSL.', 'Assuming every BSL raid means price must reverse down.', 'Placing your own stop right at the obvious equal highs/lows.', 'Ignoring which pool aligns with the higher-timeframe bias.'],
+ quiz: [
+  ['Buy-side liquidity is found…', ['Above highs', 'Below lows', 'At the session open only', 'Inside order blocks'], 0, 'Short sellers\' stops (buy orders) rest above highs.'],
+  ['Why is SSL made of sell orders?', ['Long traders\' stops below lows are sell orders', 'Short sellers place them', 'Exchanges place them', 'They are limit buys'], 0, 'To exit a long you sell.'],
+  ['Daily bias is bearish and price runs above equal highs, then displaces down. This is…', ['A classic short idea: BSL taken into bearish bias', 'A guaranteed long', 'Meaningless', 'A bullish order block'], 0, 'BSL raid + bearish bias + displacement is a textbook short context.'],
+  ['Which is the cleanest liquidity pool?', ['Equal highs or equal lows', 'The middle of a range', 'A random candle body', 'The spread'], 0, 'Equal highs/lows attract many stops in one place.'],
+  ['Price takes BSL and keeps rallying strongly. A likely reason?', ['Its real draw is a higher target', 'BSL never matters', 'The chart is broken', 'SSL was taken'], 0, 'A raid can be a continuation if the bigger draw is higher.'],
+ ]},
+{id: '2-3', t: 'Resting liquidity and stop orders', m: 6,
+ intro: 'Resting liquidity is simply orders that are sitting and waiting. Knowing exactly who placed them, and why, helps you predict where price is heading.',
+ chart: {f: H => H.ladder([{p: 108, label: 'Buy stops: shorts\' stop losses', note: 'BSL', kind: 'buy'}, {p: 107, label: 'Buy stops: breakout entries', note: 'BSL', kind: 'buy'}, {p: 106, label: 'Swing high', kind: 'muted'}, {p: 103, label: 'Current price', kind: 'cur'}, {p: 100, label: 'Swing low', kind: 'muted'}, {p: 99, label: 'Sell stops: breakout entries', note: 'SSL', kind: 'sell'}, {p: 98, label: 'Sell stops: longs\' stop losses', note: 'SSL', kind: 'sell'}], {h: 220}).replace(/>\d+<\/text>/g, '></text>'), cap: 'Who places the orders that sit beyond highs and lows.'},
+ body: `## Two types of resting orders
+- **Limit orders** rest *at* a price waiting to be filled. They provide liquidity.
+- **Stop orders** rest *beyond* a level and become market orders when touched. They take liquidity, and they arrive in a sudden burst.
+
+The bursts from stop orders are what ICT means when price "runs" or "raids" liquidity.
+
+## Why stops cluster
+Trading books teach the same rules: stop below the swing low, stop above the swing high, stop below support. So thousands of traders put stops in nearly the same place. That cluster becomes predictable.
+
+## Hidden liquidity
+You can't see stop orders on most platforms (they're held by brokers until triggered). But you can infer them: the more obvious the level, the more stops behind it.
+
+## Your own stop
+Since you now know where the crowd's stops are, avoid putting yours in exactly the same spot. ICT traders usually place stops beyond a level that, if broken, would genuinely **invalidate** the idea, not just beyond the nearest wiggle. Level 8 covers stop placement properly.`,
+ take: ['Limit orders rest at price; stop orders fire beyond levels.', 'Stops cluster at obvious levels because everyone follows the same rules.', 'Place your own stop at true invalidation, not the crowd\'s spot.'],
+ miss: ['Thinking you can see all stop orders on the order book.', 'Putting your stop one tick beyond the obvious high.', 'Confusing limit liquidity with stop liquidity.'],
+ quiz: [
+  ['Which order type fires in a burst when a level is hit?', ['Stop orders', 'Limit orders', 'Cancelled orders', 'GTC dividends'], 0, 'Stops convert to market orders when touched.'],
+  ['Why do stops cluster at obvious levels?', ['Most traders follow the same placement rules', 'Exchanges require it', 'Randomness', 'They don\'t'], 0, 'Common rules create predictable clusters.'],
+  ['Where should your own stop go, in ICT thinking?', ['Beyond the level that truly invalidates your idea', 'One tick beyond the nearest equal high', 'No stop', 'At entry'], 0, 'Stop at invalidation, not at the crowd\'s spot.'],
+ ]},
+{id: '2-4', t: 'Equal highs, equal lows and relative equals', m: 6,
+ intro: 'When price makes two highs at almost the same level, it looks like a strong ceiling. To ICT it looks like a pile of money waiting just above.',
+ chart: {spec: {pts: [100, 103.8, 101.6, 103.82, 101.9, {p: 104.6, close: 103.5}, 99.8], legs: [5, 3, 4, 3, 2, {n: 3, disp: true}], seed: 101, ann: [['line', 1, 'EQH', {to: 5}], ['lab', 1, '='], ['lab', 3, '='], ['txt', 5, 'swept', 'above']]}, cap: 'Equal highs (EQH) get swept, then price reverses.'},
+ body: `## Equal highs and equal lows
+[[eqhl|Equal highs (EQH)]] are two or more highs at virtually the same price. Equal lows (EQL) are the same at the bottom. Retail traders see a "double top" or "double bottom" and place stops just beyond. That makes them some of the **most reliable liquidity targets** in ICT.
+
+## Relative equal highs/lows
+They don't need to be exact to the tick. Highs that are close enough to look equal to the eye are called **[[relative_equal|relative equal highs (REH)]] or relative equal lows (REL)**. Smooth, clean-looking levels attract the most stops.
+
+## Engineered liquidity
+ICT often describes equal highs/lows as **engineered**: price builds them on purpose by making a clean level, then returns to run it. Whether or not you believe in intent, the practical effect is the same: these levels are magnets.
+
+## How to trade them
+1. Mark EQH/EQL on your higher timeframes.
+2. Expect price to eventually reach them.
+3. When price runs them **in the direction against your bias** (e.g. sweeps EQL in a bullish market), look for a reversal setup.
+4. When they sit **in the direction of your bias**, use them as targets.`,
+ take: ['EQH/EQL are prime liquidity pools.', 'Relative equals count too: if it looks equal, stops are there.', 'Use them as targets with bias, or reversal points against it.'],
+ miss: ['Treating double tops as guaranteed resistance.', 'Requiring exactly equal prices to the tick.', 'Placing your stop just beyond equal highs.'],
+ quiz: [
+  ['Equal lows are attractive to price because…', ['Many sell stops sit just below them', 'They are always support', 'Volume is zero there', 'They are FVGs'], 0, 'Double bottoms attract stops beneath.'],
+  ['Relative equal highs are…', ['Highs that are close enough to look equal', 'Highs exactly to the tick only', 'The daily open', 'Any two candles'], 0, 'They don\'t need to match exactly.'],
+  ['Bullish bias, and price sits below untouched equal highs. Those highs are likely…', ['A target (draw on liquidity)', 'A short entry', 'Irrelevant', 'An order block'], 0, 'With bullish bias, BSL above is the draw.'],
+ ]},
+{id: '2-5', t: 'External vs internal range liquidity (ERL / IRL)', m: 8,
+ intro: 'Inside any price range there are two kinds of targets: the highs and lows at the edges, and the gaps in the middle. Price bounces between them.',
+ chart: {spec: {pts: [104, 98, 100.2, {p: 97.4, close: 98.3}, 103.5, 101.2, 106.2], legs: [5, 3, 2, {n: 3, disp: true}, 3, 5], seed: 111, h: 210, ann: [['line', 3, 'ERL (low)'], ['lvl', 104, 'ERL (high)', {i0: {c: 0}}], ['fvg', 0, 'IRL'], ['txt', 6, 'ERL taken', 'above']]}, cap: 'From external liquidity (the low) → internal (FVG retest) → external (the high).'},
+ body: `## Two kinds of targets
+- **[[erl|External range liquidity (ERL)]]:** the highs and lows that define the current dealing range: old swing highs/lows, equal highs/lows. Liquidity *outside* the range.
+- **[[irl|Internal range liquidity (IRL)]]:** imbalances *inside* the range, mainly [[fvg|fair value gaps]] and [[liquidity_void|liquidity voids]].
+
+## The cycle
+ICT describes price delivery as alternating:
+1. Price takes **external** liquidity (a sweep of a range low).
+2. It then reverses and seeks **internal** liquidity (fills or retests an FVG).
+3. From the FVG it continues to the opposite **external** liquidity (the range high).
+
+So if price just ran a low, the next target is often an FVG above; if price just rebalanced an FVG, the next target is often the external high/low.
+
+## Why it's useful
+This gives you both **entries and targets**:
+- After ERL is swept, look for entries at IRL (the FVG retracement).
+- Target the opposite ERL.
+
+## Pro detail
+The definition of "range" depends on timeframe. A daily FVG is internal on the daily chart but might look like a whole move on the 5-minute chart. Always define ERL and IRL **on the timeframe you're using for bias**, then execute on a lower one.`,
+ take: ['ERL = highs/lows at the edges of the range; IRL = FVGs/voids inside.', 'Price alternates: external → internal → external.', 'After ERL is taken, look to enter at IRL and target the opposite ERL.'],
+ miss: ['Mixing up which timeframe defines the range.', 'Expecting a reversal at every FVG without an external sweep first.', 'Forgetting the opposite ERL is the natural target.'],
+ quiz: [
+  ['Fair value gaps inside a range are…', ['Internal range liquidity', 'External range liquidity', 'Equal highs', 'Not liquidity'], 0, 'Imbalances inside the range are IRL.'],
+  ['Price just swept the range low (ERL). What is the typical next target?', ['Internal liquidity (an FVG above)', 'Another lower low immediately, always', 'Nothing', 'The spread'], 0, 'External → internal.'],
+  ['After rebalancing an FVG in a bullish leg, a natural target is…', ['The range high (external liquidity)', 'The range low', 'The FVG again', 'The open'], 0, 'Internal → external.'],
+ ]},
+{id: '2-6', t: 'Sweeps vs breaks (runs)', m: 7,
+ intro: 'When price goes through an old high or low, it either grabs the stops and snaps back (a sweep) or keeps going (a break). Telling them apart is a core skill.',
+ chart: [{spec: {pts: [104, 100, 102.6, 100.8, {p: 99.4, close: 100.5}, 104.3], legs: [4, 3, 3, 2, {n: 3, disp: true}], seed: 121, h: 150, ann: [['line', 1, 'low', {to: 4}], ['txt', 4, 'sweep', 'below']]}, cap: 'Sweep: wick through the low, close back above, reversal.'},
+  {spec: {pts: [104, 100, 102.6, 100.8, {n: 0, p: 99.8}, 100.6, 96], legs: [4, 3, 3, 2, 2, {n: 3, disp: true}], seed: 123, h: 150, ann: [['line', 1, 'low', {to: 5}], ['txt', 6, 'break + follow-through', 'below']]}, cap: 'Break: bodies close beyond the low and price continues.'}],
+ body: `## Sweep (raid, stop hunt)
+A **[[sweep]]** happens when price trades through an old high or low, triggers the stops, and **closes back inside**. Usually a wick pokes through and the body closes on the original side. It signals that the orders beyond the level were used to fill positions in the *opposite* direction.
+
+## Break (run)
+A **break** happens when price closes decisively beyond the level with strong candles and keeps going. The liquidity was taken as fuel for continuation, and the old level may now act as support/resistance from the other side.
+
+## How to tell them apart
+- **Close:** sweeps close back inside; breaks close beyond.
+- **Follow-through:** after a sweep, price displaces the other way; after a break, it keeps going.
+- **Context:** a sweep against your [[htf|HTF bias]] near a [[pd_array|PD array]] is a reversal clue. A break in the direction of bias toward the next [[dol|draw]] is continuation.
+- **Time:** sweeps during killzones are more meaningful (e.g. London sweeping the Asian low).
+
+## Don't guess
+You won't know for certain while it's happening. That's why ICT waits for **confirmation**: [[displacement]] away from the level and a [[mss|market structure shift]]. Entering the moment price touches a level is anticipation; waiting for the shift is confirmation (Level 8).`,
+ take: ['Sweep = through and back inside; break = through and continue.', 'Use closes, follow-through, context and time to judge.', 'Wait for displacement + MSS before acting on a sweep.'],
+ miss: ['Calling every wick a sweep before the candle closes.', 'Fading strong breaks in the direction of the HTF trend.', 'Entering on the touch with no confirmation.'],
+ quiz: [
+  ['The key sign of a sweep is…', ['Price trades through the level and closes back inside', 'A close far beyond the level', 'No wick', 'Low volume only'], 0, 'Through and back is a sweep.'],
+  ['Price closes three strong candles below an old low and continues. This is…', ['A break (run) of the low', 'A sweep', 'An equal low', 'An FVG'], 0, 'Decisive closes and follow-through mean a break.'],
+  ['What confirms a sweep is likely a reversal?', ['Displacement away and a market structure shift', 'The wick length alone', 'A news headline', 'Nothing can'], 0, 'Confirmation comes after the raid.'],
+ ]},
+{id: '2-7', t: 'Stop hunts and inducement', m: 7,
+ intro: 'Inducement is a small, tempting level that lures traders in early, just before price reaches the real zone. Their stops become fuel.',
+ chart: {spec: {pts: [100, 106, 104, 104.8, {p: 103.6, close: 104.1}, 103.9, 102.2, 107.5], legs: [6, 2, 2, 1, 1, 3, {n: 3, disp: true}], seed: 131, h: 200, ann: [['line', 2, 'IDM', {to: 4}], ['zone', 6, 102.9, 102.0, 'POI'], ['txt', 4, 'swept', 'below']]}, cap: 'A minor low tempts early buyers. Price sweeps it, taps the real point of interest (POI) and rallies.'},
+ body: `## Stop hunts
+A stop hunt is simply price moving to trigger a cluster of stops. It's the same thing as a sweep, described from the victim's point of view. It feels personal; it isn't. Stops are where liquidity is.
+
+## Inducement
+**[[inducement]]** is a minor liquidity level (often a small pullback low or high) that forms **just before** a stronger area you want to trade from, your point of interest (POI). Traders who enter at that minor level put stops just beyond it. Price then runs those stops on the way into the real zone, then reverses.
+
+## Practical use
+- If there's a fresh, obvious little low sitting **just above** your bullish order block or FVG, expect it to get swept first.
+- Be patient: wait for price to take the inducement before getting interested.
+- After the sweep, look for confirmation from your PD array.
+
+## Note on terminology
+"Inducement" is used heavily in Smart Money Concepts (SMC) communities that grew from ICT ideas. ICT himself talks about the same behaviour in terms of liquidity being engineered and taken before the real move.`,
+ take: ['A stop hunt is price taking a stop cluster.', 'Inducement is minor liquidity just before the real POI.', 'Let the inducement get taken before engaging your zone.'],
+ miss: ['Entering at the first minor pullback instead of the real zone.', 'Taking stop hunts personally and revenge trading.', 'Assuming every small low is inducement.'],
+ quiz: [
+  ['Inducement is best described as…', ['Minor liquidity that lures early entries before the real zone', 'A type of order', 'A fair value gap', 'A session'], 0, 'It traps early traders just before the POI.'],
+  ['A small fresh low sits just above your bullish FVG. What do you expect?', ['Price may sweep that low before tapping the FVG', 'Price never reaches the FVG', 'An immediate short', 'Nothing'], 0, 'Inducement is often taken first.'],
+  ['A stop hunt is…', ['Price moving to trigger a stop cluster', 'A broker cheating you', 'A trend', 'A gap'], 0, 'It is liquidity being taken.'],
+ ]},
+{id: '2-8', t: 'Liquidity voids', m: 5,
+ intro: 'A liquidity void is a stretch of price that was skipped over in a hurry, leaving almost no trading behind. Price often comes back to fill it.',
+ chart: {spec: {pts: [100, 101, 100.4, 107.5, 106.5, 108, 103.5], legs: [3, 2, {n: 4, disp: true}, 2, 2, 4], seed: 141, h: 190, ann: [['zone', 2, 106.2, 100.9, 'void', {to: 3}], ['txt', 6, 'rebalancing', 'below']]}, cap: 'A fast one-sided leg leaves a void; price later returns into it.'},
+ body: `## What it is
+A **[[liquidity_void]]** is a large, one-directional price leg made of big candles with little overlap. Think of it as several [[fvg|fair value gaps]] stacked together: price moved so fast that there was little two-way trading.
+
+## Why price returns
+The same logic as an FVG applies: the area was delivered inefficiently, so price often comes back to **rebalance** it. Voids act like internal range liquidity: magnets for retracements.
+
+## How it's used
+- After a big expansion, expect price to retrace into part of the void.
+- The void can be partially filled; price doesn't need to fill 100%.
+- Use [[ce|consequent encroachment]] (50%) of the void as a reference level.
+
+## Caution
+In very strong trends, voids can stay unfilled for a long time. Don't fade a powerful move just because there's a void behind it. Use bias and structure.`,
+ take: ['A void is a fast, one-sided leg with little overlap.', 'It acts like stacked FVGs: a magnet for retracements.', 'Partial fills are normal; 50% is a useful reference.'],
+ miss: ['Shorting a strong rally just to "fill the void".', 'Expecting 100% fills every time.', 'Confusing a void with a normal pullback.'],
+ quiz: [
+  ['A liquidity void is…', ['A fast one-sided move with little overlap', 'An area with lots of trading', 'Equal highs', 'A session'], 0, 'Price skipped through quickly.'],
+  ['A void behaves most like…', ['Several stacked fair value gaps', 'A swing high', 'A spread', 'A breaker'], 0, 'It is a big imbalance.'],
+  ['Must a void always be filled completely?', ['No, partial fills are common', 'Yes, always 100%', 'Yes, within one candle', 'It never fills'], 0, 'Price often fills only part.'],
+ ]},
+{id: '2-9', t: 'Old highs and lows: PDH, PDL, PWH, PWL, sessions', m: 7,
+ intro: 'Yesterday’s high and low, last week’s high and low, and each session’s high and low are some of the most watched levels in the market.',
+ chart: {spec: {pts: [101, 104, 100.5, 103, 101.8, 102.6, 101.9, {p: 99.9, close: 100.9}, 103.2, 102.1, 104.6], legs: [4, 5, 4, 2, 2, 2, 2, {n: 3, disp: true}, 2, 3], seed: 151, h: 210, ann: [['line', 1, 'PDH'], ['line', 2, 'PDL'], ['zone', 4, 102.6, 101.8, 'Asia', {to: 6, fill: 'rgba(0,0,0,.05)'}], ['txt', 7, 'PDL swept', 'below'], ['txt', 10, 'PDH run', 'above']]}, cap: 'London sweeps the previous day low, then New York runs to the previous day high.'},
+ body: `## The key reference levels
+- **[[pdh|PDH / PDL]]:** previous day's high and low.
+- **[[pwh|PWH / PWL]]:** previous week's high and low.
+- **PMH / PML:** previous month's high and low.
+- **Session highs/lows:** the [[asian_range|Asian range]] high and low, London high and low, New York AM high and low.
+
+Every one of these has stops resting beyond it.
+
+## How they're used
+- **Daily bias:** Is price more likely to take PDH or PDL today? Many ICT traders frame their whole day around that question.
+- **Intraday:** London often raids one side of the Asian range; New York often raids a London or previous-day extreme.
+- **Weekly:** The week often runs one side of the previous week's range early, then delivers toward the other.
+
+## A typical sequence (bullish day)
+1. Asia forms a tight range.
+2. London dips and sweeps the Asian low and/or PDL (manipulation).
+3. Price displaces higher and shifts structure.
+4. New York continues to PDH or above.
+
+## Mark them every day
+Before each session, draw PDH, PDL, PWH, PWL and the Asian high/low. Most good intraday trades start at or end at one of these.`,
+ take: ['PDH/PDL, PWH/PWL and session highs/lows are key liquidity levels.', 'Bias question: which side is price likely to take today?', 'London often raids Asia; NY often raids London or the previous day.'],
+ miss: ['Not marking these levels before the session.', 'Expecting every day to take both PDH and PDL.', 'Ignoring weekly levels on intraday charts.'],
+ quiz: [
+  ['PDL stands for…', ['Previous day low', 'Price delivery level', 'Premium discount line', 'Primary daily liquidity'], 0, 'Previous day low.'],
+  ['A common intraday pattern is…', ['London sweeping one side of the Asian range', 'Asia running PWH every day', 'NY never moving', 'Price ignoring sessions'], 0, 'London often raids the Asian range.'],
+  ['Why do these levels matter?', ['Stops and orders rest beyond them', 'They are set by the exchange', 'They are always support', 'They predict news'], 0, 'They are widely watched liquidity.'],
+ ]},
+{id: '2-10', t: 'Draw on liquidity (DOL)', m: 8,
+ intro: 'The draw on liquidity is where price is most likely heading next. Find it first, and every other decision gets easier.',
+ chart: {spec: {pts: [100, 103, 101, 106.5, 102.5, {p: 101.8, close: 102.6}, 105, 104, 106.6], legs: [4, 3, 4, 4, 1, {n: 3, disp: true}, 2, 4], seed: 161, h: 200, ann: [['line', 3, 'DOL'], ['fvg', 0, 'entry FVG'], ['txt', 5, 'SSL swept', 'below']]}, cap: 'Bullish bias: the old high is the draw. Entries come from discount, targets at the draw.'},
+ body: `## The question that comes first
+[[dol|Draw on liquidity (DOL)]] answers: *what is price reaching for?* It's usually one of:
+- An old high or low with resting liquidity (BSL or SSL).
+- An unfilled [[fvg|fair value gap]] or [[liquidity_void|void]] on a higher timeframe.
+
+## How to find it
+1. Start on the daily (or weekly) chart.
+2. Ask: did price just take external liquidity (a high or low)? If so, it may now seek internal liquidity (an FVG), and vice versa.
+3. Which side has **cleaner, closer, more obvious** liquidity? Equal highs/lows and untouched PDH/PWH are strong candidates.
+4. Is there a large unfilled imbalance in one direction?
+5. Does it agree with the bigger trend?
+
+## Using it
+- **Bias:** if the draw is above, look for longs; if below, look for shorts.
+- **Targets:** the draw is your main take-profit area.
+- **Filtering:** skip setups that point away from the draw.
+
+## Pro detail
+The draw can change. If price runs the target, a new draw forms. If price makes a strong [[mss|shift]] against your idea on the daily, re-evaluate. Professionals reassess the draw every day before the open, not mid-trade on a whim.`,
+ take: ['DOL = the liquidity or imbalance price is reaching for.', 'Find it on the daily/weekly first.', 'It sets your bias and your targets.'],
+ miss: ['Hunting entries before deciding the draw.', 'Picking a draw that fights a strong HTF trend.', 'Changing the draw mid-trade because of one candle.'],
+ quiz: [
+  ['The draw on liquidity is…', ['Where price is most likely heading next', 'The spread', 'A candle pattern', 'The opening price'], 0, 'It is the target price is seeking.'],
+  ['If the daily draw is an old high above, you mostly look for…', ['Longs', 'Shorts', 'No trades', 'Options only'], 0, 'Trade toward the draw.'],
+  ['Price just took a daily low (external). A likely next draw is…', ['Internal liquidity, like a daily FVG above', 'An even lower low, always', 'Nothing', 'The weekly close'], 0, 'External → internal.'],
+ ]},
+]});
+(function () {
+const K = (o, h, l, c) => ({o, h, l, c});
+const FVG_CANDLES = [K(110, 110.6, 108.8, 109.2), K(109.2, 109.8, 107.6, 108), K(108, 108.9, 107.2, 108.5), K(108.5, 108.7, 106.4, 106.8), K(106.8, 107.5, 105.9, 107.2), K(107.2, 107.4, 105.2, 105.6), K(105.6, 106.4, 105.25, 106.0), K(106.0, 106.2, 103.8, 105.5), K(105.5, 106.4, 105.1, 106.1), K(106.1, 110.2, 105.9, 109.9), K(109.9, 111.0, 108.2, 110.6), K(110.6, 111.4, 109.6, 109.8), K(109.8, 110.0, 108.4, 108.6), K(108.6, 109.3, 107.25, 108.9), K(108.9, 111.2, 108.7, 110.9), K(110.9, 112.6, 110.5, 112.3), K(112.3, 113.4, 111.8, 113.1)];
+const fvgMain = H => H.chart(FVG_CANDLES, {h: 220, pt: 18, pb: 18, pr: 44,
+  zones: [{i0: 8, top: 108.2, bot: 106.4, label: 'FVG', out: 1}], lines: [{i0: 8, y: 107.3, dash: '4 3', label: 'CE 50%', out: 1}, {i0: 5, i1: 7, y: 105.2, dash: '1.5 2', c: '#777', label: 'SSL', la: 'start', below: true}],
+  labels: [{i: 8, text: '1', pos: 'below', circle: 1}, {i: 9, text: '2', pos: 'below', circle: 1}, {i: 10, text: '3', pos: 'above', circle: 1}],
+  marks: [(x, y) => `<text x="${x(7)}" y="${y(103.8) + 11}" text-anchor="middle" font-size="8.5" fill="#555">sweep</text><text x="${x(13)}" y="${y(106.4) + 11}" text-anchor="middle" font-size="8.5" fill="#555">retest</text>`]}).svg;
+const mini = (H, bear, label) => {
+  let c = [K(100, 101.2, 99.6, 100.8), K(100.8, 105.6, 100.6, 105.2), K(105.2, 106.4, 103.0, 106)], z = {i0: 0, i1: 2, top: 103.0, bot: 101.2};
+  if (bear) { const m = p => 206 - p; c = c.map(k => K(m(k.o), m(k.l), m(k.h), m(k.c))); z = {i0: 0, i1: 2, top: m(101.2), bot: m(103.0)}; }
+  return H.chart(c, {w: 170, h: 120, pt: 16, pb: 16, bw: 0.42, zones: [z], lines: [{i0: 0, i1: 2, y: (z.top + z.bot) / 2, dash: '3 2', sw: .6, label: 'CE', below: true}],
+    labels: [{i: 0, text: '1', pos: bear ? 'above' : 'below', fs: 8.5}, {i: 1, text: '2', pos: bear ? 'above' : 'below', fs: 8.5}, {i: 2, text: '3', pos: bear ? 'below' : 'above', fs: 8.5}],
+    marks: [() => `<text x="6" y="12" font-size="9" font-weight="600">${label}</text>`]}).svg;
+};
+const pair = (a, b) => `<div class="two" style="margin:0">${'<div>' + a + '</div><div>' + b + '</div>'}</div>`;
+const custom = (H, c, o) => H.chart(c, Object.assign({h: 170, pr: 44}, o)).svg;
+
+CS.level({n: 3, name: 'PD Arrays', d: 'FVG, BISI/SIBI, IFVG, BPR, order blocks, breakers, gaps, the matrix', lessons: [
+{id: '3-1', t: 'What a PD array is', m: 5,
+ intro: 'A PD array is any zone on the chart where you expect price might react. Think of them as the places you plan to trade from.',
+ chart: {spec: {pts: [108, 102.5, 105.5, {p: 101.6, big: 1}, 108.5, 105.4, 109.6], legs: [5, 3, 3, {n: 3, disp: true}, 3, 3], seed: 201, h: 200, ann: [['line', 1, 'old low'], ['ob', 3, 'OB'], ['fvg', 0, 'FVG']]}, cap: 'Several PD arrays on one chart: an old low, an order block and a fair value gap.'},
+ body: `## The name
+**PD** stands for **premium and discount**. A [[pd_array|PD array]] is a reference zone that price can react to, either in a premium (expensive) area where you'd sell, or a discount (cheap) area where you'd buy.
+
+## The main PD arrays
+- **Liquidity:** old highs and lows (where stops rest).
+- **Imbalances:** [[fvg|fair value gaps]], [[volume_imbalance|volume imbalances]], [[liquidity_void|liquidity voids]], opening gaps.
+- **Blocks:** [[ob|order blocks]], [[breaker|breakers]], [[mitigation|mitigation blocks]], [[rejection_block|rejection blocks]], propulsion and vacuum blocks.
+
+## How they fit together
+Liquidity tells you **where price is going**. PD arrays tell you **where to get in** on the way. The classic ICT flow: price takes liquidity, displaces, leaves a PD array behind, then returns to that PD array, where you enter toward the next pool of liquidity.
+
+## Not all arrays are equal
+An FVG on the daily outranks one on the 1-minute. An order block that caused a [[mss|structure shift]] outranks one that didn't. Lesson 3.15 covers the PD array matrix: how ICT ranks them in premium and discount.`,
+ take: ['PD = premium/discount; a PD array is a zone where price may react.', 'Liquidity = where price goes; PD arrays = where you enter.', 'Higher timeframe and displacement make arrays stronger.'],
+ miss: ['Treating every zone as equally important.', 'Entering at a PD array with no liquidity taken first.', 'Drawing so many zones the chart becomes useless.'],
+ quiz: [
+  ['PD in "PD array" stands for…', ['Premium and discount', 'Price delivery', 'Previous day', 'Pip difference'], 0, 'Premium/discount arrays.'],
+  ['Which of these is a PD array?', ['A fair value gap', 'A moving average', 'RSI', 'The spread'], 0, 'FVGs are core PD arrays.'],
+  ['In the classic ICT flow, PD arrays are mainly used for…', ['Entries on the way to liquidity', 'Ignoring liquidity', 'Calculating tax', 'Choosing a broker'], 0, 'Liquidity is the target; PD arrays are the entry.'],
+ ]},
+{id: '3-2', t: 'Fair Value Gaps', m: 12,
+ intro: 'A fair value gap is the empty space left behind when price moves too fast for buyers and sellers to trade evenly.',
+ chart: [{f: fvgMain, cap: "Sell-side liquidity is swept, price displaces higher and leaves a bullish FVG between candle 1's high and candle 3's low. Price returns to the gap's 50% (CE) and continues up."},
+  {f: H => pair(mini(H, false, 'Bullish FVG'), mini(H, true, 'Bearish FVG')), cap: "Bullish: candle 1 high → candle 3 low. Bearish: candle 1 low → candle 3 high."}],
+ body: `## What it is
+A [[fvg|fair value gap]] (FVG) is a three-candle pattern. Look at the wicks of the first and third candles. If they don't overlap, the space between them is the gap. The middle candle is the big one that moved price through that area.
+- **Bullish FVG:** candle 3's **low** is above candle 1's **high**. The gap runs from candle 1's high up to candle 3's low.
+- **Bearish FVG:** candle 3's **high** is below candle 1's **low**. The gap runs from candle 1's low down to candle 3's high.
+
+## Why it forms
+Normally price moves back and forth and both sides get filled at most prices. During [[displacement]], one side is so aggressive that price jumps through a zone with orders filled almost entirely on one side. That zone was delivered *inefficiently*: an imbalance. Price often returns to "rebalance" it before continuing. Not always, but often enough to be a useful reference.
+
+## How traders use it
+An FVG is a [[pd_array|PD array]]: a zone where you plan to act if price returns. With a bullish FVG, wait for a retracement down into the gap and look for longs. With a bearish FVG, wait for a rally into it and look for shorts.
+- **Entry:** at the near edge of the gap (first touch), or at [[ce|consequent encroachment]].
+- **Consequent encroachment (CE):** the 50% midpoint. In a strong bullish FVG, candle bodies generally shouldn't close below it.
+- **Stop:** commonly beyond candle 1 of the FVG, or beyond the swing that created the move.
+- **Target:** the opposite [[liquidity]], such as an old high above ([[bsl|buy-side liquidity]]) for longs.
+
+> Think of the FVG as **where** to get in, not **why**. The why comes from bias, liquidity and time.
+
+## When an FVG is higher probability
+- **It came after a liquidity sweep.** Price ran a high or low, then reversed with energy.
+- **It formed with real displacement**, ideally with a [[mss|market structure shift]].
+- **It sits in the right part of the range:** bullish FVGs in [[discount]], bearish in [[premium]].
+- **It agrees with [[htf|higher timeframe bias]]** and points toward a clear [[dol|draw on liquidity]].
+- **It formed during a [[killzone]].**
+
+## Inversion FVGs
+If candle *bodies* close fully through an FVG, it failed. Many traders then treat it as an [[ifvg|inversion FVG]], covered in lesson 3.4.`,
+ take: ['Three candles; the gap is between the wicks of candles 1 and 3.', 'It marks an imbalance caused by displacement.', 'Use it as an entry zone; watch the 50% CE.', 'Best after a sweep, in discount/premium, with bias, in a killzone.'],
+ miss: ['Trading every gap; small low-timeframe FVGs are often noise.', 'Measuring from bodies instead of wicks.', 'Buying bullish FVGs against a bearish HTF trend.', 'Chasing instead of waiting for the retrace.'],
+ quiz: [
+  ['In a bullish fair value gap, the gap is the space between…', ["Candle 1's low and candle 3's high", "Candle 1's high and candle 3's low", "Candle 2's open and close", "Candle 2's high and low"], 1, "A bullish FVG exists when candle 3's low is above candle 1's high."],
+  ['What is consequent encroachment (CE)?', ['The first candle to touch the gap', 'The 50% midpoint of the gap', 'The high of candle 2', 'A stop beyond candle 3'], 1, 'CE is the midpoint of the FVG.'],
+  ['Which bearish FVG is the highest-probability short?', ['One in discount, against a bullish daily bias', 'A tiny gap during quiet Asian chop', 'One formed with displacement after buy-side liquidity was swept, in premium, during the NY AM killzone', 'One price has already closed through twice'], 2, 'Sweep, displacement, premium, bias and killzone all stack in its favour.'],
+  ['A bearish FVG is present when…', ["Candle 3's high is below candle 1's low", "Candle 3's low is above candle 1's high", 'Candle 2 is a doji', 'Two candles close at the same price'], 0, 'Bearish is the mirror of bullish.'],
+  ['Price closes bodies fully below a bullish FVG. Many ICT traders then…', ['Buy more', 'Treat it as an inversion FVG that may act as resistance', 'Ignore it', 'Move the stop lower'], 1, 'A body close through the gap means it failed and may invert.'],
+ ]},
+{id: '3-3', t: 'BISI, SIBI and consequent encroachment', m: 6,
+ intro: 'ICT has special names for bullish and bearish fair value gaps that describe who was in control. And the middle of a gap matters a lot.',
+ chart: {spec: {pts: [104, 100, {p: 99.4, close: 100.1}, 106, 104.1, 107.5], legs: [4, 1, {n: 3, disp: true}, 3, 3], seed: 211, h: 180, ann: [['fvg', 0, 'BISI'], ['txt', 4, 'held CE', 'below']]}, cap: 'A BISI (bullish FVG). Price retraces into it, respects the 50% (CE) and continues.'},
+ body: `## The names
+- **[[bisi|BISI]]: Buyside Imbalance, Sellside Inefficiency.** A bullish FVG. Buyers dominated, so the sell side was poorly offered in that range.
+- **[[sibi|SIBI]]: Sellside Imbalance, Buyside Inefficiency.** A bearish FVG. Sellers dominated.
+
+They're just more precise names for bullish and bearish FVGs. You'll hear them often in ICT material.
+
+## Consequent encroachment (CE)
+[[ce|CE]] is the **50% level** of any gap or PD array. It is used as:
+- **An entry level:** many traders want price to reach CE, not just tag the edge.
+- **A health check:** in a strong bullish FVG, candle bodies shouldn't close below CE. In a strong bearish FVG, they shouldn't close above it.
+- **A stop reference:** some traders tuck stops beyond the far edge, others beyond CE for tighter risk (less room, more stop-outs).
+
+## Wick vs body respect
+Wicks can trade through CE briefly; it's the **body closes** that tell you whether the gap is holding. A clean reaction from CE, especially with a lower-timeframe [[mss|shift]], is a strong confirmation.
+
+## CE applies elsewhere
+CE also applies to order blocks (the mean threshold, 50% of the body), wicks (50% of a long wick) and voids.`,
+ take: ['BISI = bullish FVG; SIBI = bearish FVG.', 'CE = 50% of the gap: an entry and a health check.', 'Watch body closes relative to CE, not wicks.'],
+ miss: ['Thinking BISI/SIBI are different patterns from FVGs.', 'Panicking at a wick through CE when bodies hold.', 'Ignoring body closes beyond CE.'],
+ quiz: [
+  ['A SIBI is…', ['A bearish fair value gap', 'A bullish order block', 'A session', 'A swing high'], 0, 'Sellside Imbalance, Buyside Inefficiency.'],
+  ['In a strong BISI, what should not happen?', ['Candle bodies closing below CE', 'Wicks into the gap', 'Price touching the top edge', 'Price rallying'], 0, 'Bodies closing below CE weaken a bullish gap.'],
+  ['CE of an FVG from 100 to 102 is…', ['101', '100', '102', '103'], 0, 'The midpoint is 101.'],
+ ]},
+{id: '3-4', t: 'Inversion fair value gaps (IFVG)', m: 6,
+ intro: 'When price smashes straight through a fair value gap, the gap can flip sides: old support becomes new resistance.',
+ chart: {spec: {pts: [100, {p: 99.6, close: 100}, 104.5, 103.4, 105, 98.6, 101.6, 97], legs: [3, {n: 3, disp: true}, 2, 2, {n: 4, disp: true}, 3, 4], seed: 221, h: 200, ann: [['fvg', 0, 'IFVG'], ['txt', 6, 'retest = resistance', 'above']]}, cap: 'A bullish FVG fails (bodies close below it), then acts as resistance on the retest.'},
+ body: `## What it is
+An **[[ifvg|inversion fair value gap]]** is an FVG that price has **closed through with candle bodies**. Once that happens, the gap often flips its role:
+- A failed bullish FVG can act as **resistance** when price retests it from below.
+- A failed bearish FVG can act as **support** when price retests it from above.
+
+## Why it works
+Traders who bought the bullish FVG are now trapped. When price comes back up to their entry area, many exit to break even, adding selling pressure right at the gap. The failure also signals that order flow has changed direction.
+
+## How it's used
+- As a **reversal confirmation:** price sweeps liquidity, then closes through an opposing FVG. That inversion is a sign the move has turned (similar idea to a [[cisd|CISD]]).
+- As an **entry:** sell the retest of a failed bullish FVG, stop above it, target the next sell-side liquidity.
+
+## Quality checks
+- The close through the gap should be decisive (displacement), not a slow drift.
+- Inversions that happen right after a liquidity sweep and inside a killzone are higher quality.`,
+ take: ['An IFVG is an FVG that bodies have closed through.', 'It flips role: failed support becomes resistance and vice versa.', 'Inversion after a sweep is a reversal clue.'],
+ miss: ['Counting a wick through the gap as an inversion.', 'Using IFVGs against a strong HTF trend with no sweep.', 'Forgetting that the inversion needs displacement.'],
+ quiz: [
+  ['What creates an inversion FVG?', ['Candle bodies closing fully through an FVG', 'A wick touching the gap', 'Price never reaching the gap', 'A doji'], 0, 'Body closes through the gap make it fail and invert.'],
+  ['A failed bullish FVG, retested from below, often acts as…', ['Resistance', 'Support', 'Nothing', 'An equal high'], 0, 'Its role flips.'],
+  ['Why do inversions work?', ['Trapped traders exit near their entry, and order flow has changed', 'The exchange enforces them', 'They always fill', 'Randomness'], 0, 'Trapped positions add pressure on the retest.'],
+ ]},
+{id: '3-5', t: 'Implied fair value gaps', m: 5,
+ intro: 'Sometimes there is no clean gap, but the wicks tell you there almost was one. That hidden gap is called an implied fair value gap.',
+ chart: {f: H => custom(H, [K(100, 100.4, 99.4, 99.9), K(99.9, 101.6, 99.7, 100.6), K(100.6, 105.4, 100.5, 105.1), K(105.1, 105.6, 101.2, 105.3), K(105.3, 106, 104.6, 105.8), K(105.8, 106.2, 104.2, 104.5), K(104.5, 104.8, 103.2, 103.6), K(103.6, 106.8, 103.5, 106.5)], {zones: [{i0: 1, top: 103.25, bot: 101.1, label: 'implied FVG', out: 1}], lines: [{i0: 1, i1: 1, y: 101.1, dash: '2 2', sw: .6}, {i0: 3, i1: 3, y: 103.25, dash: '2 2', sw: .6}], marks: [(x, y) => `<text x="${x(1) - 10}" y="${y(101.1) + 3}" text-anchor="end" font-size="8" fill="#555">50% wick</text><text x="${x(3) + 10}" y="${y(103.25) + 3}" font-size="8" fill="#555">50% wick</text>`]}), cap: "Candle 1's upper wick and candle 3's lower wick overlap, so no regular FVG. Their wick midpoints still leave a gap."},
+ body: `## The idea
+A regular FVG needs candle 1's and candle 3's wicks to **not** overlap. But sometimes there's a big displacement candle in the middle and the neighbours have long wicks reaching into it. There's no classic gap, yet the move was still very one-sided.
+
+## How it's commonly drawn
+As commonly taught in ICT circles:
+1. Find a large displacement candle (candle 2).
+2. Take the **50% of candle 1's wick** pointing into the move (upper wick for bullish).
+3. Take the **50% of candle 3's wick** pointing back (lower wick for bullish).
+4. If those two midpoints don't overlap, the space between them is the **[[implied_fvg|implied FVG]]**.
+
+## Using it
+Treat it like a weaker FVG: a possible reaction zone on a retracement, best in confluence with other reasons (discount/premium, an order block, a killzone).
+
+## Caution
+Implied gaps are more subjective than regular FVGs. If you can't see it easily, don't force it. Regular FVGs and order blocks come first.`,
+ take: ['An implied FVG hides inside overlapping wicks around a displacement candle.', 'Drawn between the 50% points of candle 1\'s and candle 3\'s wicks.', 'Treat it as a secondary array; use confluence.'],
+ miss: ['Forcing implied gaps on every candle.', 'Giving them more weight than clean FVGs.', 'Using them without displacement in candle 2.'],
+ quiz: [
+  ['An implied FVG appears when…', ["Candle 1's and 3's wicks overlap but their wick midpoints leave a gap", 'Bodies close through a gap', 'There are equal highs', 'Volume is zero'], 0, 'It is a gap hidden inside the wicks.'],
+  ['Compared with a regular FVG, an implied FVG is…', ['More subjective and usually weaker', 'Always stronger', 'Identical', 'Not a PD array'], 0, 'Use it with confluence.'],
+  ['What must candle 2 show?', ['Displacement (a large one-sided candle)', 'A doji', 'A tiny body', 'Nothing'], 0, 'The concept depends on displacement.'],
+ ]},
+{id: '3-6', t: 'Balanced price range (BPR)', m: 6,
+ intro: 'When price shoots one way and then straight back, it can leave a bearish gap and a bullish gap overlapping. That overlap is a balanced price range.',
+ chart: {f: H => custom(H, [K(105, 105.6, 104.6, 105.2), K(105.2, 105.4, 104.0, 104.2), K(104.2, 104.3, 100.6, 100.9), K(100.9, 101.6, 100.2, 100.5), K(100.5, 100.8, 99.6, 100.2), K(100.2, 101.0, 99.8, 100.8), K(100.8, 105.0, 100.7, 104.7), K(104.7, 105.6, 102.6, 105.3), K(105.3, 105.5, 103.9, 104.1), K(104.1, 104.3, 102.4, 102.9), K(102.9, 105.9, 102.8, 105.6), K(105.6, 106.8, 105.3, 106.5)], {h: 190, zones: [{i0: 1, i1: 3, top: 104.0, bot: 101.6, fill: 'rgba(0,0,0,.05)', label: 'SIBI', la: 'start'}, {i0: 5, i1: 7, top: 102.6, bot: 101.0, fill: 'rgba(0,0,0,.05)', label: 'BISI', lb: 1}, {i0: 5, top: 102.6, bot: 101.6, label: 'BPR', out: 1, fill: 'rgba(0,0,0,.18)'}]}), cap: 'A bearish FVG (down leg) and a bullish FVG (up leg) overlap. The overlap is the BPR.'},
+ body: `## Definition
+A **[[bpr|balanced price range]]** is the overlapping area of a bearish FVG and a bullish FVG formed when price moves sharply in one direction and then sharply back through the same area.
+
+## Why it matters
+Price has now traded through the area twice, once each way, so the range is "balanced" in a sense, but the overlap shows where both sides were inefficient. ICT teaches that price often reacts strongly when it returns to a BPR, because it's a concentrated imbalance.
+
+## How to use it
+- Mark only the **overlap**, not the full gaps.
+- Trade it in the direction of the **second** move: if price dropped then rallied hard, the BPR is a bullish array on retest.
+- Use [[ce|CE]] of the BPR for entries, with stops beyond it.
+
+## Context
+BPRs often form around news releases and Judas swings: a sharp fake move then a sharp real move. They're powerful when they line up with your bias.`,
+ take: ['A BPR is the overlap of opposite FVGs from a sharp move and reversal.', 'Trade in the direction of the second move.', 'Mark only the overlap.'],
+ miss: ['Marking both full gaps as the BPR.', 'Trading the BPR against the second move.', 'Expecting BPRs without two displacement legs.'],
+ quiz: [
+  ['A BPR is formed by…', ['Overlapping bearish and bullish FVGs', 'Two equal highs', 'A single doji', 'A news headline'], 0, 'Opposite gaps overlapping.'],
+  ['Price dropped sharply then rallied sharply. The BPR is used as…', ['Bullish support on a retest', 'Bearish resistance', 'Irrelevant', 'A take-profit only'], 0, 'Trade with the second move.'],
+  ['Which part do you mark?', ['Only the overlap', 'Both full gaps', 'The whole day', 'The wicks only'], 0, 'The overlap is the BPR.'],
+ ]},
+{id: '3-7', t: 'Volume imbalances', m: 5,
+ intro: 'A volume imbalance is a small gap between two candle bodies, even though their wicks overlap. It is a mini sign of one-sided trading.',
+ chart: {f: H => custom(H, [K(100, 100.6, 99.5, 100.4), K(100.4, 101, 100.1, 100.8), K(100.8, 102.4, 100.6, 102.1), K(102.5, 103.6, 102.0, 103.3), K(103.3, 103.8, 102.7, 103.0), K(103, 103.2, 102.2, 102.5), K(102.5, 104.4, 102.4, 104.1)], {zones: [{i0: 2, i1: 3, top: 102.5, bot: 102.1, label: 'VI', out: 1, fill: 'rgba(0,0,0,.16)'}]}), cap: 'Candle bodies leave a small gap (102.1 to 102.5) while wicks overlap: a volume imbalance.'},
+ body: `## Definition
+A **[[volume_imbalance|volume imbalance]]** (VI) appears between two consecutive candles when their **bodies don't overlap** but their **wicks do**. For example, one candle closes at 102.10 and the next opens at 102.50, while the first candle's wick reached 102.40 and the second's dipped to 102.00.
+
+## Why it matters
+The open of the new candle jumped away from the previous close, showing a burst of one-sided orders. Like FVGs, these small gaps tend to get revisited and can act as support or resistance.
+
+## How to use it
+- Use VIs as **refinements** inside larger arrays: an order block with a VI at its edge gives a precise entry level.
+- Watch for price to close the body gap on a retest and react.
+- Their CE (midpoint) is a common reference.
+
+## Note
+In 24-hour markets like forex, body gaps are rare except around opens, so VIs show up more in index futures and stocks.`,
+ take: ['A VI = gap between candle bodies while wicks overlap.', 'It shows a burst of one-sided orders.', 'Use VIs to refine entries within bigger arrays.'],
+ miss: ['Confusing a VI with a full FVG.', 'Treating tiny VIs as major levels on their own.', 'Ignoring them as precision tools.'],
+ quiz: [
+  ['A volume imbalance has…', ['A gap between bodies but overlapping wicks', 'No overlap of wicks at all', 'Equal closes', 'A huge wick only'], 0, 'Bodies gap, wicks overlap.'],
+  ['VIs are most useful as…', ['Refinements inside larger PD arrays', 'Standalone guaranteed reversals', 'Session markers', 'Tax records'], 0, 'They add precision.'],
+  ['A full FVG differs because…', ["Candle 1's and 3's wicks don't overlap at all", 'It has no candles', 'It only exists on daily', 'It is always bearish'], 0, 'FVGs need non-overlapping wicks.'],
+ ]},
+{id: '3-8', t: 'Opening gaps: NWOG and NDOG', m: 6,
+ intro: 'When futures reopen after a break, the first price often differs from the last close. Those opening gaps become levels price respects for days or weeks.',
+ chart: {f: H => custom(H, [K(100, 100.8, 99.6, 100.5), K(100.5, 101.2, 100.2, 101), K(101, 101.4, 100.6, 101.1), K(102.6, 103.2, 102.3, 102.9), K(102.9, 103.4, 102.5, 103.2), K(103.2, 103.3, 102.2, 102.4), K(102.4, 102.5, 101.6, 101.8), K(101.8, 103.6, 101.7, 103.4), K(103.4, 104.4, 103.1, 104.1)], {zones: [{i0: 2, top: 102.6, bot: 101.1, label: 'NWOG', out: 1}], lines: [{i0: 2, y: 101.85, dash: '3 2', sw: .6}], marks: [(x, y) => `<text x="${x(2)}" y="${y(100.6) + 12}" text-anchor="middle" font-size="8" fill="#555">Fri close</text><text x="${x(3)}" y="${y(103.2) - 6}" text-anchor="middle" font-size="8" fill="#555">Sun open</text>`]}), cap: "The New Week Opening Gap: from Friday's 5 pm close to Sunday's 6 pm open. Price later revisits its 50%."},
+ body: `## Definitions (CME index futures)
+- **[[nwog|NWOG (New Week Opening Gap)]]:** the range between **Friday's 5:00 pm NY close** and **Sunday's 6:00 pm NY open**.
+- **[[ndog|NDOG (New Day Opening Gap)]]:** the range between the **5:00 pm close** and the **6:00 pm reopen** each weekday.
+
+## Why they matter
+Opening gaps are imbalances created by the market being closed. ICT teaches that they act as magnets and reaction levels, and that the **CE (50%) of an NWOG** is especially significant. Recent NWOGs (the last several weeks) can stay relevant as targets and support/resistance.
+
+## How to use them
+- Mark the last few NWOGs on your 15m/1H chart and note their CE.
+- Expect reactions when price returns to them.
+- Use them as targets: a market far from an unfilled NWOG may be drawn back to it.
+
+## Other opening gaps
+Stocks gap between the 4:00 pm close and the 9:30 am open. The idea is similar: gaps act as imbalances that price often revisits. Note the **regular-session** opening gap (RTH gap) is a separate idea from NWOG/NDOG on the 23-hour futures chart.`,
+ take: ['NWOG = Friday 5 pm close to Sunday 6 pm open (futures).', 'NDOG = daily 5 pm close to 6 pm open.', 'Their 50% levels are key reference points for days or weeks.'],
+ miss: ['Using RTH (9:30) gaps and calling them NWOG.', 'Forgetting to mark NWOG every week.', 'Assuming every gap fills immediately.'],
+ quiz: [
+  ['The NWOG is the gap between…', ["Friday's 5 pm close and Sunday's 6 pm open", "Monday's open and close", 'The 9:30 and 10:00 prices', 'Two weekly highs'], 0, 'It spans the weekend close to reopen.'],
+  ['Which level of an NWOG is especially significant?', ['Its 50% (CE)', 'Its top only', 'Its 10% level', 'None'], 0, 'CE of the NWOG is a key reference.'],
+  ['The NDOG is formed…', ['Between the 5 pm close and 6 pm reopen each weekday', 'Only on Fridays', 'At 9:30 am', 'Monthly'], 0, 'Daily futures break gap.'],
+ ]},
+{id: '3-9', t: 'Order blocks: valid vs invalid', m: 9,
+ intro: 'An order block is the last candle in the opposite direction before a powerful move. It marks where large orders were likely placed.',
+ chart: [{spec: {pts: [108, 103.6, 105.4, {p: 102, big: 1}, 108.4, 104.2, 109.6], legs: [4, 3, 4, {n: 3, disp: true}, 4, 3], seed: 241, h: 190, ann: [['ob', 3, 'bull OB'], ['line', 2, 'swing high', {to: 4}], ['txt', 5, 'retest', 'below']]}, cap: 'Valid bullish OB: last down-close candle before displacement that broke the swing high.'},
+  {spec: {pts: [102, 106.4, 104.6, {p: 108, big: 1}, 101.6, 105.8, 100.4], legs: [4, 3, 4, {n: 3, disp: true}, 4, 3], seed: 243, h: 190, ann: [['ob', 3, 'bear OB'], ['line', 2, 'swing low', {to: 4}]]}, cap: 'Valid bearish OB: last up-close candle before displacement down through structure.'}],
+ body: `## Definition
+- **Bullish [[ob|order block]]:** the last **down-close** candle (or group of down candles) before a strong move up.
+- **Bearish order block:** the last **up-close** candle before a strong move down.
+
+ICT typically uses the **body** (open to close) as the zone, with the wick as extra room. The 50% of the body is the **[[mean_threshold|mean threshold]]**.
+
+## Why it works
+Large players can't fill their whole position at once. The last opposite candle before displacement is where part of their orders were filled. When price returns, remaining orders (and traders defending the position) can push price away again.
+
+## What makes an OB valid
+1. **It precedes displacement:** a strong, energetic move away, ideally leaving an [[fvg|FVG]].
+2. **The move broke structure:** a [[bos|BOS]] or [[mss|MSS]] confirms intent.
+3. **It swept liquidity first** (or sits right after a sweep).
+4. **It's unmitigated:** price hasn't already returned and traded through it.
+5. **Location:** bullish OBs in discount, bearish in premium.
+6. **Higher timeframe** OBs outrank lower ones.
+
+## What makes an OB invalid
+- No displacement after it: just a slow drift.
+- No structure break.
+- Price has closed bodies through the mean threshold on a retest.
+- It sits in the wrong part of the range (bullish OB in deep premium).
+
+## Entries
+Common approaches: limit at the top of the bullish OB body, or at the mean threshold, with a stop below the OB low. Better still, wait for a lower-timeframe [[mss|shift]] inside it (Level 8).`,
+ take: ['Bullish OB = last down candle before a strong up move (and vice versa).', 'Valid OBs come with displacement, a structure break and ideally a sweep.', 'Use the body; 50% of the body is the mean threshold.'],
+ miss: ['Calling every opposite candle an order block.', 'Trading OBs that never caused displacement.', 'Using OBs that have already been traded through.', 'Ignoring premium/discount location.'],
+ quiz: [
+  ['A bullish order block is…', ['The last down-close candle before a strong up move', 'Any green candle', 'The highest candle', 'A gap between candles'], 0, 'It is the last opposite candle before displacement.'],
+  ['Which makes an OB more valid?', ['It caused displacement that broke structure', 'It formed in quiet Asian chop with no follow-through', 'It has been traded through three times', 'It is in deep premium for a long'], 0, 'Displacement and a structure break show intent.'],
+  ['The mean threshold of an OB is…', ['50% of its body', 'Its high', 'The previous close', 'The daily open'], 0, 'The midpoint of the body.'],
+  ['Bodies close below the mean threshold of a bullish OB on retest. This suggests…', ['The OB is weakening or failing', 'A stronger long', 'Nothing', 'A bearish FVG formed'], 0, 'Closes through the mean threshold invalidate it.'],
+ ]},
+{id: '3-10', t: 'Breaker blocks', m: 7,
+ intro: 'A breaker is an order block that failed. After price sweeps liquidity and breaks through it, the old block flips and becomes support or resistance from the other side.',
+ chart: {spec: {pts: [104, 101.5, {p: 105, big: 1}, {p: 100.6, close: 101.3}, 107.5, 104.3, 108.8], legs: [4, 4, 4, {n: 3, disp: true}, 3, 3], seed: 251, h: 200, ann: [['line', 1, 'low', {to: 3}], ['ob', 2, 'breaker'], ['txt', 3, 'SSL swept', 'below']]}, cap: 'Bullish breaker: the up-close candle at the high before price swept the low. Once price breaks above it, it acts as support.'},
+ body: `## Bullish breaker sequence
+1. Price makes a swing low, then a swing high.
+2. Price drops and takes out the swing low (a [[sweep]] of sell-side liquidity).
+3. Price then rallies with displacement **above the swing high**.
+4. The **last up-close candle at that swing high** (the one before the down move) is now the **bullish [[breaker]]**. When price retraces to it, it often acts as support.
+
+## Bearish breaker
+The mirror: swing high, swing low, a sweep **above** the high, then displacement **below** the swing low. The last down-close candle at the swing low becomes resistance.
+
+## Why it works
+Traders who sold at that candle got stopped out when price broke above it. When price returns, the zone attracts buying from both new buyers and from the institutions that engineered the sweep. The key ingredient is that **liquidity was taken first**.
+
+## Breaker vs order block
+- An order block is where a move **started**.
+- A breaker is an order block that **failed**, after liquidity was swept, and is now used from the other side.
+
+Breakers are central to the **Market Maker Buy/Sell Models** and the **breaker entry** (Level 8).`,
+ take: ['A breaker is a failed OB after a liquidity sweep and structure break.', 'Bullish breaker = up-close candle at the swing high before the sweep of the low.', 'It flips from resistance to support (or the reverse).'],
+ miss: ['Calling it a breaker when no liquidity was swept.', 'Mixing up breakers and mitigation blocks.', 'Entering before price actually breaks through the block.'],
+ quiz: [
+  ['What must happen before a bullish breaker forms?', ['A sweep of the prior swing low, then a break above the swing high', 'Equal highs only', 'A doji', 'A news release'], 0, 'Liquidity is taken, then structure breaks.'],
+  ['A bullish breaker is used as…', ['Support on a retracement', 'Resistance', 'A take-profit only', 'Nothing'], 0, 'It flips to support.'],
+  ['Breakers differ from order blocks because they…', ['Are failed order blocks used from the other side', 'Are always bigger', 'Only exist on weekly charts', 'Have no candles'], 0, 'A breaker is a failed OB.'],
+ ]},
+{id: '3-11', t: 'Mitigation blocks', m: 5,
+ intro: 'A mitigation block is like a breaker, but without the liquidity sweep. Price fails to make a new low (or high), then breaks structure.',
+ chart: {spec: {pts: [104, 101, {p: 104.8, big: 1}, 101.9, 107.4, 104.3, 108.6], legs: [4, 4, 4, {n: 3, disp: true}, 3, 3], seed: 261, h: 190, ann: [['line', 1, 'low (not swept)', {to: 3}], ['ob', 2, 'mitigation'], ['txt', 3, 'higher low', 'below']]}, cap: 'Bullish mitigation block: price fails to reach the old low, then breaks above the high.'},
+ body: `## Definition
+A **[[mitigation|mitigation block]]** forms when price **fails** to take out the previous swing (a [[failure_swing|failure swing]]) and then breaks structure the other way.
+- **Bullish:** low → high → **higher low** (no sweep) → break above the high. The last up-close candle at the high becomes support.
+- **Bearish:** high → low → **lower high** → break below the low. The last down-close candle at the low becomes resistance.
+
+## Why "mitigation"
+Traders trapped at that block use the retest to **mitigate** (reduce) their losses by exiting near break-even, and that order flow adds to the reaction.
+
+## Breaker vs mitigation
+- **Breaker:** liquidity *was* swept before the break. Generally considered stronger.
+- **Mitigation:** liquidity was *not* swept (failure swing). Still useful, typically a bit weaker.
+
+## Use
+Same as breakers: retest entries in the direction of the new structure, stops beyond the block, targets at opposing liquidity.`,
+ take: ['Mitigation block = failure swing + structure break.', 'No liquidity sweep (that\'s what separates it from a breaker).', 'Retest of the block is the entry.'],
+ miss: ['Calling it a breaker when no sweep happened.', 'Using it against the new structure.', 'Ignoring that breakers are usually stronger.'],
+ quiz: [
+  ['The key difference between a breaker and a mitigation block is…', ['Whether liquidity was swept before the break', 'The colour of the candle', 'The timeframe', 'The session'], 0, 'Breakers sweep; mitigation blocks fail to.'],
+  ['A bullish mitigation block forms after…', ['A higher low (failure swing) and a break above the high', 'A lower low sweep', 'Equal highs', 'A gap down'], 0, 'Price fails to reach the old low.'],
+  ['Which is generally stronger?', ['Breaker', 'Mitigation block', 'They are identical', 'Neither'], 0, 'The liquidity sweep adds strength.'],
+ ]},
+{id: '3-12', t: 'Rejection blocks', m: 5,
+ intro: 'A rejection block is the area made by long wicks at a turning point: the zone where price was pushed in and firmly rejected.',
+ chart: {f: H => custom(H, [K(100, 101, 99.7, 100.8), K(100.8, 102, 100.6, 101.8), K(101.8, 103.4, 101.5, 102.9), K(102.9, 105.6, 102.6, 103.2), K(103.2, 105.4, 102.4, 102.8), K(102.8, 103, 101.2, 101.4), K(101.4, 101.9, 100.3, 100.6), K(100.6, 104.2, 100.4, 103.9), K(103.9, 104.3, 101.6, 101.9), K(101.9, 102, 99.8, 100.1)], {zones: [{i0: 3, i1: null, top: 105.6, bot: 103.2, label: 'rejection', out: 1}], lines: [{i0: 3, y: 104.4, dash: '3 2', sw: .6}]}), cap: 'Bearish rejection block: from the highest body (103.2) up to the wick high. Price returns into the wicks and is rejected again.'},
+ body: `## Definition
+A **[[rejection_block|rejection block]]** forms at a swing high or low that has **long wicks**:
+- **Bearish:** at a swing high, the zone runs from the **highest candle body** (open or close) up to the **wick high**.
+- **Bullish:** at a swing low, the zone runs from the **lowest candle body** down to the **wick low**.
+
+## Why it works
+Long wicks show that price was pushed into that area (often running stops) and then aggressively rejected. When price returns into the wicks, the same sellers (or buyers) often defend it.
+
+## How to use it
+- Expect a reaction when price trades back into the wick area.
+- Many traders watch for price to reach the 50% of the wick range and fail to close bodies beyond it.
+- Stops go just beyond the wick extreme.
+
+## In the matrix
+Rejection blocks sit near the extremes of the [[pd_matrix|PD array matrix]], just inside old highs and lows.`,
+ take: ['A rejection block is the wick zone at a swing high or low.', 'Bearish: highest body to wick high; bullish: lowest body to wick low.', 'Watch for bodies to fail to close through the wick zone.'],
+ miss: ['Using the whole candle including the body.', 'Ignoring the 50% of the wick range.', 'Placing stops inside the wick zone.'],
+ quiz: [
+  ['A bearish rejection block runs from…', ['The highest body to the wick high', 'The low to the high', 'The open to the close of one candle', 'The daily open to close'], 0, 'It is the wick area above the bodies.'],
+  ['Long wicks at a high suggest…', ['Price was pushed in and rejected', 'Indecision only', 'No orders', 'A bullish breaker'], 0, 'Rejection.'],
+  ['Where is a stop typically placed for a bearish rejection block?', ['Just above the wick high', 'Inside the wick zone', 'At the body', 'No stop'], 0, 'Beyond the extreme.'],
+ ]},
+{id: '3-13', t: 'Propulsion blocks', m: 4,
+ intro: 'A propulsion block is a candle that traded into an older order block, got a reaction, and then launched price away. It becomes a new, tighter support or resistance.',
+ chart: {spec: {pts: [100, {p: 98.6, big: 1}, 103, 101.4, {p: 100.2, big: 1}, 104.8, 103.8, 106.8], legs: [3, {n: 3, disp: true}, 2, 2, {n: 3, disp: true}, 2, 3], seed: 271, h: 190, ann: [['ob', 1, 'OB'], ['ob', 4, 'propulsion']]}, cap: 'Price retraces into the original OB; the candle that reacted there and launched price becomes the propulsion block.'},
+ body: `## Definition
+A **[[propulsion_block|propulsion block]]** is a candle (usually a down-close candle in a bullish context) that **trades into an existing order block**, holds it, and then is followed by a strong move away. That candle itself becomes a new block.
+
+## How it behaves
+Because it formed at a validated order block and caused another surge, ICT teaches that price should respect it quickly and not trade deep into it, often only to its **mean threshold** (50%). If price trades far through it, the setup is weakening.
+
+## Use
+- Treat it as a continuation zone in a trending move.
+- Expect shallow reactions: entries near the top of a bullish propulsion block, with stops below its mean threshold or low.`,
+ take: ['A propulsion block forms when a candle reacts from an older OB and propels price.', 'Expect shallow retests, around its mean threshold.', 'It signals strong continuation.'],
+ miss: ['Confusing it with any order block.', 'Expecting deep retests into it.', 'Using it against the trend.'],
+ quiz: [
+  ['A propulsion block forms when…', ['A candle trades into an existing OB and price then surges away', 'Two highs are equal', 'A gap opens', 'Price ranges'], 0, 'It builds on a prior OB.'],
+  ['How deep should price usually retrace into a propulsion block?', ['Shallow, around its mean threshold', 'All the way through', 'Below the original OB', 'Never touches it'], 0, 'Deep retests weaken it.'],
+  ['Propulsion blocks mainly indicate…', ['Continuation', 'Reversal', 'Ranging', 'Nothing'], 0, 'They show strong trend continuation.'],
+ ]},
+{id: '3-14', t: 'Vacuum blocks', m: 4,
+ intro: 'A vacuum block is a price gap created by a sudden burst of volatility, usually news. Like other gaps, price often comes back to fill it.',
+ chart: {f: H => custom(H, [K(100, 100.5, 99.6, 100.2), K(100.2, 100.6, 99.8, 100.4), K(100.4, 100.7, 100.1, 100.5), K(102.8, 104, 102.6, 103.7), K(103.7, 104.3, 103.1, 103.4), K(103.4, 103.6, 102.2, 102.4), K(102.4, 102.6, 101.3, 101.5), K(101.5, 102.9, 101.2, 102.7)], {zones: [{i0: 2, top: 102.6, bot: 100.7, label: 'vacuum', out: 1}], marks: [(x, y) => `<text x="${x(3)}" y="${y(104) - 6}" text-anchor="middle" font-size="8" fill="#555">news</text>`]}), cap: 'A news spike jumps price, leaving a vacuum. Price later trades back into it.'},
+ body: `## Definition
+A **[[vacuum_block|vacuum block]]** is a gap in price caused by a volatility event (economic news, earnings, an overnight shock) where price jumps from one level to another with little or no trading in between.
+
+## Why price returns
+There were almost no orders filled inside the gap, so it's a pure imbalance. Price often retraces to fill part or all of it, similar to an [[fvg|FVG]] or [[liquidity_void|void]].
+
+## Using it
+- Don't chase the spike; wait to see whether price starts to fill the vacuum.
+- Use the gap edges and its 50% as reaction levels.
+- During the event itself, spreads widen and slippage is common: one more reason to stay flat during high-impact news (Level 6).`,
+ take: ['A vacuum block is a volatility gap, usually from news.', 'It\'s a pure imbalance that price often revisits.', 'Avoid chasing the spike.'],
+ miss: ['Entering during the news spike itself.', 'Assuming instant fills of the gap.', 'Ignoring widened spreads.'],
+ quiz: [
+  ['A vacuum block is usually caused by…', ['A volatility event like news', 'Slow ranging', 'Equal highs', 'A weekend only'], 0, 'Sudden volatility creates it.'],
+  ['Why does price tend to return to it?', ['Few orders were filled inside it', 'The exchange forces it', 'It is a swing high', 'Spreads are tight'], 0, 'It is an imbalance.'],
+  ['During the news spike you should…', ['Avoid chasing; spreads and slippage spike', 'Use maximum size', 'Remove stops', 'Always buy'], 0, 'Volatility events are dangerous to chase.'],
+ ]},
+{id: '3-15', t: 'The PD array matrix', m: 7,
+ intro: 'The PD array matrix is ICT’s ranking of where each type of zone tends to sit, from the premium end of a range down to the discount end.',
+ chart: {f: H => H.ladder([{p: 7, label: 'Old high', kind: 'sell'}, {p: 6, label: 'Rejection block', kind: 'sell'}, {p: 5, label: 'Bearish order block', kind: 'sell'}, {p: 4, label: 'Fair value gap (SIBI)', kind: 'sell'}, {p: 3, label: 'Liquidity void', kind: 'sell'}, {p: 2, label: 'Bearish breaker', kind: 'sell'}, {p: 1, label: 'Mitigation block', kind: 'sell'}, {p: 0, label: 'EQUILIBRIUM (50%)', kind: 'cur'}, {p: -1, label: 'Mitigation block', kind: 'buy'}, {p: -2, label: 'Bullish breaker', kind: 'buy'}, {p: -3, label: 'Liquidity void', kind: 'buy'}, {p: -4, label: 'Fair value gap (BISI)', kind: 'buy'}, {p: -5, label: 'Bullish order block', kind: 'buy'}, {p: -6, label: 'Rejection block', kind: 'buy'}, {p: -7, label: 'Old low', kind: 'buy'}].map(r => ({...r, p: r.p})), {h: 300}).replace(/>-?\d+<\/text>/g, '></text>'), cap: 'The PD array matrix as commonly presented: premium arrays above equilibrium, discount arrays below.'},
+ body: `## The matrix
+ICT presents the [[pd_matrix|PD array matrix]] as a list running from the top of a dealing range to the bottom.
+
+**Premium (sell zone), from the extreme inward:** old high, rejection block, bearish order block, fair value gap, liquidity void, bearish breaker, mitigation block.
+
+**[[equilibrium|Equilibrium]]** (50% of the range).
+
+**Discount (buy zone), from equilibrium outward:** mitigation block, bullish breaker, liquidity void, fair value gap, bullish order block, rejection block, old low.
+
+## How to use it
+1. Define the [[dealing_range|dealing range]] on your bias timeframe (a clear swing high to swing low).
+2. Find equilibrium. Only look for **longs in discount** and **shorts in premium**.
+3. List the PD arrays present in the half you want to trade.
+4. Expect price to react at the arrays that line up with your bias and with liquidity already taken.
+
+## Don't over-read the order
+The order is a general guide to where arrays *tend* to form relative to the extremes, not a strict rule that a breaker always beats an FVG. In practice, the best array is the one that: formed with displacement, sits on a higher timeframe, is fresh (unmitigated), and lines up with time (killzone) and bias.`,
+ take: ['The matrix arranges PD arrays from premium extremes to discount extremes.', 'Longs from discount arrays, shorts from premium arrays.', 'Freshness, displacement, timeframe and time matter more than the exact order.'],
+ miss: ['Buying arrays in premium.', 'Treating the ordering as a rigid ranking.', 'Using the matrix without defining the dealing range first.'],
+ quiz: [
+  ['Where do you look for long entries using the matrix?', ['Discount arrays below equilibrium', 'Premium arrays above equilibrium', 'At equilibrium only', 'Anywhere'], 0, 'Buy cheap: discount.'],
+  ['What sits at the very extremes of the matrix?', ['Old highs and old lows', 'Mitigation blocks', 'Equilibrium', 'Volume imbalances'], 0, 'Old highs/lows are the outer edges.'],
+  ['What must you define before using the matrix?', ['The dealing range', 'Your broker', 'The news', 'Your tax bracket'], 0, 'Premium and discount depend on the range.'],
+ ]},
+]});
+})();
+(function () {
+const K = (o, h, l, c) => ({o, h, l, c});
+CS.level({n: 4, name: 'Structure Shifts', d: 'BOS vs MSS, displacement, CISD, STH/ITH/LTH, fractals', lessons: [
+{id: '4-1', t: 'Break of structure (BOS)', m: 5,
+ intro: 'A break of structure is when price takes out the last swing in the direction it is already going. It confirms the trend is still alive.',
+ chart: {spec: {pts: [100, 103, 101.6, 105, 103.4, 107, 105.4, 108.6], legs: [4, 3, 4, 3, 4, 3, 3], seed: 301, ann: [['line', 1, 'BOS', {to: 3}], ['line', 3, 'BOS', {to: 5}], ['line', 5, 'BOS', {to: 7}]]}, cap: 'Each new high breaks the previous swing high: bullish BOS, trend continuing.'},
+ body: `## Definition
+A **[[bos|break of structure (BOS)]]** happens when price trades beyond the most recent swing **in the direction of the current trend**:
+- In an uptrend, price takes out the last swing high.
+- In a downtrend, price takes out the last swing low.
+
+## What it tells you
+A BOS says "the trend is still in charge". Each BOS also leaves behind a new protective swing (the higher low in an uptrend) that you can lean on for entries and stops.
+
+## Using BOS
+- After a bullish BOS, look for longs on the pullback into a discount PD array (FVG, order block) left by the move.
+- The swing that produced the BOS becomes your invalidation point.
+
+## Body vs wick
+A BOS with a strong body close and displacement is more convincing than a wick that barely pokes through. A wick that pokes through and snaps back could just be a [[sweep]] of buy-side liquidity.`,
+ take: ['BOS = taking out the last swing with the trend.', 'It confirms continuation and leaves a new protective swing.', 'Strong closes and displacement make a BOS convincing.'],
+ miss: ['Calling a wick-only poke a BOS.', 'Treating BOS as a reversal signal.', 'Buying the BOS candle itself instead of the pullback.'],
+ quiz: [
+  ['A bullish BOS occurs when price…', ['Takes out the last swing high in an uptrend', 'Breaks the last higher low', 'Forms equal lows', 'Gaps down'], 0, 'With-trend break of a swing high.'],
+  ['What does a BOS usually signal?', ['Continuation of the current trend', 'An immediate reversal', 'A range', 'Nothing'], 0, 'It confirms the trend.'],
+  ['After a bullish BOS, where do traders often look to enter?', ['On a pullback into a discount PD array', 'At the very top of the BOS candle', 'On a break of the low', 'Anywhere'], 0, 'Buy the retracement.'],
+ ]},
+{id: '4-2', t: 'Market structure shift (MSS) vs BOS', m: 8,
+ intro: 'A market structure shift is the first break against the trend. It is often the earliest sign that a reversal has started.',
+ chart: [{spec: {pts: [111, 104.6, 107.4, 102.8, 105.8, {p: 101.6, close: 102.3}, 108.6, 106, 110], legs: [4, 3, 4, 3, 3, {n: 3, disp: true}, 3, 3], seed: 311, h: 210, ann: [['lab', 2, 'LH'], ['lab', 3, 'LL'], ['line', 4, 'MSS', {to: 6}], ['txt', 5, 'SSL sweep', 'below'], ['fvg', 0, 'FVG']]}, cap: 'Downtrend → sweep of sell-side liquidity → displacement breaks the last lower high: a bullish MSS.'}],
+ body: `## Definition
+A **[[mss|market structure shift (MSS)]]** is a break of the most recent short-term swing **against** the prevailing move:
+- **Bullish MSS:** in a downtrend, price closes above the last lower high.
+- **Bearish MSS:** in an uptrend, price closes below the last higher low.
+
+## BOS vs MSS
+- **BOS:** with the trend → continuation.
+- **MSS:** against the trend → possible reversal.
+
+## What makes a high-quality MSS
+ICT's recipe:
+1. **Liquidity taken first:** price sweeps an obvious low (for a bullish MSS) or high (bearish).
+2. **[[displacement|Displacement]]:** the break happens with big, energetic candles, not a slow grind.
+3. **An [[fvg|FVG]] is left behind** in the displacement leg.
+4. **Time:** inside a killzone.
+5. **HTF alignment:** the shift agrees with your higher-timeframe bias or draw on liquidity.
+
+An MSS without a sweep or without displacement is weak and often fails.
+
+## After the MSS
+The textbook entry is the retracement into the FVG (or order block) created by the displacement, with the stop beyond the swing that made the sweep, targeting opposing liquidity. This sequence (sweep → displacement → MSS → FVG return) is the backbone of the ICT entry models in Level 8.
+
+## CHoCH
+In Smart Money Concepts communities you'll hear **CHoCH (change of character)**. It means much the same as MSS: the first break against the trend.`,
+ take: ['MSS = first break against the trend; BOS = break with it.', 'Best MSS: sweep first, then displacement, leaving an FVG, in a killzone.', 'Entry is usually the retracement into the FVG after the MSS.'],
+ miss: ['Treating every minor break as a reversal.', 'Taking an MSS with no liquidity sweep.', 'Entering on the MSS candle instead of waiting for the retracement.', 'Ignoring HTF bias.'],
+ quiz: [
+  ['A bullish MSS is…', ['A close above the last lower high in a downtrend', 'A new high in an uptrend', 'Equal lows', 'A gap up at the open'], 0, 'Against-trend break of the last LH.'],
+  ['What should ideally happen right before an MSS?', ['A liquidity sweep', 'A news release', 'A doji', 'Nothing'], 0, 'Sweep first, then shift.'],
+  ['Which is the textbook entry after a bullish MSS?', ['Retracement into the FVG left by the displacement', 'Buying the top of the MSS candle', 'Shorting the break', 'Waiting a week'], 0, 'Return to the PD array.'],
+  ['CHoCH in SMC terms is closest to…', ['MSS', 'BOS', 'FVG', 'OTE'], 0, 'Change of character ≈ market structure shift.'],
+ ]},
+{id: '4-3', t: 'Displacement', m: 6,
+ intro: 'Displacement is price moving with real force: big candles, small wicks, in one direction. It shows that serious money just stepped in.',
+ chart: [{spec: {pts: [100, {p: 99.5, close: 99.9}, 105.5, 104.6, 106.2], legs: [3, {n: 3, disp: true}, 2, 2], seed: 321, h: 140, ann: [['fvg', 0, 'FVG']]}, cap: 'Displacement: large bodies, fast, leaves an FVG.'},
+  {spec: {pts: [100, 99.5, 101.2, 100.6, 102.2, 101.6, 103, 102.6, 104], legs: [2, 2, 2, 2, 2, 2, 2, 2], seed: 323, h: 140}, cap: 'No displacement: overlapping candles grinding higher.'}],
+ body: `## What it looks like
+**[[displacement|Displacement]]** is a sharp, decisive move:
+- One or more **large-bodied candles** in the same direction.
+- **Small wicks**, closes near the extremes.
+- Usually leaves one or more **[[fvg|fair value gaps]]**.
+- Often **breaks structure** (a BOS or MSS).
+
+## Why it matters
+Displacement is the footprint of institutional order flow. Retail traders can't move ES 30 points in two minutes; large players can. When you see displacement right after liquidity is swept, that's strong evidence the sweep was used to enter a big position.
+
+## Displacement vs a spike
+A news spike with huge wicks both ways isn't displacement; it's chaos. Displacement **holds**: candles close near their extremes and price doesn't immediately reverse.
+
+## How to measure it
+There's no exact number. Compare to recent candles: displacement candles are clearly larger than the average of the last 10-20 candles, and the move travels a meaningful distance relative to the current range.`,
+ take: ['Displacement = large bodies, small wicks, one direction, leaves FVGs.', 'It\'s the footprint of large orders.', 'Displacement after a sweep is a key confirmation.'],
+ miss: ['Calling a two-sided news spike displacement.', 'Accepting slow grinding moves as confirmation.', 'Ignoring whether the move left an FVG.'],
+ quiz: [
+  ['Which describes displacement?', ['Large-bodied candles with small wicks moving one way', 'Many small overlapping candles', 'Long wicks both sides', 'A doji'], 0, 'Energetic and one-sided.'],
+  ['Displacement usually leaves behind…', ['Fair value gaps', 'Equal highs', 'Nothing', 'A range'], 0, 'Fast moves leave imbalances.'],
+  ['Why is displacement after a sweep important?', ['It suggests large players used the liquidity to enter', 'It means the sweep failed', 'It is random', 'It cancels the setup'], 0, 'It shows institutional intent.'],
+ ]},
+{id: '4-4', t: 'Change in state of delivery (CISD)', m: 7,
+ intro: 'CISD is the moment price stops delivering in one direction and starts delivering in the other. It is often an earlier signal than a full structure shift.',
+ chart: {f: H => H.chart([K(104, 104.4, 103.4, 103.7), K(103.7, 104.0, 102.6, 102.9), K(102.9, 103.1, 101.9, 102.1), K(102.1, 102.3, 101.0, 101.3), K(101.3, 101.5, 100.2, 100.6), K(100.6, 101.2, 100.3, 101.0), K(101.0, 103.3, 100.9, 103.1), K(103.1, 104.5, 102.8, 104.2), K(104.2, 104.4, 103.2, 103.5), K(103.5, 105.6, 103.4, 105.3)], {h: 180, pr: 44, lines: [{i0: 1, y: 103.7, dash: '4 3', label: 'CISD', out: 1}, {i0: 1, i1: 4, y: 103.7, sw: 0}], zones: [{i0: 1, i1: 4, top: 103.7, bot: 100.2, fill: 'rgba(0,0,0,.04)'}], marks: [(x, y) => `<text x="${x(1)}" y="${y(103.7) - 14}" font-size="8" fill="#555">open of the down series</text><text x="${x(6)}" y="${y(100.9) + 12}" text-anchor="middle" font-size="8" fill="#555">closes above it</text>`]}).svg, cap: 'A run of down-close candles. When a body closes above the opening price of that run, delivery has changed: bullish CISD.'},
+ body: `## The idea
+Price is "delivered" in legs. During a down leg, candles keep closing lower. A **[[cisd|change in state of delivery (CISD)]]** happens when that delivery flips.
+
+## A common way to mark it
+As widely taught:
+1. Find the **series of consecutive down-close candles** that made the most recent push lower (for a bullish CISD).
+2. Mark the **opening price of the first candle** in that series.
+3. When a candle **body closes above** that opening price, delivery has changed from bearish to bullish.
+
+Bearish CISD is the mirror: mark the open of the first up-close candle in the last up-series, and wait for a body close below it.
+
+## CISD vs MSS
+- An **MSS** needs a swing point to break.
+- A **CISD** only needs the opening price of the last delivery series to be reclaimed, so it often comes **earlier**.
+
+Many traders use CISD as a lower-timeframe confirmation inside a higher-timeframe PD array, especially after a sweep.
+
+## Quality
+Like MSS, a CISD is much stronger when it comes right after liquidity is swept, with displacement, inside a killzone and in line with bias.`,
+ take: ['CISD = delivery flips from one direction to the other.', 'Mark the open of the last same-direction candle series; a body close beyond it is the CISD.', 'Often earlier than an MSS; strongest after a sweep.'],
+ miss: ['Using wicks instead of body closes.', 'Taking a CISD in the middle of a range with no sweep.', 'Confusing it with any single bullish candle.'],
+ quiz: [
+  ['For a bullish CISD, which price is key?', ['The open of the first candle in the last down-close series', 'The high of the day', 'The low of the sweep', 'The midnight open'], 0, 'Reclaiming that open signals the change.'],
+  ['What confirms the CISD?', ['A candle body closing beyond that opening price', 'A wick touching it', 'A doji', 'Volume'], 0, 'Body closes matter.'],
+  ['Compared with an MSS, a CISD often appears…', ['Earlier', 'Later', 'Only on weekly charts', 'Never'], 0, 'It doesn\'t need a swing break.'],
+ ]},
+{id: '4-5', t: 'Short-, intermediate- and long-term highs and lows', m: 7,
+ intro: 'Not every swing is equal. ICT ranks them so you can tell a small wiggle from a level that really matters.',
+ chart: {spec: {pts: [100, 102.6, 101.6, 104.4, 102.6, 103.6, 100.8, 102.2, 101.4, 107], legs: [3, 2, 3, 3, 2, 4, 2, 2, 5], seed: 341, h: 200, ann: [['lab', 1, 'STH'], ['lab', 3, 'ITH'], ['lab', 5, 'STH'], ['lab', 2, 'STL'], ['lab', 4, 'STL'], ['lab', 6, 'ITL'], ['lab', 8, 'STL']]}, cap: 'An intermediate-term high (ITH) has a lower short-term high on each side.'},
+ body: `## The ranking
+- **[[sth|Short-term high/low (STH/STL)]]:** any basic three-candle swing.
+- **Intermediate-term high/low (ITH/ITL):** a short-term high with a **lower short-term high on both sides** (or a short-term low with higher short-term lows on both sides).
+- **Long-term high/low (LTH/LTL):** an intermediate-term high with lower intermediate-term highs on both sides (or the mirror for lows).
+
+## Why it helps
+- **Targets:** intermediate- and long-term highs/lows hold more liquidity and are more meaningful draws.
+- **Structure:** breaking a short-term swing is minor; breaking an intermediate-term swing is a much bigger deal.
+- **Reversals:** a sweep of an ITL or LTL, followed by displacement, is a far stronger reversal signal than a sweep of a tiny STL.
+
+## In practice
+Mark the most recent ITH and ITL on your entry timeframe. These become your key structure and key targets for the session.`,
+ take: ['STH/STL = basic swings; ITH/ITL = swings flanked by smaller swings; LTH/LTL = the next level up.', 'Higher-ranked swings hold more liquidity.', 'Sweeps and breaks of ITH/ITL matter more than STH/STL.'],
+ miss: ['Treating every short-term swing as major structure.', 'Ignoring which swing actually protects the trend.', 'Targeting tiny swings when a clear ITH is nearby.'],
+ quiz: [
+  ['An intermediate-term high is…', ['A short-term high with lower short-term highs on both sides', 'Any candle high', 'The weekly high', 'An equal high'], 0, 'It stands above neighbouring STHs.'],
+  ['Which sweep is a stronger reversal signal?', ['A sweep of an intermediate-term low', 'A sweep of a minor short-term low', 'They are equal', 'Neither'], 0, 'Bigger swings hold more liquidity.'],
+  ['LTH stands for…', ['Long-term high', 'Low-time high', 'Liquidity threshold high', 'Last trading hour'], 0, 'Long-term high.'],
+ ]},
+{id: '4-6', t: 'Swing failures and failure swings', m: 5,
+ intro: 'When price tries to make a new high and fails, or pokes above a high and immediately falls back, the trend is running out of steam.',
+ chart: [{spec: {pts: [100, 104.2, 102, 103.4, 101.2, 103], legs: [4, 3, 3, 3, 3], seed: 351, h: 140, ann: [['line', 1, 'high', {to: 3}], ['line', 2, 'low', {to: 4}], ['txt', 3, 'fails', 'above']]}, cap: 'Failure swing: a lower high, then a break of the low between.'},
+  {spec: {pts: [100, 104, 102, {p: 104.6, close: 103.7}, 100.8], legs: [4, 3, 3, {n: 3, disp: true}], seed: 353, h: 140, ann: [['line', 1, 'high', {to: 3}], ['txt', 3, 'SFP', 'above']]}, cap: 'Swing failure pattern: pokes above the high, closes back below.'}],
+ body: `## Failure swing
+A **[[failure_swing|failure swing]]** is when price fails to reach the previous swing extreme and then breaks the swing in between:
+- **Bearish:** high → pullback low → **lower high** → break below the pullback low.
+- **Bullish:** low → bounce high → **higher low** → break above the bounce high.
+
+This is the structure that creates a **[[mitigation|mitigation block]]**.
+
+## Swing failure pattern (SFP)
+An SFP is when price **trades beyond** the previous high (or low) and closes **back inside**. In ICT terms, that's a [[sweep]] of liquidity in one or a few candles.
+
+## Which is stronger?
+A sweep (SFP) has taken liquidity, which ICT generally views as stronger fuel for a reversal than a failure swing that didn't. Either way, wait for [[displacement]] and an [[mss|MSS]] before treating it as a reversal.`,
+ take: ['Failure swing = fails to reach the prior extreme, then breaks the middle swing.', 'SFP = trades beyond a swing and closes back inside (a sweep).', 'Both are reversal clues; wait for displacement and MSS.'],
+ miss: ['Assuming every lower high means reversal.', 'Not waiting for the break of the middle swing.', 'Confusing a failure swing with a sweep.'],
+ quiz: [
+  ['A bearish failure swing requires…', ['A lower high followed by a break below the pullback low', 'A new higher high', 'Equal lows', 'A gap'], 0, 'Fail, then break.'],
+  ['A swing failure pattern is closest to…', ['A liquidity sweep', 'A breaker', 'An FVG', 'A BOS'], 0, 'It trades beyond and closes back.'],
+  ['Which structure creates a mitigation block?', ['A failure swing', 'A sweep', 'A gap', 'A doji'], 0, 'No liquidity taken, then a break.'],
+ ]},
+{id: '4-7', t: 'Internal vs external structure', m: 6,
+ intro: 'Big swings make up the main structure. Smaller swings inside them are internal structure. Mixing them up is one of the most common mistakes.',
+ chart: {spec: {pts: [100, 108, 105.8, 106.8, 104.2, 105.4, 103.6, 110], legs: [6, 2, 2, 2, 2, 2, 6], seed: 361, h: 200, ann: [['line', 1, 'ext. high'], ['lvl', 100, 'ext. low', {i0: {c: 0}}], ['lab', 3, 'int'], ['lab', 5, 'int']]}, cap: 'The pullback contains internal lower highs, but the external structure (100 → 108) is still bullish.'},
+ body: `## External structure
+**External structure** is defined by the major swing high and swing low of the current leg on your bias timeframe. It's what tells you the trend.
+
+## Internal structure
+**Internal structure** is the smaller swings *inside* that leg, such as the lower highs during a pullback in an uptrend. Breaking internal structure is normal and doesn't mean the trend changed.
+
+## Why it matters
+- During a pullback in an uptrend, internal structure turns bearish (lower highs, lower lows). If you treat that as a trend change, you'll short right into the higher-timeframe buy zone.
+- The turn back up happens when **internal** structure shifts bullish again **inside a discount PD array**: that's your entry signal in line with external structure.
+
+## A simple process
+1. Define external structure on the bias timeframe (e.g. 1H swing high and low).
+2. Wait for price to pull back into discount.
+3. Use internal structure shifts on the lower timeframe (MSS/CISD) to time the entry back in the external direction.`,
+ take: ['External structure = the major swings; it defines the trend.', 'Internal structure = swings inside the leg; breaking it is often just a pullback.', 'Enter when internal structure realigns with external, in discount/premium.'],
+ miss: ['Calling a pullback\'s internal lower highs a trend change.', 'Not defining which swings are external.', 'Trading internal breaks against the external trend.'],
+ quiz: [
+  ['External structure is defined by…', ['The major swing high and low of the current leg', 'Every tiny swing', 'The session open', 'Indicators'], 0, 'The main swings define it.'],
+  ['During a pullback in an uptrend, internal structure turning bearish usually means…', ['A normal pullback, not necessarily a trend change', 'The uptrend is over', 'Buy immediately', 'Nothing ever'], 0, 'Internal breaks are expected in pullbacks.'],
+  ['A good long entry often comes when…', ['Internal structure shifts bullish inside a discount PD array', 'Internal structure breaks lower in premium', 'Price makes equal highs', 'News hits'], 0, 'Internal realigns with external.'],
+ ]},
+{id: '4-8', t: 'The fractal nature of price', m: 5,
+ intro: 'The same patterns appear on every timeframe. A daily chart and a 5-minute chart can look almost identical without labels.',
+ chart: [{spec: {pts: [106, 101.8, 104, {p: 100.8, close: 101.4}, 107, 104.6, 108.2], legs: [5, 3, 3, {n: 3, disp: true}, 3, 3], seed: 371, h: 130, ann: [['fvg', 0, 'FVG']]}, cap: 'Daily chart: sweep, displacement, FVG, continuation.'},
+  {spec: {pts: [106, 101.8, 104, {p: 100.8, close: 101.4}, 107, 104.6, 108.2], legs: [5, 3, 3, {n: 3, disp: true}, 3, 3], seed: 373, h: 130, ann: [['fvg', 0, 'FVG']]}, cap: '5-minute chart: the same sequence, smaller in size.'}],
+ body: `## Fractals
+A fractal is a pattern that repeats at every scale. Markets behave fractally: liquidity sweeps, displacement, FVGs and structure shifts happen on the monthly chart and on the 1-minute chart.
+
+## What that means for you
+- You can learn the concepts once and apply them on any timeframe.
+- **But** timeframes are nested: a 5-minute MSS is just internal structure on the 1H chart. A higher-timeframe level always outranks a lower one.
+
+## Timeframe pairs
+A practical approach is to use timeframe pairs (roughly 4-12x apart):
+<table class="t"><tr><th>Bias / structure</th><th>Entry</th></tr><tr><td>Weekly / Daily</td><td>4H / 1H</td></tr><tr><td>Daily / 4H</td><td>15m</td></tr><tr><td>1H / 15m</td><td>5m / 1m</td></tr></table>
+
+## The trap
+Fractals make it tempting to drop to a lower timeframe whenever the current one disagrees with you. Decide your bias timeframe and entry timeframe in your plan, and stick to them.`,
+ take: ['Patterns repeat on every timeframe.', 'Higher timeframe context always outranks lower timeframe signals.', 'Use fixed timeframe pairs for bias and entry.'],
+ miss: ['Hopping timeframes until one agrees with you.', 'Treating a 1-minute MSS like a daily MSS.', 'Ignoring the nesting of timeframes.'],
+ quiz: [
+  ['Saying price is "fractal" means…', ['The same patterns repeat on all timeframes', 'Price is random', 'Only daily charts work', 'Charts are broken'], 0, 'Patterns repeat at every scale.'],
+  ['A 5-minute MSS on the 1H chart is usually…', ['Internal structure', 'External structure', 'A weekly signal', 'Irrelevant always'], 0, 'Lower timeframe shifts are internal on higher timeframes.'],
+  ['A sensible pairing for a day trader is…', ['1H/15m bias with 5m/1m entries', 'Monthly bias with tick entries', 'Only the 1-minute', 'Random timeframes'], 0, 'Keep timeframes 4-12x apart.'],
+ ]},
+]});
+})();
+(function () {
+const fibChart = (H, levels, o = {}) => { const w = H.walk(o.pts || [100, {p: 98.6, big: 1}, 108, 104.2, 110.5], o.legs || [3, 6, 4, 4], o.seed || 401); const lo = w.P[1], hi = w.P[2], r = hi - lo; return H.chart(w.c, {h: o.h || 210, pr: 54, extra: o.extra, zones: o.zone ? [{i0: w.at[2], top: hi - r * o.zone[0], bot: hi - r * o.zone[1], fill: 'rgba(0,0,0,.08)'}] : [], lines: levels.map(([f, lab, dash]) => ({i0: w.at[1], y: hi - r * f, dash: dash || '3 2', label: lab, out: 1, sw: f === 0.5 ? 1 : .7}))}).svg; };
+CS.level({n: 5, name: 'Premium & Discount', d: 'Dealing range, equilibrium, OTE, Fibonacci, SD projections', lessons: [
+{id: '5-1', t: 'Dealing ranges', m: 6,
+ intro: 'A dealing range is the box price is currently trading inside, from a clear swing low to a clear swing high. Everything about premium and discount is measured from it.',
+ chart: {spec: {pts: [104, {p: 99, close: 99.6}, 108, 103.4, 106.4, 102.2, 105], legs: [4, {n: 4, disp: true}, 4, 3, 3, 3], seed: 411, h: 200, ann: [['line', 1, 'range low'], ['line', 2, 'range high'], ['lvl', 103.5, 'EQ', {i0: 1}]]}, cap: 'The dealing range runs from the swing low to the swing high created by the last displacement.'},
+ body: `## Definition
+A **[[dealing_range|dealing range]]** is defined by a significant swing high and swing low on your bias timeframe, usually the extremes of the most recent leg that broke structure. Price trades inside it until it breaks out and a new range forms.
+
+## How to choose the range
+- Use the swing that **took liquidity** and the swing that **broke structure**. For a bullish range: the low that swept sell-side liquidity, and the high made by the displacement leg.
+- Prefer swings on your bias timeframe (daily or 4H for swing traders; 1H or 15m for day traders).
+- When price breaks the range high with displacement, the old range is done; draw a new one.
+
+## Why it matters
+Once you have the range:
+- Its **50% level** is [[equilibrium]].
+- Above 50% is **[[premium]]**, below is **[[discount]]**.
+- The PD arrays inside it can be filtered by which half they sit in.
+
+## Multiple ranges
+Daily, 4H and 1H ranges can all be valid at once. When a 15m discount zone sits inside a daily discount zone, that's strong alignment.`,
+ take: ['A dealing range spans a significant swing low to swing high.', 'Pick swings that took liquidity and broke structure.', 'It defines equilibrium, premium and discount.'],
+ miss: ['Using random tiny swings for the range.', 'Keeping an old range after price has clearly broken out.', 'Forgetting which timeframe the range belongs to.'],
+ quiz: [
+  ['A dealing range is defined by…', ['A significant swing low and swing high', 'The daily open and close', 'Two moving averages', 'The spread'], 0, 'It is the current trading box.'],
+  ['Which swings make the best range?', ['The swing that took liquidity and the swing that broke structure', 'Any two candles', 'The first and last candle of the day', 'Random highs'], 0, 'They carry meaning.'],
+  ['Price breaks the range high with displacement. Now…', ['Draw a new dealing range', 'Keep using the old one', 'Stop trading forever', 'Ignore structure'], 0, 'A new leg means a new range.'],
+ ]},
+{id: '5-2', t: 'Equilibrium, premium and discount', m: 6,
+ intro: 'Buy low, sell high, made precise. The top half of a range is expensive (premium), the bottom half is cheap (discount), and the middle is equilibrium.',
+ chart: {f: H => fibChart(H, [[0, 'high'], [0.5, 'EQ 50%'], [1, 'low']], {zone: [0.5, 1], pts: [100, {p: 98.6, big: 1}, 108, 105, 106, 102.6, 107], legs: [3, 6, 3, 2, 3, 4]}) .replace('</svg>', '<text x="12" y="40" font-size="9" fill="#c0392b">PREMIUM: look for shorts</text><text x="12" y="200" font-size="9" fill="#1f8a4c">DISCOUNT: look for longs</text></svg>'), cap: 'In a bullish range, wait for price to return to discount (below 50%) before buying.'},
+ body: `## The rule
+- **[[premium|Premium]]:** above 50% of the dealing range. Price is relatively expensive. Look for **shorts** (or take profits on longs).
+- **[[discount|Discount]]:** below 50%. Price is relatively cheap. Look for **longs**.
+- **[[equilibrium|Equilibrium (EQ)]]:** the 50% level itself, fair value for that range.
+
+## Why it works
+Large players accumulate at good prices. In a bullish market they want to buy in discount, not chase in premium. Retail traders often do the opposite: buy breakouts at the top of the range and sell panics at the bottom.
+
+## Applying it
+1. Bullish bias: wait for price to retrace **below EQ**, then look for a bullish PD array and confirmation there.
+2. Bearish bias: wait for price to rally **above EQ**, then look for a bearish PD array.
+3. A bullish FVG in premium is lower quality; a bullish FVG in discount is higher quality.
+
+## Nuance
+In very strong trends, price may only retrace to just below EQ, or to a shallow FVG in premium on the lower timeframe. That's fine: check the higher-timeframe range. Premium on the 15m can still be discount on the daily.`,
+ take: ['Premium = above 50%: sell zone. Discount = below 50%: buy zone.', 'Equilibrium is the 50% fair value of the range.', 'Combine with HTF ranges: alignment adds confidence.'],
+ miss: ['Buying in premium because price "looks strong".', 'Shorting in deep discount against a bullish bias.', 'Measuring premium/discount from the wrong range.'],
+ quiz: [
+  ['Where do you prefer to look for longs?', ['Discount (below 50% of the range)', 'Premium', 'At the range high', 'Anywhere'], 0, 'Buy cheap.'],
+  ['A range from 100 to 120 has equilibrium at…', ['110', '100', '120', '115'], 0, '(100 + 120) ÷ 2.'],
+  ['A bullish FVG sits at 117 in that 100-120 range. It is in…', ['Premium (lower quality for a long)', 'Discount', 'Equilibrium', 'Not in the range'], 0, '117 is above 110.'],
+ ]},
+{id: '5-3', t: 'Optimal trade entry (OTE)', m: 8,
+ intro: 'OTE is a sweet spot deep in a pullback where the risk is small and the potential reward is large: roughly between the 62% and 79% retracement.',
+ chart: {f: H => fibChart(H, [[0, '0 (high)'], [0.5, '50%'], [0.62, '62%'], [0.705, '70.5%', '4 2'], [0.79, '79%'], [1, '1 (low)']], {zone: [0.62, 0.79], pts: [100, {p: 98.6, big: 1}, 108, 101.9, 111], legs: [3, {n: 5, disp: true}, 4, 5]}), cap: 'Draw the fib from the swing low to the swing high. The OTE zone is 62-79%, with 70.5% as the sweet spot.'},
+ body: `## Definition
+**[[ote|Optimal trade entry (OTE)]]** is a retracement zone between about **62% and 79%** of a swing, measured with the Fibonacci tool, with **70.5%** as the midpoint ICT often highlights.
+
+## How to draw it (bullish)
+1. Identify the impulse leg: from the swing low (ideally one that swept liquidity) to the swing high that broke structure.
+2. Draw the Fibonacci retracement **from the low to the high**.
+3. The OTE zone sits between 62% and 79% retracement, deep in discount.
+4. Look for a PD array (FVG, order block) **inside** the OTE zone plus lower-timeframe confirmation.
+
+For a bearish OTE, draw from the swing high to the swing low; OTE is the 62-79% retracement up into premium.
+
+## Why it's "optimal"
+Entering deep in the pullback means your stop (beyond the swing low) is close, while the target (the swing high and beyond) is far. That improves your [[rr|reward-to-risk]].
+
+## Pitfalls
+- Price often doesn't reach OTE in strong moves; you might miss trades. That's acceptable.
+- OTE alone isn't a reason to enter. It's a location. You still need bias, liquidity, time and confirmation.
+- If price closes through 100% (the swing low), the idea is invalid.`,
+ take: ['OTE = 62-79% retracement, 70.5% sweet spot.', 'Draw from the swing low to the high (bullish) or high to low (bearish).', 'It\'s a location; combine with a PD array and confirmation.'],
+ miss: ['Drawing the fib on an insignificant swing.', 'Entering at OTE with no PD array or confirmation.', 'Holding after price closes beyond the 100% level.'],
+ quiz: [
+  ['The OTE zone sits roughly between…', ['62% and 79%', '23% and 38%', '50% and 55%', '100% and 127%'], 0, 'Deep retracement zone.'],
+  ['For a bullish OTE, you draw the Fibonacci…', ['From the swing low to the swing high', 'From the high to the low', 'From open to close', 'From any two candles'], 0, 'Low to high for longs.'],
+  ['Why is a deep entry "optimal"?', ['The stop is close and the target is far, improving R:R', 'It always wins', 'It avoids commissions', 'It is required by brokers'], 0, 'Better reward-to-risk.'],
+  ['Price closes below the 100% level of your bullish OTE swing. The idea is…', ['Invalid', 'Stronger', 'Unchanged', 'A short guarantee'], 0, 'The swing low broke.'],
+ ]},
+{id: '5-4', t: 'Fibonacci the ICT way', m: 6,
+ intro: 'ICT uses the Fibonacci tool not for magic ratios but as a ruler: to find equilibrium, the OTE zone, and targets beyond the swing.',
+ chart: {f: H => fibChart(H, [[0, '0'], [0.5, '0.5 EQ'], [0.62, '0.62'], [0.705, '0.705'], [0.79, '0.79'], [1, '1'], [-0.27, '−0.27'], [-0.62, '−0.62'], [-1, '−1']], {zone: [0.62, 0.79], pts: [100, {p: 98.6, big: 1}, 104.5, 101.2, 109.3], legs: [3, {n: 4, disp: true}, 3, 6], extra: [110.2], h: 230}), cap: 'Retracement levels for entries; negative extensions (−0.27, −0.62, −1) as targets beyond the swing high.'},
+ body: `## Levels ICT commonly uses
+- **0 and 1:** the swing extremes.
+- **0.5:** [[equilibrium]].
+- **0.62, 0.705, 0.79:** the [[ote|OTE]] zone.
+- **Negative extensions (−0.27, −0.62, −1, −2):** projected targets beyond the swing.
+
+Most platforms let you customise the fib tool. Many ICT traders set exactly these levels and delete the rest.
+
+## Retracements for entries
+Draw from the start to the end of the impulse leg. Look for entries in discount (bullish) or premium (bearish), ideally where a PD array overlaps the OTE zone.
+
+## Extensions for targets
+Extensions project how far the next leg might travel. A common approach is to take partial profits at −0.27 or −0.62, and consider −1 as an extended target. Always cross-check with real liquidity (old highs/lows): a target that lines up with liquidity is far more reliable than a fib level alone.
+
+## Keep it honest
+Fibonacci levels don't have mystical power. They're a consistent way to measure ranges. Liquidity and PD arrays are what price actually reacts to.`,
+ take: ['Set the fib to 0, 0.5, 0.62, 0.705, 0.79, 1 plus negative extensions.', 'Retracements for entries, extensions for targets.', 'Prefer fib levels that line up with liquidity or PD arrays.'],
+ miss: ['Using every default fib level and getting confused.', 'Treating a fib level alone as a reason to trade.', 'Ignoring real liquidity when setting targets.'],
+ quiz: [
+  ['In ICT usage, the 0.5 level represents…', ['Equilibrium', 'The OTE sweet spot', 'A stop level', 'The daily open'], 0, 'The 50% of the range.'],
+  ['Negative extensions like −0.27 and −0.62 are used for…', ['Targets beyond the swing', 'Entries in discount', 'Stop placement only', 'Nothing'], 0, 'They project the next leg.'],
+  ['Which target is most reliable?', ['A fib extension that lines up with old highs (liquidity)', 'A fib level alone in empty space', 'A round number only', 'The spread'], 0, 'Confluence with liquidity.'],
+ ]},
+{id: '5-5', t: 'Standard deviation projections', m: 7,
+ intro: 'Standard deviation projections measure a key swing and project multiples of it to estimate how far the next move may go.',
+ chart: {f: H => { const w = H.walk([104, {p: 106.6, big: 1}, 103, 104.2, 101.2, 101.9, 98.75, 99.7], [4, {n: 3, disp: true}, 2, 3, 2, 4, 2], 431); const B = w.P[1], A = 104, r = B - A; return H.chart(w.c, {h: 220, pr: 50, extra: [A - 2.5 * r - .2], zones: [{i0: 0, i1: w.at[1], top: B, bot: A, fill: 'rgba(0,0,0,.07)'}], lines: [[B, '0'], [A, '1'], [A - r, '−1 SD'], [A - 2 * r, '−2 SD'], [A - 2.5 * r, '−2.5 SD']].map(([y, l]) => ({i0: 0, y, dash: '3 2', label: l, out: 1, sw: .7}))}).svg; }, cap: 'Measure the manipulation leg (shaded), then project −1, −2 and −2.5 standard deviations as potential targets.'},
+ body: `## The idea
+ICT uses the Fibonacci tool to project **multiples** of a reference swing. He calls these **standard deviation** projections (not the statistical formula, just multiples of a measured range).
+
+## What to measure
+Common choices, as widely taught:
+- The **manipulation leg**: the Judas swing or false move that ran liquidity before the real move.
+- The swing that created the **MSS** (from the high that formed to the low that broke, or vice versa).
+- Some ranges like the **CBDR** (central bank dealers range) or **Asian range** for forex.
+
+## Levels commonly used
+**−1, −2, −2.5, −4** (and sometimes −4.5) standard deviations. Price often reacts or stalls near these, especially when they line up with liquidity.
+
+## How to draw
+Place the fib with 1 and 0 on the measured leg, and add custom levels at −1, −2, −2.5 and −4. For a bearish projection, anchor from the leg's high to low so the negatives project downward.
+
+## Using them responsibly
+Projections give you a **map of likely stopping points**, not guarantees. Combine with the draw on liquidity: if −2 SD lines up with the previous day's low, that's a strong target. If it's in empty space, take less weight from it.`,
+ take: ['SD projections = multiples of a measured swing (e.g. the manipulation leg).', 'Common levels: −1, −2, −2.5, −4.', 'Best when they line up with real liquidity.'],
+ miss: ['Measuring a random swing.', 'Holding for −4 SD when liquidity was already taken at −2.', 'Confusing ICT\'s SD with the statistical formula.'],
+ quiz: [
+  ['ICT standard deviation projections are…', ['Multiples of a measured swing projected with the fib tool', 'The statistical variance of prices', 'Moving averages', 'Session times'], 0, 'They are range multiples.'],
+  ['A common leg to measure is…', ['The manipulation (Judas) leg', 'The whole month', 'A random candle', 'The spread'], 0, 'The false move before the real one.'],
+  ['When is a projection most reliable as a target?', ['When it lines up with liquidity like PDL', 'When it is in empty space', 'Always equally', 'Never'], 0, 'Confluence matters.'],
+ ]},
+{id: '5-6', t: 'Combining premium/discount with PD arrays', m: 6,
+ intro: 'The best entries happen where three things overlap: the right half of the range, a quality PD array, and the right time.',
+ chart: {spec: {pts: [106, {p: 99.2, close: 99.8}, 108.2, 106.6, 107.6, 101.0, 109.6], legs: [4, {n: 3, disp: true}, 2, 2, {n: 3, disp: false} , 5], seed: 451, h: 200, ann: [['line', 1, 'low'], ['line', 2, 'high'], ['lvl', 103.7, 'EQ', {i0: 1}], ['fvg', 0, 'FVG']]}, cap: 'Price retraces below equilibrium into the FVG: a discount PD array in a bullish range.'},
+ body: `## The stack
+A high-quality long (mirror for shorts) has:
+1. **Bias:** the higher timeframe points up (draw on liquidity is above).
+2. **Location:** price is in **discount** of the current dealing range.
+3. **Array:** a bullish PD array is present there (FVG, order block, breaker), ideally overlapping [[ote|OTE]].
+4. **Time:** price reaches it during a killzone.
+5. **Confirmation:** lower-timeframe shift (MSS/CISD) at the array.
+
+## Filtering
+Most bad trades fail at least one of these. A bullish FVG in premium, outside a killzone, against the daily trend, is a gamble no matter how pretty it looks.
+
+## Nested ranges
+Check both your bias range (e.g. 4H) and your execution range (e.g. 15m). Best case: the 15m discount array sits inside the 4H discount zone.`,
+ take: ['Bias + discount/premium + PD array + time + confirmation.', 'Most bad trades fail at least one filter.', 'Nested discount zones on two timeframes give the strongest locations.'],
+ miss: ['Taking a pretty FVG in premium for a long.', 'Ignoring the higher-timeframe range.', 'Skipping confirmation because the location looks perfect.'],
+ quiz: [
+  ['Which long setup is best?', ['Bullish FVG in discount, bullish bias, in a killzone, with LTF MSS', 'Bullish FVG in premium against bias', 'Any FVG at lunch', 'Buying the high'], 0, 'All filters line up.'],
+  ['A 15m discount array inside a 4H discount zone is…', ['Strong alignment', 'A conflict', 'Irrelevant', 'A short signal'], 0, 'Nested discount is ideal.'],
+  ['Location alone (being in discount) is…', ['Not enough; you still need an array, time and confirmation', 'Always enough', 'A guarantee', 'Irrelevant'], 0, 'Location is one filter.'],
+ ]},
+]});
+})();
+(function () {
+const K = (o, h, l, c) => ({o, h, l, c});
+// 24h New York time bar. rows: [[label, [[startMin, endMin], ...], colour]]
+const bar24 = (rows, o = {}) => {
+  const W = 360, L = 92, R = 6, rh = 13, g = 6, H = rows.length * (rh + g) + 22, x = m => L + m / 1440 * (W - L - R);
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue,Helvetica,Arial,sans-serif">`;
+  rows.forEach(([lab, spans, col], i) => { const y = 4 + i * (rh + g); s += `<text x="0" y="${y + 10}" font-size="9">${lab}</text><rect x="${L}" y="${y}" width="${W - L - R}" height="${rh}" fill="#f4f4f4"/>`; spans.forEach(([a, b]) => s += `<rect x="${x(a)}" y="${y}" width="${Math.max(1.5, x(b) - x(a))}" height="${rh}" fill="${col || '#000'}"/>`); });
+  const by = 4 + rows.length * (rh + g);
+  for (let h = 0; h <= 24; h += 3) s += `<text x="${x(h * 60)}" y="${by + 10}" font-size="8" fill="#8a8a8a" text-anchor="${h === 0 ? 'start' : h === 24 ? 'end' : 'middle'}">${h === 0 || h === 24 ? '12a' : h === 12 ? '12p' : h < 12 ? h + 'a' : (h - 12) + 'p'}</text>`;
+  return s + '</svg>';
+};
+const hm = (h, m = 0) => h * 60 + m;
+const days = (H, c, labels, o = {}) => H.chart(c, Object.assign({h: 170, pr: 8, bw: .5, marks: [(x) => labels.map((t, i) => `<text x="${x(i)}" y="166" text-anchor="middle" font-size="8.5" fill="#555">${t}</text>`).join('')]}, o)).svg;
+CS.level({n: 6, name: 'Time & Price', d: 'Sessions, killzones, Silver Bullet, macros, AMD, weekly profiles, news', lessons: [
+{id: '6-1', t: 'Why time matters', m: 5,
+ intro: 'Price doesn’t move evenly through the day. Big moves cluster at specific times, so when you trade matters as much as where.',
+ chart: {f: H => bar24([['Asia', [[hm(19), hm(24)], [0, hm(2)]], '#d4d4d4'], ['London', [[hm(2), hm(12)]], '#8c8c8c'], ['New York', [[hm(7), hm(16)]], '#555'], ['Overlap', [[hm(7), hm(12)]], '#000']]), cap: 'Sessions in New York time. The London-New York overlap carries the most volume.'},
+ body: `## Time and price
+ICT's core idea is that price and **time** work together. A great PD array reached at 12:45 pm on a quiet day is much less reliable than the same array reached at 9:50 am. Large players do most of their business in specific windows, so that's when the real moves (and the real liquidity raids) happen.
+
+## What to take from this level
+- **Sessions and killzones:** when to be at the screen.
+- **Asian range:** the overnight box that London and New York often raid.
+- **Silver Bullet and macros:** short, specific windows ICT highlights.
+- **Opens:** midnight, 8:30 and 9:30 as reference prices.
+- **Power of Three:** how a day or week is typically built.
+- **News and day-of-week:** when to stay out and how weeks tend to unfold.
+
+## The professional habit
+Trade **fewer hours, better hours**. Most consistent ICT traders pick one session (often New York AM) and only trade there. Outside that window they review, journal and rest.`,
+ take: ['Time is as important as price.', 'Big moves cluster in specific windows.', 'Pick one session and trade it well.'],
+ miss: ['Trading all day and getting chopped up at lunch.', 'Ignoring the clock when an array looks good.', 'Thinking in local time instead of New York time.'],
+ quiz: [
+  ['Why does ICT stress time?', ['Large players are active in specific windows, so moves cluster there', 'Clocks are accurate', 'Exchanges close often', 'It does not matter'], 0, 'Institutional activity is time-dependent.'],
+  ['Which window usually has the most volume?', ['London-New York overlap', 'Asian lunch', 'Late Friday', 'Sunday morning'], 0, 'Two major centres active together.'],
+  ['A sensible professional habit is…', ['Trading one session consistently', 'Trading every hour', 'Trading only at night', 'Never checking the time'], 0, 'Fewer, better hours.'],
+ ]},
+{id: '6-2', t: 'Sessions and killzones', m: 7,
+ intro: 'Killzones are the specific windows ICT says produce the highest-probability moves: the London open, the New York morning, and a few others.',
+ chart: {f: H => bar24([['Asian KZ', [[hm(20), hm(24)]], '#d4d4d4'], ['London Open KZ', [[hm(2), hm(5)]], '#8c8c8c'], ['NY AM KZ', [[hm(7), hm(10)]], '#555'], ['London close', [[hm(10), hm(12)]], '#b0b0b0'], ['NY PM', [[hm(13, 30), hm(16)]], '#8c8c8c']]), cap: 'Killzones in New York time. The app\'s Killzones tab shows these live in your time zone.'},
+ body: `## The killzones (New York time)
+<table class="t"><tr><th>Window</th><th>Time (NY)</th><th>Typical behaviour</th></tr><tr><td>Asian killzone</td><td>8:00 pm - 12:00 am</td><td>Range building; sets the Asian high/low</td></tr><tr><td>London Open killzone</td><td>2:00 - 5:00 am</td><td>Often raids one side of Asia; can form the day's high or low</td></tr><tr><td>New York AM killzone</td><td>7:00 - 10:00 am</td><td>News at 8:30, equities open 9:30; the main ICT window</td></tr><tr><td>London close</td><td>10:00 am - 12:00 pm</td><td>Retracements, reversals of the morning move</td></tr><tr><td>New York PM session</td><td>1:30 - 4:00 pm</td><td>Second push or reversal into the close</td></tr></table>
+
+ICT has used slightly different times over the years (for example, some versions put the NY AM killzone at 8:30-11:00 am for index futures). The exact edges matter less than the principle: **focus on these windows**.
+
+## What happens in a killzone
+Usually: price runs a nearby pool of liquidity (Asian high/low, PDH/PDL, a session extreme), then displaces and delivers toward the opposite liquidity. That's when the setups in Level 8 appear.
+
+{{clock}}
+
+## Daylight saving
+Killzones are defined in **New York local time**. When US clocks change, they move in your local time if you're elsewhere. The killzone clock handles this automatically.`,
+ take: ['London Open 2-5 am, NY AM 7-10 am, London close 10-12, NY PM 1:30-4 (NY time).', 'Killzones are when liquidity raids and real moves cluster.', 'Always think in New York time.'],
+ miss: ['Taking A+ setups outside killzones as if they were equal.', 'Forgetting daylight-saving shifts in your local time.', 'Trading every killzone instead of mastering one.'],
+ quiz: [
+  ['The London Open killzone is roughly…', ['2:00-5:00 am NY', '7:00-10:00 am NY', '1:30-4:00 pm NY', '8:00 pm-12:00 am NY'], 0, 'London open in NY time.'],
+  ['The New York AM killzone is roughly…', ['7:00-10:00 am NY', '2:00-5:00 am NY', '12:00-1:00 pm NY', '6:00-7:00 pm NY'], 0, 'The main ICT window.'],
+  ['What typically happens in a killzone?', ['A liquidity raid followed by displacement toward the opposite liquidity', 'Nothing', 'Only ranging', 'Markets close'], 0, 'Raid, then the real move.'],
+ ]},
+{id: '6-3', t: 'The Asian range (and CBDR)', m: 6,
+ intro: 'Overnight, during Asia, price usually builds a small box. London and New York often raid one side of it before the real move.',
+ chart: {spec: {pts: [101, 102.2, 101.2, 102.1, 101.3, 102, {p: 100.6, close: 101.2}, 104.6, 103.6, 105.4], legs: [3, 2, 2, 2, 2, 2, {n: 3, disp: true}, 2, 3], seed: 501, h: 190, ann: [['zone', 1, 102.2, 101.2, 'Asia', {to: 5, fill: 'rgba(0,0,0,.06)'}], ['line', 2, 'Asia low', {to: 6}], ['txt', 6, 'London sweep', 'below']]}, cap: 'London sweeps the Asian low, then displaces higher: a classic bullish day start.'},
+ body: `## The Asian range
+The [[asian_range|Asian range]] is the high and low made during the Asian session (often measured roughly 7 or 8 pm to midnight NY, depending on the version). In quiet conditions it's a tight box.
+
+## Why it matters
+Both sides of the box hold liquidity:
+- Above the Asian high: buy stops (BSL).
+- Below the Asian low: sell stops (SSL).
+
+London frequently **raids one side** of the Asian range (often the side against the day's real direction), then reverses. That raid is the "manipulation" of the [[po3|Power of Three]] and often the [[judas|Judas swing]].
+
+## CBDR (forex)
+ICT also teaches the **[[cbdr|Central Bank Dealers Range]]**: roughly 2:00 pm to 8:00 pm NY. When CBDR is small (traditionally under ~40 pips in major FX pairs), its [[sd_projection|standard deviations]] are used to project the day's likely high or low. Many traders apply the same idea to the Asian range.
+
+## Practical use
+1. Mark the Asian high and low before London.
+2. Note your daily bias.
+3. If bias is bullish, watch for London to sweep the **Asian low**, then look for an MSS long.
+4. Target the Asian high, PDH, or other buy-side liquidity.`,
+ take: ['Mark the Asian high/low before London.', 'London often raids one side, then reverses.', 'CBDR (2-8 pm NY) and its SDs project daily extremes in forex.'],
+ miss: ['Trading the Asian range itself with tight stops.', 'Buying the Asian high breakout at London open on a bearish day.', 'Ignoring whether the Asian range is tight or wide.'],
+ quiz: [
+  ['Which side of the Asian range does London often raid?', ['The side against the day\'s real direction', 'Always the high', 'Always the low', 'Neither'], 0, 'The manipulation leg often runs the opposite side first.'],
+  ['CBDR runs roughly…', ['2:00-8:00 pm NY', '2:00-5:00 am NY', '9:30-10:00 am NY', 'All day'], 0, 'Central Bank Dealers Range.'],
+  ['Bullish bias. London sweeps the Asian low and displaces up. You look for…', ['A long after an MSS, targeting buy-side liquidity', 'A short', 'Nothing', 'A breakout of the low'], 0, 'Textbook bullish day start.'],
+ ]},
+{id: '6-4', t: 'The London session', m: 6,
+ intro: 'London is the world’s biggest forex centre. Its open often creates a false move first and sets the high or low of the whole day.',
+ chart: {spec: {pts: [102, 102.6, 101.8, {p: 103.8, close: 103.1}, 99.6, 100.6, 98.4], legs: [3, 2, 2, {n: 3, disp: true}, 2, 3], seed: 511, h: 180, ann: [['line', 1, 'Asia high', {to: 3}], ['txt', 3, 'high of day', 'above'], ['fvg', 0, 'FVG']]}, cap: 'Bearish day: London runs above the Asian high (the Judas swing), forms the high of day, then sells off.'},
+ body: `## London open killzone (2:00-5:00 am NY)
+London brings a big jump in volume. Typical behaviour:
+1. Price moves against the day's true direction first, raiding Asian liquidity or PDH/PDL: the **[[judas|Judas swing]]**.
+2. It then reverses with displacement and delivers in the true direction.
+3. On many days, **the London killzone forms the high (bearish day) or low (bullish day) of the day.**
+
+## Trading London
+- Pre-mark Asian high/low, PDH/PDL, and the midnight open.
+- Bias bearish? Wait for a raid **above** a nearby high, then an MSS lower.
+- Target sell-side liquidity: Asian low, PDL.
+
+## For New York traders
+Even if you only trade New York, study what London did. If London already swept the Asian low and rallied, the low of the day may be in, so New York often continues higher or retraces into a London FVG before continuing.
+
+## Lunch and London close
+London's lunch and close (around 10 am - 12 pm NY) often bring retracements of the morning move.`,
+ take: ['London often makes a Judas swing, then the real move.', 'London frequently forms the high or low of the day.', 'New York traders should read what London did.'],
+ miss: ['Chasing the first London move as if it were the trend.', 'Ignoring the London range when planning New York.', 'Trading through London lunch chop.'],
+ quiz: [
+  ['On a bullish day, London often…', ['Dips first (raiding lows), then rallies', 'Only rises steadily', 'Forms the high of day', 'Does nothing'], 0, 'Manipulation down, then distribution up.'],
+  ['The London killzone frequently forms…', ['The high or low of the day', 'The weekly close', 'Nothing important', 'The CBDR'], 0, 'A key ICT tendency.'],
+  ['A New York trader sees London already swept the Asian low and rallied. A reasonable view is…', ['The low of the day may be in; look for longs on retracements', 'Short immediately', 'The day is over', 'Ignore London'], 0, 'Read London to frame New York.'],
+ ]},
+{id: '6-5', t: 'New York AM and PM sessions', m: 7,
+ intro: 'New York is where index futures really move. The morning has three key moments: 8:30 news, the 9:30 stock open and the 10:00 hour.',
+ chart: {spec: {pts: [103, 103.6, 102.8, {p: 101.6, close: 102.2}, 105.6, 104.4, 106.8, 105.2], legs: [3, 2, 2, {n: 3, disp: true}, 2, 3, 3], seed: 521, h: 190, ann: [['txt', 2, '8:30', 'above'], ['txt', 3, '9:30 sweep', 'below'], ['fvg', 0, 'FVG'], ['txt', 6, '10-11', 'above']]}, cap: 'A common NY AM sequence: news volatility, a sweep near the 9:30 open, displacement, then delivery in the 10 o\'clock hour.'},
+ body: `## Key times (NY)
+- **7:00-8:30 am:** pre-news positioning; London retracements.
+- **8:30 am:** major US economic releases (CPI, NFP, jobless claims, PPI, retail sales). Volatility spike.
+- **9:30 am:** US stock market open. Index futures often make a fake move in the first 15-30 minutes.
+- **9:50-10:10 am:** an ICT macro window.
+- **10:00-11:00 am:** the AM [[silver_bullet|Silver Bullet]] hour; also 10:00 data releases (ISM, consumer sentiment).
+- **11:30 am-1:30 pm:** New York lunch. Thin, choppy, often best avoided.
+- **1:30-4:00 pm:** NY PM session. **2:00-3:00 pm** PM Silver Bullet; **2:00 pm** FOMC statements on those days.
+
+## Behaviour
+The NY AM session often continues London's move after a retracement, or reverses it if London ran into a higher-timeframe level. The PM session can extend the day's move or reverse into the close; it's thinner, and many traders stop after the morning.
+
+## A simple NY routine
+1. Before 8:30: mark PDH/PDL, London high/low, midnight open, NWOG; know the news calendar.
+2. 8:30-9:30: observe; let news volatility settle.
+3. 9:30-11:00: look for a sweep → displacement → MSS → FVG entry in your bias direction.
+4. Done by lunch.`,
+ take: ['8:30 news, 9:30 equity open and 10-11 am are key NY AM moments.', 'Lunch (11:30-1:30) is usually chop.', 'PM session: 1:30-4, with the 2-3 pm Silver Bullet.'],
+ miss: ['Entering in the first seconds after 8:30 news.', 'Trading through lunch out of boredom.', 'Ignoring what London did before NY.'],
+ quiz: [
+  ['US stocks open at…', ['9:30 am NY', '8:30 am NY', '10:00 am NY', '7:00 am NY'], 0, 'Regular session opens 9:30.'],
+  ['Most major US data (CPI, NFP) is released at…', ['8:30 am NY', '9:30 am NY', '2:00 pm NY', 'Midnight'], 0, '8:30 am NY.'],
+  ['New York lunch (about 11:30-1:30) is usually…', ['Thin and choppy, best avoided', 'The best time to trade', 'When markets close', 'Only for crypto'], 0, 'Low participation.'],
+ ]},
+{id: '6-6', t: 'Silver Bullet windows', m: 6,
+ intro: 'The Silver Bullet is a one-hour window, three times a day, where ICT looks for a quick fair value gap trade toward nearby liquidity.',
+ chart: [{f: H => bar24([['SB London', [[hm(3), hm(4)]], '#000'], ['SB NY AM', [[hm(10), hm(11)]], '#000'], ['SB NY PM', [[hm(14), hm(15)]], '#000']]), cap: 'Silver Bullet windows (NY time).'},
+  {spec: {pts: [103, 103.8, {p: 102.4, close: 103}, 106, 104.8, 106.9], legs: [3, 3, {n: 3, disp: true}, 2, 3], seed: 531, h: 160, ann: [['txt', 2, 'sweep 10:05', 'below'], ['fvg', 0, 'FVG 10:15'], ['txt', 5, 'target', 'above']]}, cap: 'Inside 10-11 am: a sweep, displacement leaves an FVG, entry on the return, target the nearest liquidity.'}],
+ body: `## The windows (NY time)
+- **3:00-4:00 am** (London)
+- **10:00-11:00 am** (New York AM)
+- **2:00-3:00 pm** (New York PM)
+
+## The core idea
+Within one of these hours, look for the first [[fvg|FVG]] that forms after price **takes liquidity** and **displaces** toward a nearby draw on liquidity. Enter on the retracement into that FVG; target the next liquidity pool. It's designed to be quick and mechanical.
+
+The full model (rules, stops, targets) is taught in Level 8. Here, the key thing is the **time**: setups inside the window are what count.
+
+## Why these hours?
+They tend to coincide with periods of algorithmic re-pricing after the opens (London, NY equities) and after the lunch lull. Whether or not you accept ICT's reasoning, many traders find these windows reliably active, especially 10-11 am in index futures.`,
+ take: ['Silver Bullet windows: 3-4 am, 10-11 am, 2-3 pm NY.', 'Look for the FVG after a liquidity raid and displacement inside the window.', 'Model details are in Level 8.'],
+ miss: ['Taking an FVG outside the window and calling it a Silver Bullet.', 'Ignoring the draw on liquidity.', 'Forcing a trade if no clean FVG forms.'],
+ quiz: [
+  ['Which is NOT a Silver Bullet window?', ['12:00-1:00 pm NY', '3:00-4:00 am NY', '10:00-11:00 am NY', '2:00-3:00 pm NY'], 0, 'Lunch is not a Silver Bullet window.'],
+  ['The Silver Bullet looks for…', ['An FVG after liquidity is taken, within the window', 'A moving average cross', 'A breakout of the Asian high only', 'Any candle'], 0, 'FVG inside the time window.'],
+  ['If no clean FVG forms in the window, you…', ['Don\'t trade', 'Trade anyway', 'Double size', 'Use the next day\'s window now'], 0, 'No setup, no trade.'],
+ ]},
+{id: '6-7', t: 'Macros', m: 6,
+ intro: 'Macros are short windows, about 20-30 minutes, where ICT says the price algorithm tends to run for liquidity or rebalance a gap.',
+ chart: {f: H => bar24([['London', [[hm(2, 33), hm(3)], [hm(4, 3), hm(4, 30)]], '#000'], ['NY AM', [[hm(8, 50), hm(9, 10)], [hm(9, 50), hm(10, 10)], [hm(10, 50), hm(11, 10)]], '#000'], ['Lunch', [[hm(11, 50), hm(12, 10)]], '#555'], ['NY PM', [[hm(13, 10), hm(13, 40)], [hm(15, 15), hm(15, 45)]], '#000']]), cap: 'Commonly listed ICT macro windows (NY time).'},
+ body: `## Commonly listed macro times (NY)
+<table class="t"><tr><th>Window</th><th>Session</th></tr><tr><td>2:33 - 3:00 am</td><td>London</td></tr><tr><td>4:03 - 4:30 am</td><td>London</td></tr><tr><td>8:50 - 9:10 am</td><td>New York AM</td></tr><tr><td>9:50 - 10:10 am</td><td>New York AM</td></tr><tr><td>10:50 - 11:10 am</td><td>New York AM</td></tr><tr><td>11:50 am - 12:10 pm</td><td>Lunch</td></tr><tr><td>1:10 - 1:40 pm</td><td>New York PM</td></tr><tr><td>3:15 - 3:45 pm</td><td>Last hour</td></tr></table>
+Lists vary slightly between sources; these are the most widely shared.
+
+## What to expect in a macro
+ICT describes macros as moments when price tends to:
+- **Run** a nearby liquidity pool (a short-term high/low), or
+- **Rebalance** a nearby FVG,
+
+often in a quick, clean move.
+
+## How to use them
+- As **timing filters**: if you're already waiting at a PD array, a macro window is when the reaction is more likely.
+- As **targets**: during a macro, expect price to reach for the closest obvious liquidity.
+- Don't treat them as stand-alone signals. They add to a setup; they don't create one.`,
+ take: ['Macros are ~20-30 minute windows, e.g. 9:50-10:10 and 10:50-11:10 am NY.', 'Expect quick runs on liquidity or FVG rebalancing.', 'Use them for timing, not as stand-alone signals.'],
+ miss: ['Trading any move inside a macro without a setup.', 'Memorising times but ignoring liquidity.', 'Believing lists are exact to the second.'],
+ quiz: [
+  ['Which is a commonly listed ICT macro?', ['9:50-10:10 am NY', '12:30-2:30 pm NY', '6:00-7:00 pm NY', '5:00-6:00 am NY'], 0, 'One of the NY AM macros.'],
+  ['During a macro, price often…', ['Runs nearby liquidity or rebalances an FVG', 'Stops moving', 'Gaps', 'Closes the market'], 0, 'Short purposeful moves.'],
+  ['Macros are best used as…', ['Timing filters for an existing setup', 'Stand-alone buy signals', 'Tax deadlines', 'Indicators'], 0, 'They add timing to a setup.'],
+ ]},
+{id: '6-8', t: 'True day, midnight open and the key opens', m: 7,
+ intro: 'ICT uses certain opening prices as reference lines for the day. The most important is the New York midnight open.',
+ chart: {spec: {pts: [103, {p: 103.9, close: 103.4}, 101.4, 102.8, 102.3, 105.6], legs: [3, {n: 3, disp: true}, 2, 3, 3], seed: 541, h: 180, ann: [['lvl', 103, 'midnight', {i0: {c: 0}}], ['txt', 1, 'above open: premium', 'above'], ['txt', 2, 'below open: discount', 'below']]}, cap: 'Bullish day: buy below the midnight open (discount), not above it.'},
+ body: `## The midnight open
+The **[[midnight_open|New York midnight opening price]]** (00:00 NY) is used by ICT as the "true" daily open. On a bullish day, he looks to buy **below** the midnight open; on a bearish day, to sell **above** it. The idea: the day's manipulation leg typically trades on the wrong side of the open before the real move.
+
+## Other opens
+- **8:30 am open:** the price at 8:30 news. Some traders use it as an intraday pivot.
+- **9:30 am open:** the equities open; very commonly respected on index futures.
+- **6:00 pm open:** the CME futures daily open (start of the trading day after the break).
+- **Weekly open:** Sunday 6 pm; **monthly** and **quarterly** opens too.
+
+## True day / true session (quarterly theory)
+Some ICT material divides time into quarters. One common split of the day (NY time): **6 pm-12 am** (Asia), **12-6 am** (London), **6 am-12 pm** (NY AM), **12-6 pm** (NY PM). The "true day" is often described as starting at midnight. Level 9 covers quarterly theory in more depth.
+
+## Practical use
+Draw a line at the midnight open each day. If bias is bullish, you want entries below it; if price is far above it, you're buying in premium for the day.`,
+ take: ['Midnight NY open = ICT\'s true daily open.', 'Bullish day: buy below it. Bearish day: sell above it.', '8:30, 9:30, weekly and monthly opens are other reference prices.'],
+ miss: ['Buying far above the midnight open on a bullish day.', 'Using the 6 pm open and midnight open interchangeably.', 'Treating opens as exact support/resistance.'],
+ quiz: [
+  ['ICT\'s "true" daily open is the…', ['New York midnight open', '9:30 am open', '6:00 pm open', 'Last Friday close'], 0, '00:00 New York.'],
+  ['On a bullish day, ICT prefers to buy…', ['Below the midnight open', 'Far above it', 'Exactly at the high', 'After 4 pm'], 0, 'Discount relative to the open.'],
+  ['The equities open used by index futures traders is…', ['9:30 am NY', '8:00 am NY', '11:00 am NY', '5:00 pm NY'], 0, 'NYSE/Nasdaq open.'],
+ ]},
+{id: '6-9', t: 'Power of Three (AMD)', m: 8,
+ intro: 'Most days and weeks are built in three parts: a quiet build-up, a fake move to grab liquidity, and then the real move.',
+ chart: [{spec: {pts: [102, 102.6, 101.8, 102.5, {p: 100.8, close: 101.4}, 105, 104.2, 106.6], legs: [3, 2, 2, 2, {n: 3, disp: true}, 2, 3], seed: 551, h: 170, ann: [['lvl', 102, 'open', {i0: {c: 0}}], ['zone', 1, 102.6, 101.8, 'A', {to: 3, fill: 'rgba(0,0,0,.05)'}], ['txt', 4, 'M', 'below'], ['txt', 7, 'D', 'above']]}, cap: 'Intraday: accumulation (range), manipulation (dip below the open), distribution (rally).'},
+  {f: H => H.chart([H.K(102, 106.6, 100.8, 106.2)], {w: 360, h: 120, pr: 160, pl: 150, bw: .3, lines: [{i0: 0, y: 102, dash: '3 2', label: 'open', out: 1}], marks: [(x, y) => `<text x="${x(0) + 14}" y="${y(100.8) + 3}" font-size="9">low made early (manipulation)</text><text x="${x(0) + 14}" y="${y(106.6) + 3}" font-size="9">high made late (distribution)</text>`]}).svg, cap: 'The same day as one daily candle: open, a low below the open, close near the high.'}],
+ body: `## The three phases
+- **Accumulation:** price consolidates near the open, building liquidity on both sides.
+- **Manipulation:** a false move against the real direction, running stops (the [[judas|Judas swing]]). On a bullish day, price drops **below the open**.
+- **Distribution:** the real move, expanding away and closing near the extreme.
+
+This is ICT's **[[po3|Power of Three]]**, often called **AMD**.
+
+## On a daily candle
+A bullish daily candle typically: opens, trades **below the open** (forming the low early in the day), then rallies and closes near its high. A bearish day: opens, trades **above the open** first, then sells off.
+
+## On a weekly candle
+The same idea applies to the week: in a bullish week, the low of the week often forms early (Monday-Wednesday), then the week expands higher.
+
+## How to trade it
+1. Decide the daily bias.
+2. Mark the daily (midnight) open.
+3. On a bullish day, wait for the manipulation **below the open**, ideally into a PD array or liquidity pool during London or NY AM.
+4. Enter on confirmation; target the day's distribution toward buy-side liquidity.
+
+## Why it helps
+Power of Three tells you **where not to buy**: above the open early in a bullish day is often the worst price of the day.`,
+ take: ['AMD: accumulation, manipulation, distribution.', 'Bullish day: low forms below the open, close near the high.', 'Applies to days, weeks and sessions.'],
+ miss: ['Buying the early rally above the open on a bullish day.', 'Mistaking the manipulation for the real trend.', 'Using Po3 without a daily bias.'],
+ quiz: [
+  ['AMD stands for…', ['Accumulation, manipulation, distribution', 'Average market direction', 'Asian, mid, daily', 'Advance, move, decline'], 0, 'The Power of Three phases.'],
+  ['On a bullish day, the manipulation phase usually…', ['Trades below the daily open', 'Trades far above the open', 'Never happens', 'Closes the day'], 0, 'False move down first.'],
+  ['A bullish daily candle typically closes…', ['Near its high', 'Near its low', 'At the open', 'Below the open'], 0, 'Distribution ends near the high.'],
+ ]},
+{id: '6-10', t: 'Weekly profiles', m: 7,
+ intro: 'Weeks also have shapes. ICT describes several common weekly profiles, such as the low of the week forming on Tuesday in a bullish week.',
+ chart: [{f: H => days(H, [K(100, 101, 99.2, 99.6), K(99.6, 100.4, 98.2, 100.1), K(100.1, 102.4, 99.9, 102.1), K(102.1, 103.6, 101.6, 103.2), K(103.2, 104, 102.6, 103.5)], ['Mon', 'Tue (low of week)', 'Wed', 'Thu', 'Fri']), cap: 'Classic Tuesday low of the week (bullish week).'},
+  {f: H => days(H, [K(100, 100.6, 99.4, 100.2), K(100.2, 100.9, 99.6, 99.8), K(99.8, 100.4, 98.4, 98.7), K(98.7, 101.4, 98.6, 101.2), K(101.2, 102.2, 100.8, 101.9)], ['Mon', 'Tue', 'Wed (sweep)', 'Thu reversal', 'Fri']), cap: 'Consolidation, then a midweek/Thursday reversal.'}],
+ body: `## Common profiles (bullish versions; reverse for bearish)
+- **Classic Tuesday low of the week:** Monday drifts or dips, Tuesday makes the low (often in London or NY AM), and the rest of the week expands higher.
+- **Wednesday low of the week:** the manipulation extends to Wednesday, often around a news event, then the week rallies.
+- **Consolidation, midweek reversal:** Monday-Tuesday range, Wednesday sweeps one side and reverses.
+- **Consolidation, Thursday reversal:** the range lasts until Thursday, which runs liquidity and reverses, often near news.
+- **Seek and destroy:** a choppy week that runs both sides with no clean trend. Low quality; sit out.
+
+## How to use profiles
+1. Form a weekly bias from the higher timeframe (which weekly liquidity is the draw?).
+2. Watch Monday and Tuesday: is a manipulation into a discount array forming?
+3. Once a likely low of the week is in and confirmed, look for longs on intraday setups through Wednesday-Thursday.
+
+## Caution
+These are **tendencies**, not schedules. Use them to frame expectations, not to force trades on a particular day.`,
+ take: ['Weeks often follow AMD too: the low (bullish) or high (bearish) of the week forms early.', 'Common profiles: Tuesday or Wednesday low/high of week, midweek or Thursday reversal.', 'Seek-and-destroy weeks are best avoided.'],
+ miss: ['Forcing a trade because "it\'s Tuesday".', 'Ignoring weekly bias.', 'Trading heavily in a seek-and-destroy week.'],
+ quiz: [
+  ['In a classic bullish week, the low often forms…', ['Early, often Tuesday', 'Friday afternoon', 'Never', 'Only on Monday at the open'], 0, 'Low of the week early in the week.'],
+  ['A "seek and destroy" week is…', ['Choppy, running both sides; best avoided', 'The best week to trade', 'A strong trend week', 'A holiday'], 0, 'No clean direction.'],
+  ['Weekly profiles should be treated as…', ['Tendencies that frame expectations', 'Exact schedules', 'Guarantees', 'Irrelevant'], 0, 'They are not rules.'],
+ ]},
+{id: '6-11', t: 'News events: CPI, NFP, FOMC', m: 8,
+ intro: 'Big economic news can move markets more in one minute than in the rest of the day. Professionals plan around it.',
+ chart: {f: H => bar24([['8:30 data', [[hm(8, 30), hm(8, 34)]], '#c0392b'], ['10:00 data', [[hm(10), hm(10, 4)]], '#555'], ['FOMC 2:00', [[hm(14), hm(14, 4)]], '#c0392b'], ['Presser 2:30', [[hm(14, 30), hm(15, 30)]], '#8c8c8c']]), cap: 'When the big US releases hit (NY time).'},
+ body: `## The big ones (US)
+<table class="t"><tr><th>Release</th><th>When (NY)</th><th>Why it moves markets</th></tr><tr><td>CPI (inflation)</td><td>8:30 am, monthly</td><td>Drives rate expectations</td></tr><tr><td>NFP (jobs report)</td><td>8:30 am, usually first Friday</td><td>Labour market strength</td></tr><tr><td>FOMC rate decision</td><td>2:00 pm (8 times a year), press conference 2:30</td><td>Sets interest rates</td></tr><tr><td>PPI, retail sales, GDP</td><td>8:30 am</td><td>Inflation and growth</td></tr><tr><td>Jobless claims</td><td>8:30 am Thursdays</td><td>Weekly labour data</td></tr><tr><td>ISM, consumer sentiment</td><td>10:00 am</td><td>Business and consumer outlook</td></tr></table>
+Use an economic calendar (for example, the "red folder" high-impact events on Forex Factory) every morning.
+
+## What happens around news
+- Spreads widen and liquidity thins just before the release.
+- The first move is often violent and can reverse within minutes (a liquidity raid on both sides).
+- Slippage on stops is common.
+
+## How professionals handle it
+1. **Know the calendar** before the session starts.
+2. **Be flat** (or at least not entering new trades) a few minutes before high-impact releases.
+3. **Wait** 5-15 minutes after the release; let the spike run liquidity.
+4. **Trade the aftermath:** often the news spike sweeps one side; the real move comes after, with displacement and an MSS. FOMC days are especially tricky: many traders don't trade at all until after the 2:30 press conference, or skip the day.
+
+## News as a tool
+ICT often notes that news releases are used to run liquidity. The 8:30 spike can be the manipulation leg of the day; the setup forms after.`,
+ take: ['Know CPI, NFP, FOMC and other red-folder times every day.', 'Don\'t enter right before high-impact news; wait for the spike to settle.', 'The news spike is often the manipulation; trade the aftermath.'],
+ miss: ['Holding a tight-stop position into CPI or NFP.', 'Chasing the first second of a news candle.', 'Forgetting FOMC is at 2:00 pm, not 8:30.'],
+ quiz: [
+  ['NFP is usually released…', ['8:30 am NY, the first Friday of the month', '2:00 pm every Wednesday', '9:30 am daily', 'Midnight Sunday'], 0, 'First Friday, 8:30.'],
+  ['FOMC rate decisions are announced at…', ['2:00 pm NY', '8:30 am NY', '9:30 am NY', '4:00 pm NY'], 0, 'With a press conference at 2:30.'],
+  ['A professional approach to CPI is…', ['Be flat before it, wait for the spike to settle, then look for a setup', 'Max size right at 8:30', 'Remove stops', 'Trade only the first second'], 0, 'Protect against volatility.'],
+  ['The news spike often acts as…', ['The manipulation leg before the real move', 'The end of trading', 'A guaranteed trend', 'Nothing'], 0, 'It runs liquidity.'],
+ ]},
+{id: '6-12', t: 'Day-of-week tendencies', m: 5,
+ intro: 'Different weekdays tend to behave differently. Knowing these habits helps you decide when to be aggressive and when to be patient.',
+ chart: {f: H => days(H, [K(100, 101.3, 99.6, 101), K(101, 102.4, 100.6, 101.2), K(101.2, 101.4, 99.4, 99.7), K(99.7, 100.1, 98.2, 98.5), K(98.5, 99.3, 97.9, 99)], ['Mon', 'Tue (high)', 'Wed', 'Thu', 'Fri (profit taking)']), cap: 'A bearish week: the high forms early (Tuesday), Friday sees some profit taking.'},
+ body: `## Tendencies (not rules)
+- **Monday:** often a range day that sets up the week; may make a manipulation leg. Some traders sit out or trade small.
+- **Tuesday:** frequently forms the **high or low of the week**; often a strong day.
+- **Wednesday:** continuation, or the high/low of the week in some profiles; FOMC days fall on Wednesdays.
+- **Thursday:** can reverse the week's move, especially around news; jobless claims at 8:30.
+- **Friday:** NFP on the first Friday; otherwise often profit-taking and retracements into the weekly close. Afternoons get thin.
+
+## Using them
+- Be most active Tuesday-Thursday when your weekly bias is clear.
+- Be cautious on Mondays and Friday afternoons.
+- Combine with weekly profiles and news: a Thursday reversal on a CPI day is a different animal from a quiet Thursday.
+
+## The bigger point
+Your **journal** will show which days work best for *you*. Many traders discover they lose most of their money on Mondays or Fridays and simply stop trading those days.`,
+ take: ['Tuesday-Wednesday often form the weekly high/low.', 'Monday often sets up; Friday often retraces.', 'Let your journal show your best and worst days.'],
+ miss: ['Trading Monday chop aggressively.', 'Holding into Friday afternoon thinness.', 'Treating tendencies as certainties.'],
+ quiz: [
+  ['Which day often forms the high or low of the week?', ['Tuesday', 'Sunday', 'Saturday', 'None'], 0, 'A common ICT tendency.'],
+  ['Friday afternoons are often…', ['Thin, with profit-taking', 'The most reliable trends', 'Closed', 'High-volume breakouts'], 0, 'Position squaring before the weekend.'],
+  ['The best way to know your best trading days is…', ['Your journal statistics', 'Social media', 'Guessing', 'Astrology'], 0, 'Data, not opinions.'],
+ ]},
+]});
+})();
+(function () {
+const K = (o, h, l, c) => ({o, h, l, c});
+const days = (H, c, labels, o = {}) => H.chart(c, Object.assign({h: 170, pr: 46, bw: .5, marks: [(x) => labels.map((t, i) => `<text x="${x(i)}" y="166" text-anchor="middle" font-size="8.5" fill="#555">${t}</text>`).join('')]}, o)).svg;
+CS.level({n: 7, name: 'HTF Bias & Narrative', d: 'Top-down analysis, daily bias, DOL, narrative, alignment', lessons: [
+{id: '7-1', t: 'Top-down analysis', m: 7,
+ intro: 'Start with the big picture and zoom in. The higher timeframes tell you where price is going; the lower ones tell you when to get in.',
+ chart: {f: H => H.ladder([{p: 8, label: 'Monthly / Weekly', note: 'major liquidity, big FVGs', kind: 'cur'}, {p: 7, label: 'Daily', note: 'draw on liquidity, bias', kind: 'cur'}, {p: 6, label: '4H', note: 'dealing range, PD arrays', kind: 'cur'}, {p: 5, label: '1H', note: 'structure, premium/discount', kind: 'cur'}, {p: 4, label: '15m', note: 'setup forming, sweeps', kind: 'muted'}, {p: 3, label: '5m', note: 'MSS / CISD confirmation', kind: 'muted'}, {p: 2, label: '1m', note: 'precise entry (optional)', kind: 'muted'}], {h: 200}).replace(/>\d<\/text>/g, '></text>'), cap: 'Each timeframe has one job. Work from the top down.'},
+ body: `## The process
+1. **Monthly/weekly:** where are the major old highs/lows and big FVGs? Is price closer to buy-side or sell-side liquidity?
+2. **Daily:** what is the [[dol|draw on liquidity]]? Did yesterday take a key level? What's the daily dealing range and are we in premium or discount?
+3. **4H/1H:** define the intraday dealing range, mark PD arrays in the right half, note structure.
+4. **15m:** watch the setup form in the killzone: the sweep and the reaction.
+5. **5m/1m:** time the entry with an MSS/CISD and an FVG.
+
+## Don't reverse the order
+Starting on the 1-minute and then "checking" the daily is how traders talk themselves into trades. Decide the higher-timeframe story first, then go looking for an entry that fits it.
+
+## How much time?
+Weekly and daily analysis once (Sunday and each morning). 1H/15m before the session. 5m/1m only during the killzone.`,
+ take: ['Higher timeframes give direction and targets; lower timeframes give timing.', 'Work top-down, never bottom-up.', 'Do the slow analysis before the session.'],
+ miss: ['Looking for entries before deciding the bias.', 'Letting a 1m signal override the daily story.', 'Re-analysing the weekly chart mid-trade.'],
+ quiz: [
+  ['In top-down analysis, which comes first?', ['Monthly/weekly and daily context', 'The 1-minute entry', 'Indicators', 'News headlines'], 0, 'Start big, zoom in.'],
+  ['The daily chart mainly answers…', ['What is the draw on liquidity and bias?', 'Exactly where to enter to the tick', 'What is my broker', 'Which indicator'], 0, 'Bias and target.'],
+  ['The 5m/1m is mainly used for…', ['Timing the entry with confirmation', 'Choosing weekly bias', 'Finding monthly liquidity', 'Nothing'], 0, 'Execution timeframe.'],
+ ]},
+{id: '7-2', t: 'Daily bias methods', m: 9,
+ intro: 'Daily bias is your best guess of whether today is more likely to reach higher (buy-side) or lower (sell-side) liquidity. Here are the most common ways ICT traders form it.',
+ chart: [{f: H => days(H, [K(100, 102, 99.4, 101.6), K(101.6, 103.2, 101.2, 102.9), K(102.9, 104.6, 102.6, 104.3), K(104.3, 105.4, 103.8, 105.1)], ['Day 1', 'closes above PDH', 'closes above PDH', 'continues'], {lines: [{i0: 0, i1: 1, y: 102, dash: '3 2', c: '#777'}, {i0: 1, i1: 2, y: 103.2, dash: '3 2', c: '#777'}]}), cap: 'Closing above the previous day\'s high: bias stays bullish toward the next buy-side liquidity.'},
+  {f: H => days(H, [K(100, 102, 99.4, 101.6), K(101.6, 102.9, 101.2, 102.6), K(102.6, 103.5, 101.8, 102.0), K(102.0, 102.2, 99.2, 99.5)], ['Day 1', 'Day 2', 'sweeps PDH, closes inside', 'targets PDL'], {lines: [{i0: 1, i1: 2, y: 102.9, dash: '3 2', c: '#777'}, {i0: 2, i1: 3, y: 101.8, dash: '3 2', c: '#777'}]}), cap: 'Running above the previous high and closing back inside: bias flips toward sell-side liquidity.'}],
+ body: `## Method 1: the draw on liquidity
+Ask which side has the more obvious, closer, untaken liquidity or imbalance: PDH vs PDL, PWH vs PWL, a daily FVG above vs below. Price was just at external liquidity? Expect internal next, and vice versa.
+
+## Method 2: the previous day's candle
+A popular framework:
+- Yesterday **closed above the previous day's high** → expect continuation toward the next buy-side liquidity.
+- Yesterday **closed below the previous day's low** → expect continuation lower.
+- Yesterday **ran above the previous high but closed back inside** → a possible reversal toward the previous day's low (and vice versa for a run below and close back inside).
+- Yesterday stayed **inside** the previous day's range → no strong signal; be selective.
+
+## Method 3: higher-timeframe PD arrays
+Is price reacting from a daily/weekly bullish array in discount (bullish), or trading into a bearish array in premium (bearish)?
+
+## Method 4: weekly context
+Where are we in the week's likely profile? Has the low of the week likely formed (bullish) or are we still in the manipulation phase?
+
+## Combine and commit
+Use two or three of these. When they agree, bias is clear. When they conflict, reduce size or don't trade (lesson 7.6). Write the bias down **before** the session, with the level that would prove it wrong.`,
+ take: ['Bias = which liquidity is today more likely to reach.', 'Use the DOL, the previous day\'s candle, HTF PD arrays and weekly context.', 'Write bias and invalidation down before the session.'],
+ miss: ['Changing bias every 15 minutes.', 'Forming bias from the 1-minute chart.', 'Trading with high conviction when methods conflict.'],
+ quiz: [
+  ['Yesterday closed above the previous day\'s high. A common bias for today is…', ['Bullish continuation toward the next buy-side liquidity', 'Automatic reversal down', 'No trading allowed', 'Bearish only'], 0, 'Closing beyond PDH suggests continuation.'],
+  ['Yesterday ran above PDH but closed back inside. This can suggest…', ['A reversal toward the previous day\'s low', 'A guaranteed new high', 'Nothing', 'Buying the open'], 0, 'A failed run often reverses.'],
+  ['When your bias methods conflict, you should…', ['Reduce size or sit out', 'Trade bigger', 'Flip a coin', 'Ignore the conflict'], 0, 'Unclear bias means lower conviction.'],
+  ['When should bias be written down?', ['Before the session, with the invalidation level', 'After the trade', 'Never', 'Mid-trade'], 0, 'Commit in advance.'],
+ ]},
+{id: '7-3', t: 'Draw on liquidity in practice', m: 6,
+ intro: 'Here is a step-by-step way to find the draw on liquidity on a real chart every morning.',
+ chart: {spec: {pts: [104, 108, 103, 106.2, {p: 102.4, close: 103.1}, 105.2, 104.2, 108.1], legs: [5, 5, 3, 3, {n: 3, disp: true}, 2, 4], seed: 601, h: 200, ann: [['line', 1, 'PWH = DOL'], ['line', 2, 'PDL'], ['txt', 4, 'PDL swept', 'below'], ['fvg', 0, 'FVG']]}, cap: 'Sell-side was taken below PDL; displacement up; the untouched previous week high becomes the draw.'},
+ body: `## A morning routine to find the DOL
+1. **List candidates:** PDH, PDL, PWH, PWL, monthly high/low, equal highs/lows, unfilled daily/4H FVGs, NWOG levels.
+2. **Strike out what's already been taken.** A level that was swept yesterday is no longer a target.
+3. **What just happened?** If price just took external liquidity (a low), favour internal targets above (FVGs) and then external liquidity above (highs).
+4. **Which is cleaner?** Equal highs/lows and untouched weekly levels beat messy, overlapping swings.
+5. **Does it agree with the bigger trend?** Prefer draws in the direction of the weekly/daily trend.
+6. **Pick one primary draw** and one secondary target closer to price (for partials).
+
+## Writing it down
+"Bias bullish. DOL: PWH at 18,420. Secondary: daily FVG at 18,300. Invalid if price closes below 18,150 (yesterday's low)."
+
+## During the session
+Only take setups that point toward the draw. If price hits the draw, the job is done: take profits and stop looking for more in that direction.`,
+ take: ['List candidate targets, strike out what\'s been taken, pick the cleanest one in line with trend.', 'Pick a primary draw and a closer secondary target.', 'Once the draw is hit, stop pressing that direction.'],
+ miss: ['Targeting liquidity that was already taken.', 'Picking a target against a strong HTF trend.', 'Continuing to buy after the draw has been reached.'],
+ quiz: [
+  ['A level swept yesterday is…', ['No longer a target', 'The best target', 'A guaranteed reversal', 'Equal highs'], 0, 'Taken liquidity is used up.'],
+  ['Which draw is usually stronger?', ['Untouched equal highs or weekly highs', 'A random intraday swing', 'A level touched ten times today', 'The spread'], 0, 'Clean and untaken.'],
+  ['Price reaches your primary draw. You should…', ['Take profits and stop pressing that direction', 'Add size', 'Remove targets', 'Reverse with double size immediately'], 0, 'The objective is complete.'],
+ ]},
+{id: '7-4', t: 'Building a narrative', m: 6,
+ intro: 'A narrative is the short story you tell yourself about what price has done and what it is likely to do next. Without one, you are just reacting to candles.',
+ body: `## What a narrative includes
+1. **Where are we?** Premium or discount of the weekly/daily range.
+2. **What was taken?** Which liquidity has recently been swept.
+3. **Where is it going?** The draw on liquidity.
+4. **How will it get there?** Which PD array you expect price to use on the way (the retracement).
+5. **When?** Which killzone you expect the move in.
+6. **What proves you wrong?** The invalidation level.
+
+## Example
+"Monday's London session ran last week's low and displaced higher, leaving a 4H FVG. We're now in discount of the weekly range. I expect a retracement into that 4H FVG during the NY AM killzone, then a move to the previous week's high. If price closes below Monday's low, I'm wrong."
+
+## Why it matters
+A narrative gives you a reason to **wait**. You know exactly where you want to act and you ignore everything else. It also makes reviewing your trades meaningful: was the narrative wrong, or the execution?
+
+## Keep it flexible
+A narrative is a hypothesis, not a promise. If price invalidates it, drop it. Professionals change their minds on evidence, not on emotion.`,
+ take: ['A narrative answers: where are we, what was taken, where is it going, how, when, and what proves me wrong.', 'It gives you a reason to wait.', 'Drop it when invalidated.'],
+ miss: ['Trading without any story.', 'Clinging to a narrative after invalidation.', 'Making the story so complex it can\'t be tested.'],
+ quiz: [
+  ['A good narrative always includes…', ['An invalidation level', 'A guaranteed outcome', 'Ten indicators', 'A friend\'s opinion'], 0, 'You must know what proves you wrong.'],
+  ['The main practical benefit of a narrative is…', ['It tells you where to wait and what to ignore', 'It predicts the exact high', 'It removes risk', 'It replaces stops'], 0, 'Patience and focus.'],
+  ['Price closes beyond your invalidation level. You…', ['Drop the narrative', 'Add to the trade', 'Ignore it', 'Remove the stop'], 0, 'The hypothesis failed.'],
+ ]},
+{id: '7-5', t: 'Timeframe alignment', m: 6,
+ intro: 'The best trades happen when several timeframes point the same way: the daily wants higher, the hourly is pulling back into discount, and the 5-minute just turned up.',
+ chart: [{spec: {pts: [100, 106, 103.2, 110], legs: [6, 4, 6], seed: 611, h: 110, ann: [['txt', 2, 'daily: pullback in uptrend', 'below']]}, cap: 'Daily: uptrend, pulling back.'}, {spec: {pts: [107, 104.5, 105.8, {p: 103.6, close: 104.2}, 107.4], legs: [4, 3, 3, {n: 3, disp: true}], seed: 613, h: 110, ann: [['txt', 3, '5m: sweep + MSS', 'below'], ['fvg', 0, 'FVG']]}, cap: '5m: inside the daily discount, a sweep and shift up.'}],
+ body: `## What alignment looks like (long)
+- **Daily:** bullish draw on liquidity above; price retracing.
+- **1H/4H:** price in discount of the dealing range, at a bullish PD array.
+- **15m/5m:** sweep of sell-side liquidity, displacement, MSS, FVG.
+- **Time:** inside a killzone.
+
+## Conflicts
+- Daily bullish, 1H in premium: wait for a retracement.
+- Daily bullish, 5m showing a bearish MSS: that's probably the pullback. Don't short it; wait for the bullish shift.
+- Daily bearish, 5m bullish setup: counter-trend. Skip, or treat as a scalp to a nearby target with reduced size (advanced traders only).
+
+## A simple scoring idea
+Give one point each for: HTF bias, location (premium/discount), PD array, liquidity swept, LTF confirmation, killzone. Only take 6/6 setups while you're learning.`,
+ take: ['Alignment = HTF bias, HTF location, LTF confirmation and time agreeing.', 'LTF signals against the HTF are usually pullbacks.', 'While learning, only take fully aligned setups.'],
+ miss: ['Shorting a 5m bearish shift inside a daily bullish discount zone.', 'Taking counter-trend trades as a beginner.', 'Ignoring the time component.'],
+ quiz: [
+  ['Daily bullish, 5m shows a bearish MSS. Most likely this is…', ['A pullback; wait for a bullish shift', 'A great short', 'A trend change on the daily', 'Irrelevant'], 0, 'LTF against HTF is usually the pullback.'],
+  ['Which is fully aligned for a long?', ['Daily bullish, 1H discount array, 5m sweep + MSS in a killzone', 'Daily bearish, 5m bullish at lunch', 'Daily bullish, 1H premium, no sweep', 'Random'], 0, 'Everything points the same way.'],
+  ['As a beginner, counter-trend setups should be…', ['Skipped', 'Traded with more size', 'Your main setup', 'Mandatory'], 0, 'Stick to aligned trades.'],
+ ]},
+{id: '7-6', t: 'When bias is unclear', m: 5,
+ intro: 'Some days the market has no clear direction. The professional move on those days is often to do nothing.',
+ body: `## Signs of an unclear day
+- Yesterday was an **inside day** (stayed within the previous day's range).
+- Price is sitting at **equilibrium** of the daily range.
+- Both PDH and PDL were taken yesterday (an outside day with a close in the middle).
+- Major news later today (FOMC) that will decide direction.
+- Weekly profile looks like **seek and destroy**.
+- Your bias methods disagree.
+
+## What to do
+1. **Sit out.** Not trading is a position. It protects capital and mental energy.
+2. **Wait for the market to show its hand:** let one side get swept with displacement, then reassess.
+3. **Trade smaller,** only the very best setups, with nearby targets.
+4. **Practise instead:** replay mode, journaling, studying.
+
+## The hidden cost of forcing it
+Most account damage happens on days when traders force trades in chop. Skipping three mediocre days and taking one clean day usually beats trading all four.`,
+ take: ['Inside days, equilibrium, conflicting signals and big pending news = unclear bias.', 'Sitting out is a valid, professional decision.', 'Let the market reveal direction with a sweep and displacement.'],
+ miss: ['Trading out of boredom.', 'Forcing full size on unclear days.', 'Believing you must trade every day.'],
+ quiz: [
+  ['Which suggests an unclear bias?', ['Price at equilibrium after an inside day', 'A clean sweep and displacement in your direction', 'Bias methods all agreeing', 'An untouched draw aligned with trend'], 0, 'No edge in the middle.'],
+  ['On an unclear day, a professional often…', ['Sits out or trades much smaller', 'Doubles size', 'Trades every candle', 'Removes stops'], 0, 'Protect capital.'],
+  ['Not trading is…', ['A valid decision', 'Always a mistake', 'Against the rules', 'Lazy'], 0, 'Flat is a position.'],
+ ]},
+{id: '7-7', t: 'Seasonal tendencies (briefly)', m: 4,
+ intro: 'Some months and times of year have historically behaved a certain way. It is background information, not a trading signal.',
+ body: `## Examples of commonly cited tendencies
+- **US stocks:** historically, November-April has averaged stronger returns than May-October ("sell in May"); December often has a year-end rally; September has historically been one of the weaker months.
+- **Holidays:** volume drops around Christmas, New Year, and US holidays like Thanksgiving; moves can be erratic.
+- **Quarter-ends and month-ends:** rebalancing flows can cause unusual moves in the last days of a month or quarter.
+- **Forex:** ICT has discussed seasonal tendencies in currencies; these vary by pair and year.
+
+## How to use them
+At most as a small tilt in weekly or monthly bias. Never override clear price action, liquidity and structure because "it's usually up in December". Historical averages hide many years that did the opposite.
+
+## Holiday rule
+Many professionals simply trade less (or not at all) in the last two weeks of December and on half-days.`,
+ take: ['Seasonals are historical averages, not signals.', 'Use them at most as a small tilt.', 'Holidays bring thin, erratic markets.'],
+ miss: ['Trading a seasonal tendency against clear price action.', 'Treating averages as guarantees.', 'Trading heavily in holiday markets.'],
+ quiz: [
+  ['Seasonal tendencies should be used…', ['As a small background tilt at most', 'As a primary entry signal', 'Instead of liquidity', 'Never considered at all'], 0, 'Background only.'],
+  ['Holiday markets are typically…', ['Thin and erratic', 'The most reliable', 'Closed all week', 'Highest volume'], 0, 'Low participation.'],
+  ['Historical averages can mislead because…', ['Many individual years do the opposite', 'They are always exact', 'They predict news', 'They are illegal'], 0, 'Averages hide variation.'],
+ ]},
+]});
+})();
+(function () {
+const M = (body) => body; // readability helper
+CS.level({n: 8, name: 'Entry Models & Confirmation', d: 'Pre-entry checklist, confirmation, stops, targets, every major ICT model', lessons: [
+{id: '8-1', t: 'The pre-entry confirmation checklist', m: 12,
+ intro: 'Before every trade, run the same checklist. If even one item is missing, you don’t take the trade. This single habit separates professionals from gamblers.',
+ chart: {spec: {pts: [106, 102.2, 104.6, {p: 101.4, close: 102.1}, 107.2, 104.6, 109], legs: [4, 3, 3, {n: 3, disp: true}, 3, 4], seed: 701, h: 210, ann: [['line', 1, 'SSL', {to: 3}], ['txt', 3, '② sweep', 'below'], ['line', 2, '④ MSS', {to: 4}], ['fvg', 0, '⑤ FVG'], ['txt', 6, 'target', 'above']]}, cap: 'All the chart-based items in one picture: liquidity swept, displacement, MSS, and the return to the FVG.'},
+ body: `## The 8-point checklist (long; mirror for shorts)
+{{checklist}}
+
+## What each item means
+1. **HTF bias agrees.** The daily/4H draw on liquidity points in your trade direction. ([[htf]])
+2. **Liquidity was swept.** Price took an obvious pool against your direction first: a low, equal lows, the Asian low, PDL. ([[sweep]])
+3. **Displacement.** A strong, energetic move away from the sweep, leaving an [[fvg|FVG]]. ([[displacement]])
+4. **MSS or CISD.** That move broke the last short-term swing (or reclaimed the opening price of the last delivery series). ([[mss]], [[cisd]])
+5. **Return to a PD array.** Price retraces into the FVG/order block formed by the displacement, ideally in [[discount]] for longs.
+6. **Inside a killzone.** London open, NY AM, or a Silver Bullet window. ([[killzone]])
+7. **No high-impact news imminent.** Nothing red on the calendar in the next ~30 minutes (or you've waited out the release).
+8. **Reward-to-risk ≥ 2:1.** From entry to the target (opposing liquidity) versus entry to the stop. ([[rr]])
+
+## The rule
+**All 8, or no trade.** Seven out of eight is a no. The trades that hurt most are usually the ones where you said "it's close enough".
+
+## Practice it
+Use the interactive drill below. It generates setups with some items missing, and you decide whether to take or skip. Do 20 a day for a week, and the checklist becomes automatic.
+
+{{take}}
+
+## Write it on a card
+Print or write the checklist and keep it next to your screen. Before clicking buy or sell, read it out loud. It feels silly; it works.`,
+ take: ['Eight items: bias, sweep, displacement, MSS/CISD, PD array return, killzone, no news, R:R ≥ 2.', 'All eight or no trade.', 'Practise until the checklist is automatic.'],
+ miss: ['Taking 7/8 setups because they "look good".', 'Checking the list after entering.', 'Skipping the news check.', 'Accepting less than 2:1 because the setup is pretty.'],
+ quiz: [
+  ['Your setup has everything except it\'s 12:45 pm (outside killzones). You…', ['Skip it', 'Take it anyway', 'Double size', 'Remove the stop'], 0, 'All 8 or no trade.'],
+  ['Which comes first in the sequence on the chart?', ['Liquidity sweep', 'Return to FVG', 'MSS', 'Target hit'], 0, 'Sweep → displacement → MSS → return to PD array.'],
+  ['CPI is in 10 minutes and your setup is perfect otherwise. You…', ['Wait until after the release settles', 'Enter now with full size', 'Remove your stop', 'Short instead'], 0, 'News check fails.'],
+  ['Planned R:R is 1.3:1. Everything else is present. You…', ['Skip (below 2:1)', 'Take it', 'Move the target further without reason', 'Move the stop closer than invalidation'], 0, 'Don\'t fake R:R by moving levels.'],
+  ['Why use a fixed checklist?', ['It removes emotional, in-the-moment decisions and makes results measurable', 'It guarantees wins', 'Brokers require it', 'It looks professional'], 0, 'Consistency and measurement.'],
+ ]},
+{id: '8-2', t: 'Confirmation vs anticipation entries', m: 7,
+ intro: 'You can enter before the market proves you right (anticipation) or after it shows its hand (confirmation). Each has a cost.',
+ chart: [{spec: {pts: [105, 102, 103.2, {p: 101.2, close: 101.8}, 105.6, 103.4, 106.6], legs: [3, 2, 2, {n: 3, disp: true}, 3, 3], seed: 711, h: 150, ann: [['line', 1, 'SSL'], ['txt', 3, 'anticipation entry', 'below'], ['fvg', 0, 'confirm']]}, cap: 'Anticipation: buy the sweep. Confirmation: wait for the MSS, buy the FVG return.'}],
+ body: `## Anticipation
+You enter **before** confirmation, e.g. a limit order at the old low expecting a sweep and reversal, or at a higher-timeframe order block.
+- **Pros:** best price, tight stop, big R multiple.
+- **Cons:** lower win rate; you're often catching the move before it turns, and sometimes it doesn't turn.
+
+## Confirmation
+You wait for **evidence**: the sweep happens, displacement breaks structure (MSS/CISD), and then you enter on the retracement into the FVG.
+- **Pros:** higher win rate; the market has shown its intent.
+- **Cons:** worse price, slightly wider stop or smaller R multiple, and sometimes price leaves without retracing (missed trades).
+
+## Which to use
+- **Beginners:** confirmation only. It teaches you to read the full sequence and keeps you out of falling knives.
+- **Experienced traders:** may use anticipation at major higher-timeframe levels with small size, once their journal proves it works for them.
+
+## A hybrid
+Enter partial size on anticipation at a strong HTF level, and add the rest on lower-timeframe confirmation. Your total risk stays fixed.`,
+ take: ['Anticipation = better price, lower win rate. Confirmation = higher win rate, worse price.', 'Beginners should use confirmation entries.', 'A hybrid splits risk between both.'],
+ miss: ['Catching falling knives with anticipation entries as a beginner.', 'Chasing after confirmation instead of waiting for the retracement.', 'Increasing total risk when adding on confirmation.'],
+ quiz: [
+  ['Which entry usually has a higher win rate?', ['Confirmation', 'Anticipation', 'They are identical', 'Neither'], 0, 'You wait for evidence.'],
+  ['A cost of confirmation entries is…', ['Sometimes price leaves without retracing (missed trades)', 'Never getting filled ever', 'Higher commissions', 'No stop needed'], 0, 'You miss some moves.'],
+  ['What should a beginner use?', ['Confirmation entries', 'Anticipation at every level', 'No stops', 'Martingale'], 0, 'Learn the full sequence first.'],
+ ]},
+{id: '8-3', t: 'Lower-timeframe confirmation entries', m: 8,
+ intro: 'Find the zone on a higher timeframe, then drop down to a lower timeframe and wait for it to confirm with its own sweep and shift.',
+ chart: {spec: {pts: [104.6, 103.2, 103.8, {p: 102.5, close: 102.9}, 104.8, 103.9, 105.6], legs: [3, 2, 2, {n: 3, disp: true}, 2, 3], seed: 721, h: 180, ann: [['zone', {c: 0}, 103.5, 102.4, '1H FVG', {fill: 'rgba(0,0,0,.05)', to: 6}], ['line', 2, '5m MSS', {to: 4}], ['fvg', 0, '5m FVG']]}, cap: 'Price enters the 1H FVG; the 5m sweeps, shifts up and leaves a 5m FVG for the entry.'},
+ body: `## The idea
+Higher-timeframe (HTF) arrays are **where** a reaction is likely. Lower-timeframe (LTF) structure tells you **when** it's actually happening.
+
+## Step by step (long)
+1. **HTF POI:** mark a bullish PD array on the 1H/4H in discount, in line with daily bias.
+2. **Wait** for price to trade into it during a killzone.
+3. **Drop to the LTF** (5m or 1m).
+4. **LTF sweep:** price takes a small LTF low inside or near the HTF zone.
+5. **LTF shift:** displacement up and an MSS or CISD on the LTF.
+6. **LTF entry:** retracement into the LTF FVG; stop below the LTF sweep low.
+7. **Target:** HTF liquidity (the draw on liquidity).
+
+## Why it works
+You get a tight stop (LTF swing) with a big target (HTF liquidity), so R:R is excellent, while the HTF zone keeps you on the right side of the market.
+
+## Pairings
+1H POI → 5m entry; 4H POI → 15m entry; 15m POI → 1m entry. Keep the ratio sensible (roughly 4-12x).`,
+ take: ['HTF zone = where; LTF sweep + shift = when.', 'Stop at the LTF swing, target HTF liquidity.', 'Use sensible timeframe pairs.'],
+ miss: ['Entering the moment price touches the HTF zone without LTF confirmation.', 'Using LTF signals with no HTF zone.', 'Dropping to the 15-second chart to find "confirmation".'],
+ quiz: [
+  ['In LTF confirmation, the HTF zone tells you…', ['Where a reaction is likely', 'Exactly when to click', 'Nothing', 'The news'], 0, 'Location from HTF.'],
+  ['Where is the stop placed in a LTF confirmation long?', ['Below the LTF sweep low', 'Below the weekly low', 'At entry', 'No stop'], 0, 'Tight, at LTF invalidation.'],
+  ['A sensible pairing is…', ['1H POI with a 5m entry', 'Monthly POI with a 1-second entry', 'Only the 1m', 'Random'], 0, 'Keep timeframes 4-12x apart.'],
+ ]},
+{id: '8-4', t: 'Entry refinement', m: 6,
+ intro: 'Refinement means narrowing a big zone into a precise entry level, so your stop is smaller and your reward bigger, without changing the idea.',
+ chart: {spec: {pts: [104.5, 102.4, 103.4, {p: 101.2, big: 1}, 105.8, 103.2, 106.8], legs: [3, 2, 3, {n: 3, disp: true}, 3, 3], seed: 705, h: 190, ann: [['ob', 3, ' '], ['txt', 3, 'OB', 'below'], ['fvg', 0, 'FVG·CE']]}, cap: 'A big order block is the zone; the FVG inside it (and its CE, the dashed midpoint) is the refined entry.'},
+ body: `## Refinement techniques
+- **Use the near edge vs CE:** enter at the first touch of an FVG (more fills) or at its [[ce|CE]] (better price, some missed fills).
+- **Order block body vs mean threshold:** enter at the top of the bullish OB body, or at its 50%.
+- **Nested arrays:** a 5m FVG inside a 1H order block gives a precise level within the big zone.
+- **Volume imbalances and gaps:** a [[volume_imbalance|VI]] at the edge of an array can mark the exact reaction point.
+- **OTE overlap:** where the array overlaps 62-79% of the leg.
+
+## Limit vs market
+- **Limit order** at the refined level: precise, no slippage, but may not fill.
+- **Market order** on LTF confirmation candle close: guaranteed fill, worse price.
+
+## The trade-off
+Every refinement improves price but increases the chance of missing the trade. Decide in your plan how you refine and stick to it; changing method trade by trade makes your statistics meaningless.
+
+## Never refine the stop past invalidation
+Refining the entry is fine. Shrinking the stop to a level that doesn't actually invalidate the idea just to get a bigger R multiple is not; it turns good trades into stop-outs.`,
+ take: ['Refine with CE, mean threshold, nested arrays, VIs and OTE overlap.', 'Better price = more missed fills; pick one method and stick to it.', 'Never shrink the stop past real invalidation.'],
+ miss: ['Changing refinement method every trade.', 'Shrinking stops to fake a better R:R.', 'Chasing with market orders after missing a limit.'],
+ quiz: [
+  ['Entering at CE instead of the near edge of an FVG gives…', ['A better price but more missed fills', 'More fills and a better price', 'No difference', 'A guaranteed win'], 0, 'Trade-off.'],
+  ['A 5m FVG inside a 1H order block is an example of…', ['Nested arrays for refinement', 'Invalidation', 'A news event', 'A breaker'], 0, 'Precision inside a bigger zone.'],
+  ['Is it OK to move your stop closer than real invalidation to improve R:R?', ['No', 'Yes', 'Only on Fridays', 'Always'], 0, 'That just creates stop-outs.'],
+ ]},
+{id: '8-5', t: 'Invalidation and stop placement', m: 8,
+ intro: 'Your stop belongs at the price that proves your idea wrong, not at a random number of points you are comfortable losing.',
+ chart: {spec: {pts: [105, 102.4, 103.6, {p: 101.3, close: 101.9}, 105.8, 103.7, 107], legs: [3, 3, 2, {n: 3, disp: true}, 3, 3], seed: 731, h: 190, ann: [['fvg', 0, 'entry'], ['line', 3, 'stop A'], ['lvl', 102.2, 'stop B', {i0: 4}]]}, cap: 'Stop A (beyond the sweep) is safest. Stop B (beyond the FVG\'s first candle) is tighter but gets hit more often.'},
+ body: `## Where stops go (long; mirror for shorts)
+- **Beyond the sweep low** (the swing that took liquidity): the most robust. If price trades back below the low that was swept, the reversal idea is clearly wrong.
+- **Beyond candle 1 of the entry FVG / the OB low:** tighter; more stop-outs, larger R multiple when it works.
+- **Beyond the LTF swing** that formed the MSS (in LTF confirmation entries).
+
+## Rules
+1. **Decide the stop before entering.** Then size the position from it (Level 10).
+2. **Never widen a stop** once in the trade. Moving it further away is the most expensive habit in trading.
+3. **Give it a little room:** a couple of ticks beyond the level, or beyond the wick, not exactly at the obvious price (that's where everyone else's stop is).
+4. **Account for spread and volatility** around news.
+
+## Moving to breakeven
+Common approaches: move the stop to breakeven after taking a partial, or after price breaks the next short-term high in your favour. Moving too early turns winners into scratch trades; let structure, not emotion, decide.
+
+## Invalidation without a stop hit
+Sometimes the idea is wrong before the stop is hit, e.g. price closes bodies back through the FVG, or a strong opposing MSS forms. Many professionals exit early on clear invalidation.`,
+ take: ['Stops go where the idea is proven wrong (beyond the sweep is most robust).', 'Decide the stop first, then size the trade.', 'Never widen a stop; move to breakeven based on structure.'],
+ miss: ['Using a fixed number of points regardless of structure.', 'Widening the stop as price approaches it.', 'Moving to breakeven too early out of fear.', 'Putting the stop exactly at the obvious level.'],
+ quiz: [
+  ['The most robust stop for a sweep-and-reverse long is…', ['Below the low that was swept', 'At a round number', 'Two points below entry always', 'No stop'], 0, 'If that low breaks, the idea failed.'],
+  ['What should you do with a stop as price approaches it?', ['Leave it', 'Move it further away', 'Remove it', 'Double the position'], 0, 'Never widen stops.'],
+  ['Which comes first?', ['Deciding the stop, then the position size', 'Choosing size, then finding a stop that fits', 'Entering, then deciding later', 'None'], 0, 'Size comes from the stop.'],
+ ]},
+{id: '8-6', t: 'Targets, partials and trade management', m: 8,
+ intro: 'Getting in is half the trade. Knowing where to take profit, and how much, is what turns a good entry into money.',
+ chart: {spec: {pts: [104, {p: 101.4, close: 102}, 105.2, 104, 106.4, 105.4, 108.2], legs: [3, {n: 3, disp: true}, 2, 3, 2, 4], seed: 741, h: 190, ann: [['fvg', 0, 'entry'], ['line', 2, 'TP1 (1-2R)'], ['line', 4, 'TP2'], ['line', 6, 'DOL']]}, cap: 'Scale out: a partial at the first liquidity, more at the next, the rest at the draw on liquidity.'},
+ body: `## Where to target
+Targets should be **liquidity**: the levels where orders rest and price is likely to go:
+- **First target (TP1):** the nearest internal high/low or 1-2R. Often the short-term high that formed before the sweep.
+- **Second target (TP2):** the next obvious pool (session high, PDH).
+- **Final target:** the [[dol|draw on liquidity]] from your bias work, or a [[sd_projection|standard deviation]] level that lines up with liquidity.
+
+## Partials
+Taking partial profits (e.g. 50% at TP1) reduces stress and locks in gains. The trade-off: it lowers your average R on the best trades. A common professional approach:
+- 50% at TP1, move stop to breakeven.
+- 25% at TP2.
+- Final 25% at the DOL, or trail.
+
+Whatever you choose, **write it in your plan** and apply it consistently so your stats are meaningful.
+
+## Trailing
+Trail the stop behind new swing lows (longs) or below newly formed FVGs as the trade progresses. Don't trail so tightly that normal pullbacks stop you out.
+
+## When to exit early
+- The draw is hit.
+- A strong opposing MSS forms against you on the entry timeframe.
+- The killzone ends and price is stalling (time-based exit).
+- High-impact news is approaching.`,
+ take: ['Target liquidity: nearest swing, next pool, then the DOL.', 'Use a consistent partial and breakeven plan.', 'Exit early on a draw hit, an opposing MSS, time running out, or incoming news.'],
+ miss: ['Targets in empty space with no liquidity.', 'Changing the management plan mid-trade.', 'Trailing so tight normal pullbacks stop you out.', 'Holding through high-impact news.'],
+ quiz: [
+  ['Good targets are usually…', ['Liquidity pools such as old highs/lows', 'Round numbers only', 'Anywhere in empty space', 'Your entry price'], 0, 'Price seeks liquidity.'],
+  ['A downside of taking partials is…', ['It lowers average R on the best trades', 'It increases risk', 'It is illegal', 'It always loses'], 0, 'Trade-off for consistency and comfort.'],
+  ['Which is a valid early exit reason?', ['A strong opposing MSS on the entry timeframe', 'Feeling bored', 'A friend said so', 'A one-tick pullback'], 0, 'Clear structural invalidation.'],
+ ]},
+{id: '8-7', t: 'Minimum reward-to-risk', m: 6,
+ intro: 'Reward-to-risk compares how much you could make with how much you could lose. Requiring at least 2:1 means you can be wrong more than half the time and still profit.',
+ chart: {f: H => H.bars([{label: '1:1', v: 50, note: 'need > 50% wins'}, {label: '1.5:1', v: 40, note: '> 40%'}, {label: '2:1', v: 33.3, note: '> 33%'}, {label: '3:1', v: 25, note: '> 25%'}, {label: '4:1', v: 20, note: '> 20%'}], {max: 60}), cap: 'Break-even win rate = 1 ÷ (1 + R), before costs.'},
+ body: `## The math
+**Break-even win rate = 1 ÷ (1 + R)**, where R is your reward-to-risk ratio.
+- At 1:1 you must win more than 50% just to break even.
+- At 2:1, more than 33%.
+- At 3:1, more than 25%.
+Commissions and slippage push these up a bit.
+
+## Why 2:1 is a common minimum
+It gives a comfortable margin: a trader winning 45% of trades at 2:1 has strong positive [[expectancy]]. And ICT setups (tight stop beyond the sweep, target at opposing liquidity) naturally produce 2:1 to 5:1 when they're real.
+
+## Measure it honestly
+- **Reward:** entry to your planned target (real liquidity), not a fantasy level.
+- **Risk:** entry to your real invalidation stop.
+- Don't stretch the target or shrink the stop to make the numbers work.
+
+## Higher isn't always better
+Very high R targets (10:1) usually come with very low win rates and long losing streaks. Most professionals settle in the 2-4R range with partials.
+
+Use the calculator below to see your targets at 1R, 2R and 3R for any setup.
+
+{{calc}}`,
+ take: ['Break-even win rate = 1 ÷ (1 + R).', '2:1 minimum means you only need >33% wins (before costs).', 'Measure R honestly from real stops and real liquidity.'],
+ miss: ['Taking 1:1 trades with a 45% win rate.', 'Stretching targets to fake a good R:R.', 'Chasing 10R trades and suffering huge losing streaks.'],
+ quiz: [
+  ['At 2:1 reward-to-risk, the break-even win rate is about…', ['33%', '50%', '25%', '66%'], 0, '1 ÷ 3.'],
+  ['At 3:1, break-even win rate is…', ['25%', '33%', '50%', '75%'], 0, '1 ÷ 4.'],
+  ['Which is honest R:R measurement?', ['Entry to real target vs entry to real invalidation', 'Entry to a far fantasy target', 'Shrinking the stop until R:R looks good', 'Ignoring the stop'], 0, 'Real levels only.'],
+ ]},
+{id: '8-8', t: 'Model: Silver Bullet', m: 8,
+ intro: 'The Silver Bullet is a simple, time-based model: inside a one-hour window, take the first quality fair value gap toward nearby liquidity.',
+ chart: {spec: {pts: [103.4, 104.2, {p: 102.6, close: 103.1}, 105.8, 104.7, 106.9], legs: [3, 3, {n: 3, disp: true}, 2, 3], seed: 751, h: 180, ann: [['line', 1, 'BSL target'], ['txt', 2, '10:08 sweep', 'below'], ['fvg', 0, 'SB FVG']]}, cap: 'NY AM Silver Bullet (10-11 am): a sweep, displacement leaves an FVG, entry on the return, target the buy-side liquidity.'},
+ body: `## Windows (NY time)
+3:00-4:00 am, **10:00-11:00 am**, 2:00-3:00 pm.
+
+## Rules (bullish; mirror for bearish)
+1. **Before the window:** know the draw on liquidity and mark nearby liquidity (session highs/lows, PDH/PDL, equal highs).
+2. **Inside the window:** wait for price to move toward a pool of liquidity, typically after a sweep of a nearby low.
+3. **The FVG:** the first [[fvg|FVG]] formed by displacement **in the direction of the draw**, inside the window.
+4. **Entry:** limit at the FVG (near edge or CE) on the retracement.
+5. **Stop:** below the swing low that formed before the FVG (or below FVG candle 1 for a tighter stop).
+6. **Target:** the nearest liquidity in the direction of the trade; ICT has suggested making sure there's enough room (for example, at least around 10 points on index futures) for the trade to be worth it.
+
+## Notes
+- If no FVG forms in the window, there's no trade.
+- The FVG should form inside the window; the entry can trigger slightly after.
+- Works best when aligned with daily bias, though it's often used as a short-term model toward the nearest liquidity.`,
+ take: ['Windows: 3-4 am, 10-11 am, 2-3 pm NY.', 'First displacement FVG toward the draw inside the window; enter on the return.', 'Stop beyond the swing; target the nearest liquidity with enough room.'],
+ miss: ['Using an FVG formed before the window.', 'Trading against the draw with no room to target.', 'Forcing a trade when no FVG forms.'],
+ quiz: [
+  ['The NY AM Silver Bullet window is…', ['10:00-11:00 am NY', '9:30-10:00 am NY', '11:00-12:00 NY', '8:00-9:00 am NY'], 0, '10-11 am.'],
+  ['Which FVG qualifies?', ['The first displacement FVG toward the draw, inside the window', 'Any FVG from yesterday', 'An FVG against the draw', 'The largest FVG of the week'], 0, 'Time and direction matter.'],
+  ['No FVG forms in the window. You…', ['Don\'t trade', 'Enter at market', 'Use the London one', 'Double size tomorrow'], 0, 'No setup, no trade.'],
+ ]},
+{id: '8-9', t: 'Model: the 2022 Mentorship model', m: 10,
+ intro: 'The 2022 model is ICT’s most taught complete setup: liquidity raid, displacement with a market structure shift, and an entry at the fair value gap.',
+ chart: {spec: {pts: [104, 106.2, 104.8, {p: 106.8, close: 106.1}, 102.4, 103.9, 101.2, 100.4], legs: [3, 3, 2, 1, {n: 3, disp: true}, 2, 3], seed: 761, h: 200, ann: [['line', 1, 'BSL', {to: 3}], ['line', 2, 'MSS', {to: 4}], ['fvg', 0, 'entry FVG'], ['txt', 3, 'raid', 'above'], ['txt', 7, 'SSL target', 'below']]}, cap: 'Bearish 2022 model: buy-side raided, displacement down breaks the short-term low, entry on the return to the FVG.'},
+ body: `## The sequence (bearish; mirror for bullish)
+1. **HTF context:** daily bias bearish, price in premium, draw on liquidity below.
+2. **Killzone:** London or NY AM.
+3. **Liquidity raid:** price runs an obvious buy-side pool: a short-term high, session high, PDH, equal highs.
+4. **Displacement + MSS:** price sells off sharply and breaks the most recent short-term low.
+5. **FVG:** the displacement leaves a bearish FVG.
+6. **Entry:** sell limit at the FVG (first touch or CE) on the retracement.
+7. **Stop:** above the high that was raided (conservative) or above the FVG's first candle (aggressive).
+8. **Targets:** partial at the nearest sell-side liquidity, final at the draw (e.g. PDL, equal lows), or an SD projection of the raid leg.
+
+## What makes it A+
+- The raid hits a higher-timeframe premium array.
+- Displacement is obvious: 2-3 large candles.
+- The MSS breaks an intermediate-term swing, not a tiny wiggle.
+- R:R to the sell-side target is 2:1 or better.
+
+## Common failure modes
+- No real displacement; slow drift through the low.
+- Entering at the MSS candle instead of waiting for the FVG return.
+- Raid against the HTF bias that turns into a run (continuation).`,
+ take: ['Raid → displacement + MSS → FVG → entry on return.', 'Stop beyond the raided extreme or FVG candle 1; target opposing liquidity.', 'Best inside killzones and with HTF alignment.'],
+ miss: ['Entering on the break instead of the retracement.', 'Accepting a slow drift as displacement.', 'Ignoring HTF bias.'],
+ quiz: [
+  ['In the 2022 model, what comes right after the liquidity raid?', ['Displacement with a market structure shift', 'The entry', 'The target', 'News'], 0, 'Raid, then displacement + MSS.'],
+  ['The entry is…', ['At the FVG on the retracement', 'At market on the raid', 'At the target', 'Random'], 0, 'Return to the FVG.'],
+  ['A conservative stop for a bearish 2022 setup is…', ['Above the high that was raided', 'Below entry', 'At the target', 'None'], 0, 'If that high breaks, the idea failed.'],
+  ['Which strengthens the setup?', ['The raid hits a HTF premium array', 'The MSS breaks a tiny wiggle', 'R:R is 1:1', 'It forms at lunch'], 0, 'HTF confluence.'],
+ ]},
+{id: '8-10', t: 'Model: Judas swing', m: 7,
+ intro: 'The Judas swing is a fake move at the start of a session that tricks traders into the wrong direction before the real move begins.',
+ chart: {spec: {pts: [102, 102.5, 101.9, {p: 103.7, close: 103.2}, 100.2, 101.2, 98.8], legs: [2, 2, 3, {n: 3, disp: true}, 2, 3], seed: 771, h: 180, ann: [['lvl', 102, 'open', {i0: {c: 0}, i1: {c: 4}}], ['txt', 3, 'Judas', 'above'], ['fvg', 0, 'FVG']]}, cap: 'Bearish day: price rallies above the midnight open (the Judas swing), then reverses and delivers lower.'},
+ body: `## What it is
+A **[[judas|Judas swing]]** is the manipulation phase of the [[po3|Power of Three]] at a session open: a move **against** the day's real direction that runs liquidity.
+- Bearish day: an early rally above the midnight open, often raiding the Asian high or a short-term high.
+- Bullish day: an early drop below the open, raiding the Asian low or PDL.
+
+## When it happens
+Typically in the first hours after midnight NY / the London open, or in the first 15-30 minutes after the 9:30 equities open.
+
+## Trading it
+1. Daily bias decided (say bearish).
+2. Mark the midnight open, Asian high/low, nearby buy-side liquidity.
+3. Watch for price to rally above the open into buy-side liquidity or a premium array.
+4. Wait for displacement down and an MSS.
+5. Enter on the FVG return; stop above the Judas high; target sell-side liquidity.
+
+## Key point
+The Judas swing is what traps breakout traders. Your job is to recognise it as manipulation, not trend, and trade the reversal with confirmation.`,
+ take: ['Judas swing = fake move at the session open against the real direction.', 'Bearish day: rally above the open; bullish day: drop below it.', 'Trade the reversal after displacement and MSS.'],
+ miss: ['Chasing the Judas move as if it were the trend.', 'Shorting the Judas without confirmation.', 'Forgetting to anchor to the midnight open.'],
+ quiz: [
+  ['On a bearish day, the Judas swing is usually…', ['An early rally above the open', 'An early drop below the open', 'The closing move', 'A news event'], 0, 'False move up first.'],
+  ['The Judas swing belongs to which AMD phase?', ['Manipulation', 'Accumulation', 'Distribution', 'None'], 0, 'It is the manipulation.'],
+  ['What confirms the reversal after a Judas swing?', ['Displacement and an MSS', 'The time alone', 'A doji', 'Nothing'], 0, 'Confirmation is required.'],
+ ]},
+{id: '8-11', t: 'Model: Turtle soup', m: 6,
+ intro: 'Turtle soup fades a breakout that fails: price runs through an old high or low, can’t keep going, and snaps back.',
+ chart: {spec: {pts: [102, 105, 103, 104.9, 103.6, {p: 105.7, close: 104.8}, 101.6, 102.6, 100.8], legs: [4, 3, 3, 2, 1, {n: 3, disp: true}, 2, 3], seed: 781, h: 190, ann: [['line', 1, 'old high', {to: 5}], ['txt', 5, 'turtle soup', 'above']]}, cap: 'Breakout above the old high fails; the reversal back inside is the turtle soup short.'},
+ body: `## Origin
+The name comes from a classic setup popularised by Linda Bradford Raschke and Laurence Connors that faded failed breakouts of the famous "Turtle" traders' 20-day highs and lows. ICT uses the term for **fading a run on liquidity that fails**.
+
+## Setup (bearish; mirror for bullish)
+1. An obvious old high (equal highs, PDH, a 20-day high) with buy stops above.
+2. Price trades **above** it, triggering breakout buys and short stops.
+3. Price fails to continue and closes back **below** the old high.
+4. Entry: sell on the close back inside, or on a retracement to the FVG/order block formed by the reversal.
+5. Stop: above the extreme of the run.
+6. Target: the opposite side of the range or the next sell-side liquidity.
+
+## Best conditions
+- The old high is a higher-timeframe level or in premium.
+- It happens in a killzone.
+- HTF bias favours the reversal direction.
+- There's displacement back through the level.
+
+## Difference from the 2022 model
+Turtle soup can be entered right as price closes back inside the level (more aggressive). The 2022 model waits for the MSS and FVG (more confirmation).`,
+ take: ['Turtle soup = fading a failed run beyond an old high/low.', 'Stop beyond the run\'s extreme; target the opposite liquidity.', 'Best at HTF levels, in killzones, with bias.'],
+ miss: ['Fading every breakout in a strong trend.', 'Entering before price closes back inside.', 'Placing stops inside the run.'],
+ quiz: [
+  ['Turtle soup is…', ['Fading a failed breakout of an old high or low', 'Buying every breakout', 'A moving average strategy', 'An options spread'], 0, 'It trades the failure.'],
+  ['The stop for a turtle soup short goes…', ['Above the extreme of the run', 'Below entry', 'At the old high exactly', 'No stop'], 0, 'Beyond the failed extreme.'],
+  ['Compared with the 2022 model, turtle soup is often entered…', ['Earlier, on the close back inside', 'Later, after targets hit', 'Only on weekly charts', 'Never'], 0, 'More aggressive.'],
+ ]},
+{id: '8-12', t: 'Model: Market Maker Buy and Sell Models', m: 10,
+ intro: 'The market maker models describe a full cycle: price runs one way in steps, reverses at a key level, and retraces back through the same steps to where it started.',
+ chart: {spec: {pts: [110, 108.6, 109.4, 106.4, 107.3, 104.4, 105.2, {p: 102, close: 102.7}, 105.6, 104.8, 107.6, 106.9, 110.3], legs: [2, 2, 3, 2, 3, 2, 3, {n: 3, disp: true}, 2, 3, 2, 3], seed: 791, h: 210, ann: [['lvl', 110, 'origin', {i0: {c: 0}}], ['txt', 7, 'SMR', 'below'], ['txt', 4, 'sell side', 'above'], ['txt', 10, 'buy side', 'above']]}, cap: 'Market Maker Buy Model: stair-step decline, smart money reversal at a HTF discount array, then a stair-step rally back to the origin.'},
+ body: `## Market Maker Buy Model (MMBM)
+1. **Original consolidation:** a range near the top; the eventual target.
+2. **Sell side of the curve:** price declines in steps, each leg pausing in a small consolidation. These pauses build buy-side liquidity above them (late shorts' stops).
+3. **Smart money reversal (SMR):** price reaches a **higher-timeframe discount PD array**, sweeps sell-side liquidity, and shifts structure (MSS) with displacement.
+4. **Buy side of the curve:** price rallies back up, often retracing into each prior consolidation and taking the buy-side liquidity above them, until it reaches the original consolidation.
+
+## Market Maker Sell Model (MMSM)
+The mirror: a stair-step rally (buy side of the curve) into a HTF premium array, a smart money reversal with an MSS, then a stair-step decline back to the original consolidation.
+
+## Why it's useful
+- It tells you **where to expect the reversal** (HTF array after a long stair-step run).
+- It gives **targets**: each prior consolidation on the way back, ending at the original consolidation.
+- The lower-timeframe entries are the familiar ones: sweep → MSS → FVG or breaker.
+
+## Spotting it
+Look for a trend that's lost momentum, legs getting shorter, approaching a clear HTF array. Don't assume every trend is an MMxM; wait for the SMR to confirm.`,
+ take: ['MMBM: stair-step down, SMR at HTF discount array, stair-step back up to the original consolidation.', 'MMSM is the mirror.', 'Prior consolidations become targets on the way back.'],
+ miss: ['Calling a reversal before the SMR confirms.', 'Ignoring the HTF array where the SMR should happen.', 'Targeting beyond the original consolidation without reason.'],
+ quiz: [
+  ['In an MMBM, where does the smart money reversal usually happen?', ['At a higher-timeframe discount PD array', 'At the original consolidation', 'At lunch', 'Anywhere'], 0, 'HTF discount array.'],
+  ['The final target of an MMBM is often…', ['The original consolidation', 'The SMR low', 'A random level', 'The daily open'], 0, 'Price returns to where it started.'],
+  ['MMSM is…', ['The mirror: a rally into premium, reversal, decline', 'The same as MMBM', 'An indicator', 'A news event'], 0, 'Sell model mirror.'],
+ ]},
+{id: '8-13', t: 'Model: Unicorn', m: 6,
+ intro: 'The Unicorn is a breaker block with a fair value gap overlapping it. Two strong reasons in the same spot make a precise entry.',
+ chart: {spec: {pts: [104, 101.6, {p: 105, big: 1}, {p: 100.7, close: 101.3}, 107.6, 104.6, 109], legs: [4, 4, 4, {n: 3, disp: true}, 3, 3], seed: 801, h: 200, ann: [['ob', 2, 'breaker'], ['fvg', 0, 'FVG'], ['txt', 3, 'sweep', 'below']]}, cap: 'Bullish Unicorn: the FVG from the displacement overlaps the bullish breaker. Enter in the overlap.'},
+ body: `## Definition
+A **[[unicorn|Unicorn]]** setup is a [[breaker|breaker block]] that is overlapped by a [[fvg|fair value gap]] formed in the displacement that broke through it. The overlap is the entry zone.
+
+## Sequence (bullish)
+1. Swing low, swing high.
+2. Price sweeps below the swing low (sell-side liquidity taken).
+3. Displacement up breaks above the swing high; the up-close candle at that high becomes the bullish breaker.
+4. The displacement leaves an FVG that overlaps the breaker.
+5. Entry: limit in the overlap; stop below the sweep low (or below the breaker); target buy-side liquidity.
+
+## Why it's strong
+You have liquidity taken, a structure break, a failed order block (breaker) and an imbalance (FVG) in one tight zone. The overlap is often small, which gives excellent R:R.
+
+## Notes
+If there's no overlap between the FVG and the breaker, it's not a Unicorn; trade it as a standard breaker or FVG entry instead.`,
+ take: ['Unicorn = breaker + overlapping FVG.', 'Requires a sweep and displacement through the breaker.', 'Enter in the overlap; stop beyond the sweep.'],
+ miss: ['Calling it a Unicorn without an actual overlap.', 'Skipping the liquidity sweep.', 'Placing the stop inside the overlap.'],
+ quiz: [
+  ['A Unicorn setup combines…', ['A breaker block and an overlapping FVG', 'Two order blocks', 'A doji and a hammer', 'Two sessions'], 0, 'Breaker + FVG overlap.'],
+  ['Where is the entry?', ['In the overlap of the breaker and FVG', 'At the target', 'At the sweep low', 'Anywhere'], 0, 'The overlap.'],
+  ['No overlap between FVG and breaker means…', ['It\'s not a Unicorn', 'It\'s a stronger Unicorn', 'Enter anyway', 'Short it'], 0, 'Trade a standard model instead.'],
+ ]},
+{id: '8-14', t: 'Model: OTE entry', m: 6,
+ intro: 'The OTE model waits for a deep pullback (62-79%) after a displacement leg, and enters where that zone lines up with a PD array.',
+ chart: {f: H => { const w = H.walk([104, {p: 100.2, close: 100.8}, 107, 102.3, 108.6], [3, {n: 4, disp: true}, 4, 4], 811); const lo = w.P[1], hi = w.P[2], r = hi - lo; return H.chart(w.c, {h: 200, pr: 50, zones: [{i0: w.at[2], top: hi - r * .62, bot: hi - r * .79, fill: 'rgba(0,0,0,.1)', label: 'OTE', out: 1}], lines: [[0, '0'], [0.5, '0.5'], [1, '1']].map(([f, l]) => ({i0: w.at[1], y: hi - r * f, dash: '3 2', label: l, out: 1, sw: .7}))}).svg; }, cap: 'After displacement breaks structure, the retracement into 62-79% is the OTE entry zone.'},
+ body: `## Rules (bullish)
+1. HTF bias bullish; killzone.
+2. Price sweeps sell-side liquidity, then displaces higher and breaks structure.
+3. Draw the Fibonacci from the swing low (the sweep) to the swing high of the displacement leg.
+4. Wait for a retracement into the **62-79%** zone (70.5% sweet spot).
+5. Look for a PD array (FVG, OB) inside the zone and, ideally, a LTF shift back up.
+6. Stop below the swing low (100%); target the swing high and beyond (−0.27, −0.62 extensions, or liquidity).
+
+## Notes
+- If price doesn't reach the OTE zone, there's no OTE trade (you can still use other models).
+- If price closes below 100%, the idea is invalid.
+- OTE pairs well with the 2022 model: the FVG often sits inside the OTE zone.`,
+ take: ['Fib the displacement leg; enter at 62-79% with a PD array.', 'Stop beyond 100%; target the high and extensions/liquidity.', 'No retracement to OTE = no OTE trade.'],
+ miss: ['Drawing the fib on a leg without displacement.', 'Entering at 50% and calling it OTE.', 'Holding after a close beyond 100%.'],
+ quiz: [
+  ['The OTE zone is…', ['62-79% retracement', '0-23%', '100-127%', '38-50%'], 0, 'Deep retracement.'],
+  ['The stop in a bullish OTE trade usually goes…', ['Below the 100% level (swing low)', 'At 50%', 'At the target', 'None'], 0, 'Beyond the leg start.'],
+  ['Which fib target is commonly used?', ['−0.27 / −0.62 extensions', '0.5', '0.79', '1.0'], 0, 'Negative extensions project targets.'],
+ ]},
+{id: '8-15', t: 'Model: Power of Three entry', m: 6,
+ intro: 'The Power of Three entry buys the manipulation below the daily open on a bullish day (or sells it above on a bearish day), aiming to catch most of the day’s range.',
+ chart: {spec: {pts: [103, 103.5, 102.8, {p: 101.4, close: 102}, 105.4, 104.4, 107], legs: [2, 2, 3, {n: 3, disp: true}, 2, 4], seed: 821, h: 180, ann: [['lvl', 103, 'open', {i0: {c: 0}, i1: {c: 4}}], ['fvg', 0, 'entry'], ['txt', 3, 'manipulation', 'below']]}, cap: 'Bullish day: price drops below the open into a PD array, shifts, and the entry comes below the open.'},
+ body: `## Rules (bullish day)
+1. **Bias:** bullish daily bias from your Level 7 methods.
+2. **Open:** mark the midnight open.
+3. **Manipulation:** wait for price to trade **below** the open, ideally into a discount PD array or sell-side liquidity (Asian low, PDL), during London or NY AM.
+4. **Confirmation:** LTF displacement and MSS/CISD.
+5. **Entry:** at the LTF FVG, which should still be **below the open**.
+6. **Stop:** below the manipulation low.
+7. **Target:** the day's buy-side liquidity (PDH, Asian high, weekly levels); the distribution phase.
+
+## Why it works
+If the daily candle is going to close bullish, the manipulation low below the open is often the low of the day. Buying there captures the distribution leg with a small stop.
+
+## Avoid
+Buying above the open early in the day on a bullish bias: that's usually premium for the day and gets shaken out by the manipulation.`,
+ take: ['Bullish day: buy the manipulation below the midnight open with confirmation.', 'Stop below the manipulation low; target the day\'s buy-side liquidity.', 'Don\'t buy above the open early in a bullish day.'],
+ miss: ['Buying early above the open.', 'Entering before confirmation in the manipulation.', 'Holding without a target.'],
+ quiz: [
+  ['On a bullish day, the Po3 entry is ideally…', ['Below the midnight open after confirmation', 'Above the open at the start of the day', 'At the high of day', 'After 4 pm'], 0, 'Buy the manipulation.'],
+  ['The stop goes…', ['Below the manipulation low', 'Above entry', 'At the open', 'None'], 0, 'Beyond the low.'],
+  ['The target is…', ['The day\'s buy-side liquidity', 'The manipulation low', 'The open', 'Random'], 0, 'Distribution toward BSL.'],
+ ]},
+{id: '8-16', t: 'Model: London and New York reversals', m: 7,
+ intro: 'Sometimes a session reverses the move from the session before. Knowing when that is likely keeps you from buying the top of London’s rally.',
+ chart: {spec: {pts: [100, 101.5, 101, 103.4, 102.8, {p: 104.6, close: 104}, 101.4, 102.2, 100.2], legs: [3, 2, 3, 2, 2, {n: 3, disp: true}, 2, 3], seed: 831, h: 190, ann: [['zone', 5, 104.8, 103.8, 'HTF array', {fill: 'rgba(0,0,0,.06)'}], ['txt', 2, 'London rally', 'below'], ['txt', 6, 'NY reversal', 'below']]}, cap: 'London rallies into a HTF premium array; New York runs the high, shifts, and reverses.'},
+ body: `## The idea
+- **London reversal:** London reverses the Asian session's direction (common: Asia drifts up, London raids above and reverses down).
+- **New York reversal:** New York reverses London's move, typically when London has run into a higher-timeframe PD array or liquidity target.
+
+## When a NY reversal is likely
+- London has already reached the **daily draw on liquidity** (job done).
+- London ran into a **HTF premium array** (for a reversal down) or discount array (for a reversal up).
+- NY opens by **raiding London's extreme** (sweeping the London high) and then displaces the other way.
+- There's an obvious opposite draw (e.g. untouched PDL).
+
+## When NY continuation is more likely
+- London's move is in line with the daily bias and hasn't reached the draw yet.
+- NY retraces into a London FVG/OB and holds, then continues.
+
+## Trading it
+Same confirmation as always: raid of the session extreme, displacement, MSS, FVG entry, stop beyond the raid, target the opposite liquidity.`,
+ take: ['NY reverses London when London has hit the draw or a HTF array.', 'Look for NY to raid London\'s extreme, then shift.', 'Otherwise, expect NY continuation from a London PD array.'],
+ miss: ['Fading London every day.', 'Assuming continuation after London already hit the draw.', 'Entering the reversal without an MSS.'],
+ quiz: [
+  ['A NY reversal is more likely when…', ['London already reached the daily draw or a HTF array', 'London barely moved', 'There is no HTF level nearby', 'It is Friday afternoon'], 0, 'The job is done; reversal becomes likely.'],
+  ['A typical NY reversal starts with…', ['A raid of London\'s high or low', 'A news headline only', 'A doji', 'Nothing'], 0, 'Liquidity taken first.'],
+  ['If London is aligned with bias and hasn\'t reached the draw, NY often…', ['Continues after retracing into a London PD array', 'Reverses always', 'Closes', 'Gaps'], 0, 'Continuation.'],
+ ]},
+{id: '8-17', t: 'Model: Breaker entries', m: 6,
+ intro: 'A breaker entry waits for price to sweep liquidity, break through a failed order block, and come back to it, then enters as the block flips.',
+ chart: {spec: {pts: [106, 102.6, {p: 105.4, big: 1}, {p: 101.6, close: 102.2}, 107.8, 105, 109.4], legs: [4, 4, 4, {n: 3, disp: true}, 3, 3], seed: 841, h: 200, ann: [['ob', 2, 'breaker'], ['line', 1, 'swept low', {to: 3}], ['txt', 5, 'entry', 'below']]}, cap: 'Bullish breaker entry: after the sweep and break, buy the retest of the breaker.'},
+ body: `## Rules (bullish)
+1. Swing low → swing high → price sweeps below the swing low (sell-side taken).
+2. Displacement breaks above the swing high.
+3. Mark the **bullish breaker**: the up-close candle(s) at the swing high before the drop.
+4. Entry: limit at the top of the breaker body or its 50%, on the retracement.
+5. Stop: below the breaker (aggressive) or below the sweep low (conservative).
+6. Target: buy-side liquidity above (the next old high, PDH).
+
+## Confluence that improves it
+- An FVG overlapping the breaker (that's a Unicorn).
+- Breaker in discount of the dealing range.
+- Killzone timing and HTF bias alignment.
+
+## Breaker vs mitigation entry
+If the low was **not** swept (a higher low formed instead), the block is a mitigation block. You can trade it the same way, but expect it to be a little less reliable.`,
+ take: ['Sweep → break → retest of the breaker.', 'Stop below the breaker or the sweep low; target buy-side liquidity.', 'FVG overlap turns it into a Unicorn.'],
+ miss: ['Entering before the swing high actually breaks.', 'Calling it a breaker when no sweep happened.', 'Ignoring premium/discount location.'],
+ quiz: [
+  ['A bullish breaker entry requires…', ['A sweep of the low and a break above the swing high', 'Equal highs only', 'A news event', 'A doji'], 0, 'Liquidity, then structure break.'],
+  ['The entry is on…', ['The retest of the breaker', 'The sweep candle', 'The target', 'The open'], 0, 'Retest.'],
+  ['If the low wasn\'t swept, the block is a…', ['Mitigation block', 'Breaker', 'Unicorn', 'Rejection block'], 0, 'Failure swing → mitigation.'],
+ ]},
+]});
+})();
+(function () {
+CS.level({n: 9, name: 'Advanced ICT', d: 'SMT, IPDA ranges, quarterly theory, intermarket, COT, order flow, MM models', lessons: [
+{id: '9-1', t: 'SMT divergence', m: 8,
+ intro: 'When two markets that normally move together disagree at a key high or low, one of them is showing weakness. That crack is called SMT divergence.',
+ chart: [
+  {spec: {pts: [104, 101, 103.2, {p: 100.2, close: 100.8}, 104.6], legs: [4, 3, 3, {n: 3, disp: true}], seed: 901, h: 140, ann: [['line', 1, 'ES', {to: 3}], ['txt', 3, 'lower low', 'below']]}, cap: 'ES (S&P 500 futures) sweeps its previous low…'},
+  {spec: {pts: [104, 101, 103.4, 101.7, 105.2], legs: [4, 3, 3, {n: 3, disp: true}], seed: 902, h: 140, ann: [['line', 1, 'NQ', {to: 3}], ['txt', 3, 'higher low', 'below']]}, cap: '…while NQ (Nasdaq futures) makes a higher low. Bullish SMT: the sell-side run in ES is not confirmed.'}],
+ body: `## What it is
+**[[smt|SMT divergence]]** ("smart money technique") compares **correlated** markets at the same swing:
+- **Bullish SMT:** one market makes a **lower low** (sweeps sell-side), the other makes a **higher low**. The failure to confirm suggests the move down is a liquidity grab, not real weakness.
+- **Bearish SMT:** one makes a **higher high**, the other a **lower high**.
+
+## Common pairs
+- **ES vs NQ vs YM** (US index futures).
+- **EURUSD vs GBPUSD.**
+- **DXY vs EURUSD** (inversely correlated: compare DXY highs with EURUSD lows).
+- **Gold vs silver.**
+
+## How to use it
+SMT is a **confirmation tool**, not an entry by itself. It's strongest when:
+- It happens at a **key level** (PDH/PDL, session high/low, HTF PD array).
+- It happens in a **killzone**.
+- It's followed by displacement and an MSS.
+
+## Pitfalls
+- Comparing timeframes or sessions that don't match.
+- Using uncorrelated markets.
+- Reading tiny wiggles as SMT. Use clear, obvious swings.`,
+ take: ['SMT = correlated markets disagree at a swing.', 'Bullish: one lower low, one higher low. Bearish: one higher high, one lower high.', 'Use it as confirmation at key levels, then wait for MSS.'],
+ miss: ['Using SMT alone as an entry.', 'Comparing uncorrelated assets.', 'Forgetting DXY is inverse to EURUSD.'],
+ quiz: [
+  ['ES makes a lower low while NQ makes a higher low. This is…', ['Bullish SMT', 'Bearish SMT', 'No signal', 'A breaker'], 0, 'The sell-side run is not confirmed.'],
+  ['Bearish SMT is…', ['One market higher high, the other lower high', 'Both make higher highs', 'Both make lower lows', 'A gap'], 0, 'Failure to confirm a high.'],
+  ['DXY makes a higher high while EURUSD makes a higher low. Since they are inverse, this is…', ['SMT (they disagree)', 'Perfect agreement', 'Irrelevant', 'A news event'], 0, 'EURUSD should have made a lower low.'],
+  ['SMT is best used as…', ['Confirmation at key levels with an MSS to follow', 'A stand-alone signal anywhere', 'A stop loss', 'A position size'], 0, 'Confluence.'],
+ ]},
+{id: '9-2', t: 'IPDA data ranges: 20, 40, 60 days', m: 8,
+ intro: 'ICT teaches that the market’s algorithm looks back over the last 20, 40 and 60 trading days to decide which highs, lows and gaps matter most.',
+ chart: {f: H => H.ladder([{p: 9, label: '60-day high', note: 'major BSL', kind: 'buy'}, {p: 7.6, label: '40-day high', note: 'BSL', kind: 'buy'}, {p: 6.3, label: '20-day high', note: 'nearest BSL', kind: 'buy'}, {p: 5, label: 'Current price', kind: 'cur'}, {p: 4, label: '20-day low', note: 'nearest SSL', kind: 'sell'}, {p: 2.4, label: '40-day low', note: 'SSL', kind: 'sell'}, {p: 1, label: '60-day low', note: 'major SSL', kind: 'sell'}], {h: 200}).replace(/>[\d.]+<\/text>/g, '></text>'), cap: 'Mark the highest high and lowest low of the last 20, 40 and 60 trading days.'},
+ body: `## The concept
+**[[ipda|IPDA]]** (Interbank Price Delivery Algorithm) is ICT's name for the idea that price is delivered between liquidity and imbalances in a rule-based way. He teaches three **look-back ranges** on the daily chart:
+- **20 trading days** (about 1 month)
+- **40 trading days** (about 2 months)
+- **60 trading days** (about 3 months, a quarter)
+
+## How to apply it
+1. On the daily chart, count back 20, 40 and 60 trading days from today.
+2. Mark the **highest high** and **lowest low** within each window, and any big unfilled FVGs.
+3. These become the most likely **draws on liquidity** over the coming weeks.
+4. Price is usually working toward one of these levels. Which one is closer, or which side was recently raided, informs your bias.
+
+## Look-forward
+ICT also suggests that around the start of a new quarter, you look back 60 days to anticipate the next 20-60 days of delivery, often marked by a **quarterly shift** (a large reversal or expansion).
+
+## Keep in mind
+This is a framework for **organising levels**, not a guarantee of what an algorithm "will" do. Measure it in your backtests like everything else.`,
+ take: ['Mark the highs/lows and FVGs of the last 20, 40, 60 trading days.', 'They are likely draws on liquidity over weeks.', 'Quarterly shifts often occur around 60-day turns.'],
+ miss: ['Counting calendar days instead of trading days.', 'Treating IPDA levels as certain targets.', 'Using it on intraday charts.'],
+ quiz: [
+  ['IPDA look-back ranges are…', ['20, 40, 60 trading days', '5, 10, 15 minutes', '1, 2, 3 years', '50 and 200 days'], 0, 'About 1, 2 and 3 months.'],
+  ['What do you mark within each range?', ['The highest high, lowest low and big FVGs', 'Moving averages', 'RSI levels', 'News times'], 0, 'Liquidity and imbalances.'],
+  ['60 trading days is roughly…', ['A quarter (3 months)', 'A week', 'A year', 'A day'], 0, 'About 3 months.'],
+ ]},
+{id: '9-3', t: 'Quarterly theory', m: 8,
+ intro: 'Quarterly theory splits time into four parts at every scale, from years down to 90-minute blocks, and expects a repeating pattern of build-up, fake-out, real move and finish.',
+ chart: {f: H => { const W = 360; let s = '<svg viewBox="0 0 360 130" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue,Helvetica,Arial,sans-serif">'; const q = [['Q1', '18:00-00:00', 'Asia', 'Accumulation'], ['Q2', '00:00-06:00', 'London', 'Manipulation'], ['Q3', '06:00-12:00', 'NY AM', 'Distribution'], ['Q4', '12:00-18:00', 'NY PM', 'Continuation / reversal']]; q.forEach((r, i) => { const x = 4 + i * 88; s += `<rect x="${x}" y="20" width="84" height="70" fill="${i === 1 ? 'rgba(0,0,0,.1)' : 'rgba(0,0,0,.04)'}" stroke="#E5E5E5"/><text x="${x + 42}" y="38" text-anchor="middle" font-size="11" font-weight="700">${r[0]}</text><text x="${x + 42}" y="54" text-anchor="middle" font-size="8.5" fill="#555">${r[1]}</text><text x="${x + 42}" y="68" text-anchor="middle" font-size="9">${r[2]}</text><text x="${x + 42}" y="82" text-anchor="middle" font-size="7.5" fill="#555">${r[3]}</text>`; }); s += '<line x1="92" x2="92" y1="12" y2="98" stroke="#000" stroke-dasharray="3 2"/><text x="94" y="110" font-size="8.5">True day open (00:00)</text><text x="4" y="12" font-size="8.5" fill="#555">The trading day in New York time</text></svg>'; return s; }, cap: 'The day in quarters. The start of Q2 (midnight) is the "true open".'},
+ body: `## Where it comes from
+Quarterly theory was popularised by the trader known as Daye, building on ICT's Power of Three and time concepts. It is **not** an official ICT model, but many ICT students use it.
+
+## The idea
+Every time cycle is split into **four quarters**, and the quarters tend to follow an **AMDX** rhythm:
+- **Q1 Accumulation:** quiet range.
+- **Q2 Manipulation:** the fake move (Judas).
+- **Q3 Distribution:** the real move.
+- **Q4 X (continuation or reversal).**
+
+## Quarters at each scale
+- **Year:** Jan-Mar, Apr-Jun, Jul-Sep, Oct-Dec.
+- **Month:** roughly the four weeks.
+- **Week:** Monday, Tuesday, Wednesday, Thursday (Friday handled separately).
+- **Day (NY time):** 18:00-00:00, 00:00-06:00, 06:00-12:00, 12:00-18:00.
+- **Session:** four 90-minute blocks (e.g. NY AM 6:00-7:30, 7:30-9:00, 9:00-10:30, 10:30-12:00).
+
+## True opens
+The **start of Q2** of each cycle is called the **true open**: midnight for the day (same as ICT's midnight open), 7:30 am for the NY AM session, Monday 6 pm for the week (the start of Tuesday's trading day), and so on. Like the midnight open, price above the true open is premium for that cycle and below is discount.
+
+## Using it
+Treat it as a **timing lens**: expect the Judas in Q2 and the main move in Q3. Confirm with the same liquidity, displacement and MSS rules. Backtest it before relying on it.`,
+ take: ['Each cycle has 4 quarters: accumulation, manipulation, distribution, X.', 'Day quarters in NY time start at 18:00, 00:00, 06:00, 12:00.', 'The start of Q2 is the "true open"; a premium/discount reference.'],
+ miss: ['Treating it as official ICT doctrine.', 'Forcing every cycle into a perfect AMDX.', 'Trading the time alone without price confirmation.'],
+ quiz: [
+  ['In quarterly theory, Q2 is typically…', ['Manipulation', 'Accumulation', 'Distribution', 'Closed'], 0, 'The fake move.'],
+  ['The true day open (start of Q2) is…', ['Midnight NY', '9:30 am NY', '5:00 pm NY', 'Noon'], 0, 'Midnight.'],
+  ['The NY AM session (6:00-12:00) is split into…', ['Four 90-minute quarters', 'Two 3-hour halves', '12 half-hours only', 'Nothing'], 0, '90-minute quarters.'],
+ ]},
+{id: '9-4', t: 'Intermarket analysis: DXY, bonds and indices', m: 9,
+ intro: 'Markets are connected. The US dollar, interest rates and stock indices push and pull on each other, and watching them together gives you context.',
+ body: `## The US Dollar Index (DXY)
+**[[dxy|DXY]]** measures the dollar against a basket of currencies (mostly the euro).
+- DXY up usually means **EURUSD, GBPUSD down** and often pressure on gold.
+- DXY down usually means EURUSD and GBPUSD up.
+- ICT traders check DXY's PD arrays and liquidity to confirm forex bias (and use DXY vs EURUSD for SMT).
+
+## Bonds and yields
+- **Bond prices and yields move in opposite directions.**
+- Rising yields (falling bond prices) often **support the dollar** and can **pressure stocks**, especially growth/tech (NQ), because future earnings are worth less and borrowing costs more.
+- Falling yields (rising bond prices) often support stocks and weaken the dollar.
+- Futures: **ZN** (10-year note), **ZB** (30-year bond).
+
+## Indices
+- **ES** (S&P 500), **NQ** (Nasdaq 100), **YM** (Dow), **RTY** (Russell 2000).
+- Usually move together; when they disagree at key levels, look for SMT.
+
+## Risk-on vs risk-off
+- **Risk-on:** stocks up, high-beta currencies (AUD) up, safe havens (JPY, bonds, sometimes gold) down.
+- **Risk-off:** the reverse.
+
+## Important caveat
+These relationships are **tendencies, not laws**. They break down for weeks or months (e.g. stocks and bonds both falling during inflation shocks). Use intermarket analysis for **context and confirmation**, never as the only reason for a trade.`,
+ take: ['DXY up usually means EURUSD/GBPUSD down.', 'Bond prices and yields move opposite; rising yields often pressure stocks and support USD.', 'Correlations are tendencies that can break.'],
+ miss: ['Treating correlations as fixed laws.', 'Ignoring DXY when trading EURUSD.', 'Confusing bond price with bond yield.'],
+ quiz: [
+  ['If DXY is rallying strongly, EURUSD is most likely…', ['Falling', 'Rising', 'Unaffected', 'Closed'], 0, 'Inverse relationship.'],
+  ['When bond prices fall, yields…', ['Rise', 'Fall', 'Stay the same', 'Disappear'], 0, 'Opposite directions.'],
+  ['Rising yields often…', ['Pressure tech stocks and support the dollar', 'Always lift stocks', 'Weaken the dollar every time', 'Do nothing'], 0, 'A tendency, not a law.'],
+  ['Intermarket correlations should be used…', ['As context and confirmation', 'As the only trade signal', 'Never', 'To set position size'], 0, 'They can break down.'],
+ ]},
+{id: '9-5', t: 'Commitment of Traders (COT) basics', m: 7,
+ intro: 'Every week a US regulator publishes who holds what in the futures markets. It’s slow, but it shows what the biggest players are doing.',
+ chart: {f: H => H.curve([{pts: [-20, -35, -60, -80, -95, -70, -40, -10, 15, 30], label: 'Commercials'}, {pts: [18, 30, 52, 70, 84, 62, 35, 8, -14, -26], label: 'Large specs', dash: 1}], {h: 150, fmt: v => (v > 0 ? '+' : '') + Math.round(v) + 'k', xlab: 'weeks →'}), cap: 'Illustration: commercials and large speculators usually sit on opposite sides. Extremes can hint at turning points.'},
+ body: `## What it is
+The **[[cot|Commitment of Traders]]** report is published by the CFTC (US Commodity Futures Trading Commission) **every Friday at 3:30 pm ET**, with data as of the **previous Tuesday**.
+
+## The groups (legacy report)
+- **Commercials:** businesses hedging real exposure (airlines, farmers, banks). Often "smart money" in ICT's view; they buy as prices fall and sell as prices rise.
+- **Non-commercials / large speculators:** funds and CTAs. Often trend-following.
+- **Non-reportables:** small traders.
+
+## How ICT-style traders use it
+- Look at **commercial net positioning** relative to the last 6-12 months. Readings at an **extreme** (e.g. most net long in a year) can support a HTF bullish bias, especially if price is in a HTF discount array.
+- Combine with seasonality, IPDA ranges and PD arrays for weekly/monthly bias.
+
+## Limitations
+- **Lagging:** data is 3 days old when released.
+- **Not timing:** positioning extremes can persist for weeks.
+- **Futures only:** no direct spot forex or single stocks data.
+
+Use COT as one **slow, high-timeframe input**, never for intraday entries.`,
+ take: ['COT: CFTC weekly, released Friday 3:30 pm ET with Tuesday data.', 'Commercials hedge and often lean against trends; extremes can mark HTF turns.', 'Lagging; use for HTF context only.'],
+ miss: ['Using COT for day-trade entries.', 'Assuming an extreme means an immediate reversal.', 'Forgetting the 3-day lag.'],
+ quiz: [
+  ['When is the COT report released?', ['Friday 3:30 pm ET (Tuesday data)', 'Daily at 9:30 am', 'Monthly', 'Never'], 0, 'Weekly.'],
+  ['Commercials are mostly…', ['Hedgers with real business exposure', 'Small retail traders', 'Brokers', 'Central banks only'], 0, 'Hedging.'],
+  ['COT is best used for…', ['Higher-timeframe context', '1-minute entries', 'Stop placement', 'News trading'], 0, 'It\'s slow data.'],
+ ]},
+{id: '9-6', t: 'Institutional order flow', m: 8,
+ intro: 'Order flow is the direction the big money is pushing. In ICT terms, you read it from which PD arrays the market respects and which it ignores.',
+ chart: {spec: {pts: [100, 103.8, 102.3, 106, 104.6, 108.4], legs: [{n: 3, disp: true}, 3, {n: 3, disp: true}, 3, {n: 3, disp: true}], seed: 911, h: 180, ann: [['fvg', 0, 'held'], ['fvg', 1, 'held'], ['txt', 4, 'bullish order flow', 'below']]}, cap: 'Bullish order flow: each new bullish FVG is respected and price keeps making higher highs.'},
+ body: `## ICT's definition
+- **Bullish institutional order flow:** bullish PD arrays (FVGs, order blocks) are **respected** (price bounces from them) and bearish arrays are **disrespected** (price trades straight through).
+- **Bearish order flow:** the reverse.
+- When order flow **changes**, you see the first important bullish array fail (a body close through it) followed by an MSS. That's often an [[ifvg|inversion]] or breaker forming.
+
+## Reading it
+1. List the last 3-4 PD arrays on your timeframe.
+2. Did price respect or disrespect them?
+3. Trade **with** the order flow: buy discount arrays in bullish flow, sell premium arrays in bearish flow.
+
+## How big players actually execute (background)
+- **Large orders are split** into many small ones (algorithms like VWAP/TWAP) to hide size.
+- **Iceberg orders** show only a small visible size on the order book.
+- **Block trades** are negotiated off-exchange.
+- Big players need **liquidity** to fill, which is why it gathers at obvious highs and lows and why runs on stops often precede big moves.
+
+## Takeaway
+You don't need to see institutional orders directly. Price respecting or failing at arrays is the footprint.`,
+ take: ['Bullish order flow: bullish arrays hold, bearish arrays fail.', 'A change in order flow = a key array fails + MSS.', 'Institutions need liquidity, so they split orders and target stop pools.'],
+ miss: ['Buying in bearish order flow because an FVG "should" hold.', 'Ignoring the first failure of a key array.', 'Thinking you need Level 2 data to trade ICT.'],
+ quiz: [
+  ['Bullish order flow means…', ['Bullish arrays are respected, bearish arrays are traded through', 'Every FVG fails', 'Price is flat', 'Volume is low'], 0, 'Respect vs disrespect.'],
+  ['A sign that order flow is changing is…', ['A key array fails with a body close through it and an MSS', 'A small doji', 'Lunch hour', 'A green candle'], 0, 'Failure + structure shift.'],
+  ['Why do large players split orders?', ['To hide size and reduce market impact', 'To pay more fees', 'It is required', 'For fun'], 0, 'Execution.'],
+ ]},
+{id: '9-7', t: 'Market maker models: deep dive', m: 10,
+ intro: 'Now we look at the market maker models in detail: the stages, where the low-risk entries are, and how they nest across timeframes.',
+ chart: {spec: {pts: [100, 101.6, 100.9, 103.8, 103.1, 106.1, 105.3, {p: 108.2, close: 107.6}, 105.4, 106.1, 103.4, 104.1, 100.4], legs: [3, 2, 3, 2, 3, 2, 3, {n: 3, disp: true}, 2, 3, 2, 3], seed: 921, h: 210, ann: [['lvl', 100.9, 'origin', {i0: {c: 0}}], ['txt', 7, 'SMR', 'above'], ['fvg', 0, 'LRS'], ['line', 4, 'reaccum.', {to: 10, c: '#777'}]]}, cap: 'Market Maker Sell Model: buy side of the curve, SMR at premium, sell side back through the reaccumulation levels to the origin.'},
+ body: `## The stages (MMSM; mirror for MMBM)
+1. **Original consolidation:** where the move started. This is the ultimate target.
+2. **Buy side of the curve:** price rises in stair-steps; each pause is a [[reaccumulation|reaccumulation]] that leaves sell-side liquidity below it.
+3. **Smart Money Reversal (SMR):** price reaches a **HTF premium PD array**, raids buy-side liquidity, and shifts down with displacement.
+4. **Low-risk sell (LRS):** the first retracement into the bearish FVG or order block after the SMR. Best risk-to-reward of the whole model.
+5. **Sell side of the curve:** price falls back through each reaccumulation level, taking the liquidity under them. Each one is a partial target.
+6. **Terminus:** the original consolidation, or a HTF discount array.
+
+## Fractal nature
+A daily MMSM may contain several 15-minute MMBMs and MMSMs inside each leg. You can trade the small models in the direction of the larger one.
+
+## Timing the half-way point
+The SMR often happens around the **midpoint in time** of the full model, and the sell side of the curve is often faster than the buy side (distribution is quicker than accumulation).
+
+## Management
+- Partial at the first reaccumulation level.
+- Move stop to breakeven once price breaks below it.
+- Final target at the origin, unless price reaches a HTF discount array first.`,
+ take: ['Stages: origin, curve with reaccumulations, SMR at HTF array, low-risk entry, return curve, terminus.', 'Reaccumulation levels are partial targets on the way back.', 'Models are fractal: trade small ones in line with the big one.'],
+ miss: ['Selling the first pause of the buy side as if it were the SMR.', 'Targeting beyond the origin without a reason.', 'Ignoring the HTF array requirement for the SMR.'],
+ quiz: [
+  ['In an MMSM, the low-risk sell happens…', ['On the first retracement after the SMR', 'At the origin', 'During the buy side of the curve', 'At random'], 0, 'After the reversal is confirmed.'],
+  ['The reaccumulation levels on the buy side become…', ['Partial targets on the sell side', 'Stops', 'Irrelevant', 'Entries for longs'], 0, 'Price returns through them.'],
+  ['"Fractal" here means…', ['Smaller models exist inside larger ones', 'Models only happen on daily charts', 'They never repeat', 'They are random'], 0, 'Nested models.'],
+ ]},
+{id: '9-8', t: 'Reaccumulation and redistribution', m: 7,
+ intro: 'Not every pause is a reversal. In a trend, the market often stops to build new orders and then continues. Recognising that saves you from fighting trends.',
+ chart: {spec: {pts: [100, 104, 102.8, 104.2, 102.6, {p: 104, close: 103.7}, 103, 107.8], legs: [{n: 3, disp: true}, 2, 2, 2, 2, 2, {n: 3, disp: true}], seed: 931, h: 180, ann: [['zone', 1, 104.3, 102.5, 'range', {to: 6}], ['txt', 4, 'reaccumulation', 'below'], ['fvg', 1, 'go']]}, cap: 'Reaccumulation: a sideways range inside an uptrend, then expansion higher.'},
+ body: `## Definitions
+- **[[reaccumulation|Reaccumulation]]:** a consolidation **within an uptrend** where buyers add to positions before the next leg up.
+- **[[redistribution|Redistribution]]:** a consolidation **within a downtrend** before the next leg down.
+- Contrast with **accumulation** (at a bottom, before an uptrend) and **distribution** (at a top, before a downtrend).
+
+## How to tell continuation from reversal
+Continuation is more likely when:
+- HTF bias still points in the trend direction and the draw hasn't been reached.
+- The range forms in **discount** of the larger leg (for reaccumulation).
+- The range's low gets swept, but there's **no MSS down** on the higher timeframe.
+- Bullish arrays inside the range keep holding.
+
+Reversal is more likely when:
+- Price has reached the HTF draw or a HTF premium array.
+- The range breaks down with displacement and an MSS, and bullish arrays fail.
+
+## Trading it
+- Buy the **sweep of the range low** with an MSS back up (a mini 2022 model) in line with the trend.
+- Or wait for the **breakout with displacement** and buy the retracement into the FVG it leaves.
+- Target the next buy-side liquidity.
+
+## Link to Wyckoff
+These terms come from Richard Wyckoff's work in the early 1900s; ICT uses similar ideas in the market maker models.`,
+ take: ['Reaccumulation = pause in an uptrend; redistribution = pause in a downtrend.', 'Continuation when HTF draw is unmet and arrays hold.', 'Trade the sweep of the range edge or the breakout retracement.'],
+ miss: ['Calling every range a top or bottom.', 'Shorting reaccumulation ranges in strong uptrends.', 'Buying range breakouts with no displacement.'],
+ quiz: [
+  ['A sideways range inside an uptrend before more upside is…', ['Reaccumulation', 'Distribution', 'Redistribution', 'A breaker'], 0, 'Continuation pattern.'],
+  ['Redistribution happens…', ['Within a downtrend before the next leg down', 'At the bottom of a market', 'Only in crypto', 'Never'], 0, 'Pause in a downtrend.'],
+  ['Which suggests continuation rather than reversal?', ['HTF draw not yet reached and arrays still hold', 'MSS down with displacement', 'Price at HTF premium array', 'Bullish arrays failing'], 0, 'The trend\'s job isn\'t done.'],
+ ]},
+]});
+})();
+(function () {
+// Simulate equity for the same win/loss sequence at different risk levels.
+const sim = (H, risks, n = 120, wr = .45, R = 2, seed = 1001) => { const r = H.rng(seed), seq = Array.from({length: n}, () => r() < wr); return risks.map(rk => { let e = 10000, pk = e; const pts = [0]; seq.forEach(w => { e *= w ? 1 + rk * R : 1 - rk; pk = Math.max(pk, e); pts.push(-(pk - e) / pk * 100); }); return pts; }); };
+const pctf = v => Math.round(v) + '%';
+CS.level({n: 10, name: 'Risk Management', d: 'Position sizing, R, expectancy, drawdown, risk of ruin, limits, prop firm rules', lessons: [
+{id: '10-1', t: 'Why risk management comes first', m: 6,
+ intro: 'The best setup in the world is useless if one bad week wipes you out. Professionals think about how much they can lose before they think about how much they can make.',
+ chart: {f: H => H.bars([{label: 'lose 10%', v: 11.1, note: 'need +11.1%'}, {label: 'lose 20%', v: 25, note: 'need +25%'}, {label: 'lose 30%', v: 42.9, note: 'need +42.9%'}, {label: 'lose 50%', v: 100, note: 'need +100%'}, {label: 'lose 75%', v: 300, note: 'need +300%', c: '#000'}], {max: 300}), cap: 'The gain needed to get back to even grows much faster than the loss.'},
+ body: `## The math of losses
+If you lose 50% of your account, you need a **100%** gain just to get back to where you started. Losses hurt more than gains help. That's why protecting capital is job number one.
+
+## Survival first
+- A trader with an average strategy and great risk control can last for years and improve.
+- A trader with a great strategy and poor risk control eventually hits a bad streak that ends the account.
+
+## The core rules (details in this level)
+1. Risk a **small, fixed percentage** of the account per trade (often 0.25-1%).
+2. **Size every position** from the stop distance.
+3. Have **daily and weekly loss limits**.
+4. Know your **expectancy** and **drawdown** numbers.
+5. Avoid stacking **correlated** positions.`,
+ take: ['Losses need bigger gains to recover: -50% needs +100%.', 'Survival beats brilliance.', 'Fixed small risk, sized from the stop, with loss limits.'],
+ miss: ['Thinking a great strategy makes risk control optional.', 'Trying to "make it back" quickly after a loss.', 'Not knowing your own numbers.'],
+ quiz: [
+  ['After a 50% loss, what gain do you need to break even?', ['100%', '50%', '75%', '25%'], 0, 'Half the account must double.'],
+  ['After a 20% loss, the gain needed is…', ['25%', '20%', '40%', '15%'], 0, '0.8 × 1.25 = 1.'],
+  ['What is job number one for a trader?', ['Protecting capital', 'Maximising every trade', 'Trading as often as possible', 'Using maximum leverage'], 0, 'Survive to keep playing.'],
+ ]},
+{id: '10-2', t: 'Percent risk per trade', m: 6,
+ intro: 'Instead of risking a random amount, risk the same small percentage of your account on every trade. Your risk then shrinks after losses and grows after wins, automatically.',
+ chart: {f: H => { const [a, b] = sim(H, [.01, .05]); return H.curve([{pts: a, label: '1% risk'}, {pts: b, label: '5% risk', dash: 1}], {hi: 0, legend: 1, fmt: pctf, xlab: 'drawdown · 120 trades, 45% wins, 2R'}); }, cap: 'Drawdown from the equity peak for the same trades. At 5% risk the account falls more than 50% below its peak; at 1% the dips stay shallow.'},
+ body: `## The rule
+**Risk per trade = account × risk %.**
+- $10,000 account × 1% = **$100** risk per trade.
+- $10,000 × 0.5% = $50.
+
+## What's sensible?
+- **Learning / new strategy:** 0.25-0.5%.
+- **Proven strategy:** 0.5-1%.
+- **Above 2%:** very aggressive; a normal losing streak creates a deep drawdown.
+
+## Why percent, not fixed dollars
+After losses, 1% is a smaller dollar amount, so you slow down when you're doing badly. After wins, it grows. This is the simplest form of compounding with protection.
+
+## Losing streak table
+After 10 losses in a row (it will happen at some point):
+<table class="t"><tr><th>Risk per trade</th><th>Drawdown after 10 losses</th></tr><tr><td>0.5%</td><td>4.9%</td></tr><tr><td>1%</td><td>9.6%</td></tr><tr><td>2%</td><td>18.3%</td></tr><tr><td>5%</td><td>40.1%</td></tr><tr><td>10%</td><td>65.1%</td></tr></table>`,
+ take: ['Risk = account × fixed %.', '0.25-1% is the professional range; above 2% is aggressive.', 'Percent risk slows you down in losing periods.'],
+ miss: ['Risking more to "make back" losses.', 'Changing risk % based on how confident you feel.', 'Using fixed contract counts regardless of stop size.'],
+ quiz: [
+  ['$20,000 account at 0.5% risk per trade risks…', ['$100', '$1,000', '$10', '$200'], 0, '20,000 × 0.005.'],
+  ['Roughly how deep is the drawdown after 10 straight losses at 2% risk?', ['About 18%', 'About 2%', 'About 50%', '20% exactly'], 0, '0.98^10 ≈ 0.817.'],
+  ['A sensible range for a proven strategy is…', ['0.5-1% per trade', '10-20%', '50%', 'Whatever feels right'], 0, 'Small and fixed.'],
+ ]},
+{id: '10-3', t: 'Position sizing (with calculator)', m: 9,
+ intro: 'Position size is how many contracts, shares or lots you trade. It comes from one simple formula, and it keeps your risk the same no matter where your stop is.',
+ chart: {f: H => H.ladder([{p: 5030, label: '3R target', note: '+$300', kind: 'buy'}, {p: 5020, label: '2R target', note: '+$200', kind: 'buy'}, {p: 5010, label: '1R', note: '+$100', kind: 'muted'}, {p: 5000, label: 'Entry (long MES)', kind: 'cur'}, {p: 4990, label: 'Stop: 10 pts × $5 = $50 per contract', note: '−$100', kind: 'sell'}], {h: 180}), cap: '$10,000 account × 1% = $100 risk. $100 ÷ $50 per contract = 2 MES contracts.'},
+ body: `## The formula
+**Position size = Risk in $ ÷ (stop distance × value per point)**
+
+- **Risk in $** = account × risk %.
+- **Stop distance** = |entry − stop|.
+- **Value per point** depends on the instrument.
+
+## Examples
+- **Stocks:** $10,000 at 1% = $100. Entry $50, stop $48 → $2/share → **50 shares**.
+- **Futures (MES, $5/pt):** $100 risk, 10-point stop → $50/contract → **2 contracts**.
+- **Futures (NQ, $20/pt):** $1,000 risk, 25-point stop → $500/contract → **2 contracts**.
+- **Forex (EURUSD, $10/pip per standard lot):** $200 risk, 20-pip stop → $200/lot → **1.00 lot**.
+
+## Always round down
+If the formula says 2.7 contracts, trade 2. Rounding up means risking more than planned. If the result is below 1 contract, the trade is **too big for your account**: use a micro contract, a tighter valid stop, or skip it.
+
+## Try it
+{{calc}}
+
+## Contract values used here
+<table class="t"><tr><th>Contract</th><th>$ per point</th><th>Tick</th></tr><tr><td>ES / MES</td><td>$50 / $5</td><td>0.25</td></tr><tr><td>NQ / MNQ</td><td>$20 / $2</td><td>0.25</td></tr><tr><td>YM / MYM</td><td>$5 / $0.50</td><td>1</td></tr><tr><td>RTY / M2K</td><td>$50 / $5</td><td>0.1</td></tr><tr><td>CL / MCL</td><td>$1,000 / $100</td><td>0.01</td></tr><tr><td>GC / MGC</td><td>$100 / $10</td><td>0.1</td></tr></table>
+Check your broker's contract specs; they can change.`,
+ take: ['Size = $ risk ÷ (stop distance × $ per point).', 'Always round down.', 'If the size is under 1 unit, the trade is too big for the account.'],
+ miss: ['Picking size first and the stop second.', 'Rounding up.', 'Forgetting point values differ per contract.', 'Ignoring commissions on many micro contracts.'],
+ quiz: [
+  ['$100 risk, MES ($5/pt), 10-point stop. How many contracts?', ['2', '10', '1', '20'], 0, '100 ÷ (10 × 5) = 2.'],
+  ['$500 risk, stock entry $100, stop $95. How many shares?', ['100', '500', '5', '95'], 0, '500 ÷ 5 = 100.'],
+  ['The formula gives 3.8 contracts. You trade…', ['3', '4', '3.8', '5'], 0, 'Round down.'],
+  ['$1,000 risk, NQ ($20/pt), 25-point stop. Contracts?', ['2', '4', '1', '50'], 0, '1,000 ÷ 500 = 2.'],
+ ]},
+{id: '10-4', t: 'R multiples', m: 5,
+ intro: 'R is the amount you risked on a trade. Measuring results in R instead of dollars lets you compare trades fairly, whatever your account size.',
+ chart: {f: H => H.bars([{label: 'Trade 1', v: 2.5, note: '+2.5R'}, {label: 'Trade 2', v: -1, note: '−1R'}, {label: 'Trade 3', v: -0.4, note: '−0.4R (early exit)'}, {label: 'Trade 4', v: 3, note: '+3R'}, {label: 'Trade 5', v: -1, note: '−1R'}, {label: 'Total', v: 3.1, note: '+3.1R'}], {max: 3.2}), cap: 'Five trades in R: two winners pay for three losers. Black bars are losses.'},
+ body: `## Definition
+**1R = the amount you risked** (entry to stop).
+- Risk $100, make $250 → **+2.5R**.
+- Risk $100, lose $100 → **−1R**.
+- Risk $100, get out at $40 loss → **−0.4R**.
+
+## Why use R
+- It's **independent of account size**: a +2R trade is +2R on $1,000 or $1,000,000.
+- It lets you compare strategies and evaluate your execution.
+- Your journal should track **R per trade**, average win in R, and total R per month.
+
+## Rules of thumb
+- Losses should be **−1R or less** (slippage aside). A −3R loss means you moved or ignored your stop.
+- Track **MFE** (max favourable excursion: how far price went in your favour in R) to judge whether targets are too close or too far.`,
+ take: ['1R = initial risk.', 'Track results in R, not dollars.', 'Losses bigger than −1R mean a broken rule.'],
+ miss: ['Measuring only in dollars.', 'Accepting −2R or −3R losses.', 'Changing R mid-trade by moving the stop.'],
+ quiz: [
+  ['Risk $200, win $500. Result in R?', ['+2.5R', '+5R', '+0.4R', '+2R'], 0, '500 ÷ 200.'],
+  ['A −3R loss usually means…', ['The stop was moved or ignored', 'Great risk control', 'A normal loss', 'A partial'], 0, 'Losses should be capped at −1R.'],
+  ['Why track trades in R?', ['It\'s comparable across account sizes', 'Brokers require it', 'It hides losses', 'It is easier to spend'], 0, 'Fair comparison.'],
+ ]},
+{id: '10-5', t: 'Expectancy', m: 7,
+ intro: 'Expectancy is the average amount you can expect to make per trade over many trades. If it’s positive, your strategy has an edge.',
+ chart: {f: H => H.bars([{label: '30% · 3R', v: .2, note: '+0.20R'}, {label: '40% · 2.5R', v: .4, note: '+0.40R'}, {label: '50% · 1.5R', v: .25, note: '+0.25R'}, {label: '60% · 1R', v: .2, note: '+0.20R'}, {label: '70% · 0.3R', v: -.09, note: '−0.09R', c: '#000'}], {max: .5}), cap: 'Win rate · average win → expectancy per trade (average loss 1R).'},
+ body: `## The formula (in R)
+**Expectancy = (win rate × average win) − (loss rate × average loss)**
+
+With losses at 1R: **E = W × avgWin − (1 − W)**.
+
+## Example
+Win rate 40%, average win 2.5R, average loss 1R:
+E = 0.40 × 2.5 − 0.60 × 1 = 1.0 − 0.6 = **+0.4R per trade**.
+Over 100 trades at $100 risk, that's about **+$4,000** (before costs), but with lots of variation along the way.
+
+## What you need
+- At least **50-100 trades** of a single, consistent strategy before trusting the number.
+- **Include costs**: commissions and slippage reduce expectancy.
+- Re-check it every month in your journal.
+
+## Expectancy vs certainty
+Positive expectancy doesn't mean the next trade wins. It means that **over many trades**, if you execute the same way, you should come out ahead. That's why consistency matters.`,
+ take: ['E = W × avgWin − (1 − W) × avgLoss.', 'Positive expectancy = edge; needs 50-100+ trades to trust.', 'Costs and inconsistency destroy expectancy.'],
+ miss: ['Judging a strategy on 10 trades.', 'Ignoring commissions and slippage.', 'Changing rules so often the stats mean nothing.'],
+ quiz: [
+  ['Win rate 50%, avg win 2R, avg loss 1R. Expectancy?', ['+0.5R', '+1R', '0R', '+2R'], 0, '0.5×2 − 0.5×1.'],
+  ['Win rate 70%, avg win 0.3R, avg loss 1R. Expectancy?', ['−0.09R', '+0.21R', '+0.7R', '0R'], 0, '0.21 − 0.30.'],
+  ['How many trades before trusting expectancy?', ['At least 50-100', '5', '1', 'None'], 0, 'Small samples lie.'],
+  ['Positive expectancy means…', ['Over many trades you should profit if you execute consistently', 'Every trade wins', 'You can skip stops', 'You should double risk'], 0, 'It\'s about the long run.'],
+ ]},
+{id: '10-6', t: 'Win rate vs reward-to-risk', m: 6,
+ intro: 'A high win rate isn’t automatically good, and a low one isn’t automatically bad. What matters is how win rate and reward-to-risk work together.',
+ body: `## Two profitable traders
+- **Trader A:** wins 70% of trades, average win 0.8R. E = 0.7 × 0.8 − 0.3 = **+0.26R**.
+- **Trader B:** wins 35%, average win 3R. E = 0.35 × 3 − 0.65 = **+0.40R**.
+
+Both make money. B makes more per trade but suffers **long losing streaks**; A feels better day to day but one big loss can erase many small wins.
+
+## The break-even line
+<table class="t"><tr><th>Reward:risk</th><th>Break-even win rate</th></tr><tr><td>0.5:1</td><td>66.7%</td></tr><tr><td>1:1</td><td>50%</td></tr><tr><td>2:1</td><td>33.3%</td></tr><tr><td>3:1</td><td>25%</td></tr><tr><td>5:1</td><td>16.7%</td></tr></table>
+
+## Choosing your style
+- Can you handle **8-10 losses in a row** without breaking rules? Higher R:R works.
+- Do you need frequent wins to stay disciplined? Moderate R:R with partials may suit you.
+- Either way, **your journal decides**, not your preference.
+
+## Typical ICT numbers
+Many ICT-style traders run 35-55% win rates with 2-4R average winners. Your numbers will differ; measure them.`,
+ take: ['Profitability = win rate × R:R combined.', 'High R:R = lower win rate and longer losing streaks.', 'Pick a style you can execute; measure it.'],
+ miss: ['Chasing a high win rate with tiny targets and big stops.', 'Picking a 5R style and then panicking after 6 losses.', 'Judging a strategy by win rate alone.'],
+ quiz: [
+  ['A 35% win rate strategy averaging 3R winners is…', ['Profitable (+0.40R per trade)', 'Losing', 'Break-even', 'Impossible'], 0, '1.05 − 0.65.'],
+  ['At 0.5:1 reward-to-risk, the break-even win rate is…', ['66.7%', '50%', '33%', '25%'], 0, '1 ÷ 1.5.'],
+  ['A downside of high R:R styles is…', ['Longer losing streaks', 'Lower profits always', 'No stop needed', 'They never lose'], 0, 'Lower win rate.'],
+ ]},
+{id: '10-7', t: 'Drawdown and risk of ruin', m: 8,
+ intro: 'Drawdown is how far your account falls from its peak. Risk of ruin is the chance of losing so much you can’t continue. Both depend mostly on how much you risk per trade.',
+ chart: {f: H => { const r = sim(H, [.005, .01, .02, .04], 200, .4, 2.2, 1033); return H.curve([{pts: r[3], label: '4%', c: '#888'}, {pts: r[2], label: '2%', dash: 1}, {pts: r[1], label: '1%'}], {hi: 0, legend: 1, fmt: pctf, xlab: 'drawdown · 200 trades, 40% wins'}); }, cap: 'Same edge, different risk per trade. Higher risk means far deeper drawdowns, which is when traders quit, break rules or blow up.'},
+ body: `## Drawdown
+**Drawdown = (peak equity − current equity) ÷ peak equity.**
+- **Max drawdown** is the largest such fall in your history.
+- Expect your future max drawdown to be **larger** than your backtest's (often 1.5-2×).
+
+## Losing streaks are normal
+At a 40% win rate, the longest losing streak over 200 trades is typically **around 8-9 trades**, and longer streaks are entirely possible. Plan for them.
+
+## Risk of ruin
+The probability your account falls to a level where you must stop (e.g. −50% or a prop firm's limit). It rises sharply with:
+- Higher **risk per trade**.
+- Lower **expectancy**.
+- **Smaller** distance to the "ruin" level (prop accounts!).
+
+Rule of thumb: keep risk small enough that a **15-losing-trade streak** wouldn't end your account. At 1% that's about −14%; at 3% it's about −37%.
+
+## Recovery plan
+Decide in advance: e.g. "At −5% from peak, I halve my risk. At −10%, I stop live trading, review my journal, and return to sim until 20 trades meet my rules."`,
+ take: ['Drawdown = drop from peak; expect live drawdown larger than backtest.', 'Losing streaks of 8-10+ are normal at 40% win rates.', 'Reduce risk at preset drawdown levels.'],
+ miss: ['Assuming the backtest drawdown is the worst case.', 'Increasing risk during a drawdown.', 'No written recovery plan.'],
+ quiz: [
+  ['Peak equity $12,000, now $10,800. Drawdown?', ['10%', '12%', '8%', '20%'], 0, '1,200 ÷ 12,000.'],
+  ['Risk of ruin increases when…', ['Risk per trade increases', 'Risk per trade decreases', 'Expectancy rises', 'You journal'], 0, 'Bigger bets, bigger ruin risk.'],
+  ['A sensible drawdown response is…', ['Cut risk at preset levels and review', 'Double size to recover', 'Remove stops', 'Switch strategies daily'], 0, 'Pre-planned de-risking.'],
+ ]},
+{id: '10-8', t: 'Daily and weekly loss limits', m: 5,
+ intro: 'A loss limit is a hard stop for your day or week. When you hit it, you’re done, no matter how sure you feel about the next trade.',
+ body: `## Typical limits
+- **Daily:** 2-3R (or 2-3% of the account), or 2 losing trades in a row.
+- **Weekly:** 5-6R.
+- **Max trades per day:** 2-3 for most ICT day traders.
+
+## Why they work
+- They stop a bad day from becoming a disaster (most account blow-ups happen in **one emotional session**).
+- They protect you from [[tilt]] and revenge trading.
+- They make your worst day **predictable**.
+
+## Profit "limits"
+Some traders also stop after a **good** day (e.g. +3R), to avoid giving it back through overconfidence. Optional, but worth testing.
+
+## Make it automatic
+- Many brokers and prop platforms let you set a **daily loss limit** that locks the account.
+- Write the limits in your plan, and log every time you respect them.`,
+ take: ['Daily limit ~2-3R; weekly ~5-6R; 2-3 trades per day.', 'Limits prevent the one-day blow-up.', 'Use platform locks where possible.'],
+ miss: ['"One more trade" after hitting the limit.', 'Raising the limit on a bad day.', 'No limit at all.'],
+ quiz: [
+  ['You hit your daily loss limit at 10:20 am and see a perfect setup at 10:40. You…', ['Don\'t trade; you\'re done for the day', 'Take it with double size', 'Take it with half size', 'Take it on a different account'], 0, 'The limit is the limit.'],
+  ['Most account blow-ups happen…', ['In one emotional session', 'Slowly over years', 'Only on weekends', 'Never'], 0, 'Tilt is fast.'],
+  ['A typical daily loss limit is…', ['2-3R', '20R', 'No limit', '50% of the account'], 0, 'Small and fixed.'],
+ ]},
+{id: '10-9', t: 'Correlation risk', m: 5,
+ intro: 'Two trades in markets that move together are really one big trade. If you don’t account for that, you’re risking far more than you think.',
+ body: `## Examples of hidden doubling
+- Long **ES** and long **NQ** at the same time: indices are highly correlated. 1% + 1% ≈ 2% on one idea.
+- Short **EURUSD** and short **GBPUSD**: both are basically long USD.
+- Long **gold** and short **DXY**: often the same bet.
+
+## Rules
+- Treat correlated positions as **one position** for risk purposes: split your normal risk between them (e.g. 0.5% + 0.5%).
+- Or pick **the one with the cleanest setup** (the stronger one in an SMT situation) and trade only that.
+- Cap total open risk (e.g. never more than 2% across all open trades).
+
+## Correlation changes
+Correlations aren't constant, but in stress events they tend to rise toward 1: everything moves together exactly when you least want it.`,
+ take: ['Correlated trades = one bigger trade.', 'Split risk or choose the cleaner market.', 'Cap total open risk.'],
+ miss: ['Full risk on ES and NQ at once.', 'Forgetting forex pairs share a currency.', 'Assuming correlations stay low in a crisis.'],
+ quiz: [
+  ['Long ES and long NQ, 1% each, is roughly…', ['2% on one idea', '1% total', 'Hedged', 'Zero risk'], 0, 'Highly correlated.'],
+  ['Short EURUSD and short GBPUSD are both essentially…', ['Long USD', 'Short USD', 'Unrelated', 'Hedged'], 0, 'Shared currency.'],
+  ['A good rule for correlated setups is…', ['Split risk or trade only the cleanest one', 'Double risk on both', 'Ignore it', 'Use no stops'], 0, 'Control total exposure.'],
+ ]},
+{id: '10-10', t: 'Scaling: in, out and up', m: 6,
+ intro: 'Scaling means changing position size: adding to a trade, taking parts off, or growing your size as your account grows.',
+ body: `## Scaling out (partials)
+Covered in Level 8: take parts off at liquidity targets. It reduces variance and locks in gains.
+
+## Scaling in (adding)
+- Add only to **winning** trades, at a new valid entry (e.g. a new FVG in your direction), with the stop on the whole position moved so **total risk stays ≤ your plan**.
+- **Never add to a losing trade** ("averaging down"). That's how small losses become account-ending ones.
+
+## Scaling up (growing size)
+- Increase size only after your **journal proves** consistency (e.g. 2-3 profitable months, rules followed ≥ 90% of the time).
+- Grow gradually: e.g. 0.5% → 0.75% → 1%, or 1 micro → 2 micros → 1 mini, not 1 to 10.
+- Bigger size feels different emotionally. If your rule-following drops, step back down.
+
+## Scaling down
+Cut size during drawdowns, after rule breaks, or when life stress is high. It's a sign of professionalism, not weakness.`,
+ take: ['Scale out at targets; scale in only to winners with total risk capped.', 'Never average down.', 'Scale up slowly after proof; scale down without ego.'],
+ miss: ['Averaging into losers.', 'Jumping from micros to full size after one good week.', 'Refusing to cut size during a drawdown.'],
+ quiz: [
+  ['Adding to a losing position is called…', ['Averaging down, and it is dangerous', 'Scaling out', 'A partial', 'Hedging'], 0, 'Avoid it.'],
+  ['When should you increase size?', ['After your journal proves consistency', 'After one big win', 'After a loss', 'When bored'], 0, 'Evidence first.'],
+  ['When adding to a winner, total risk should…', ['Stay within your plan', 'Double', 'Be removed', 'Be ignored'], 0, 'Adjust stops to cap risk.'],
+ ]},
+{id: '10-11', t: 'Prop firm rules explained', m: 9,
+ intro: 'Proprietary (prop) firms let you trade their capital if you pass an evaluation. Their rules are strict, and most people fail by misunderstanding them, not by bad analysis.',
+ chart: {f: H => { const eq = [50000, 50600, 51400, 51100, 52200, 51600, 50900, 51500, 52600, 52000]; let peak = 0; const dd = eq.map(e => { peak = Math.max(peak, e); return Math.min(peak - 2500, 50100); }); return H.curve([{pts: eq, label: 'balance'}, {pts: dd, label: 'trailing limit', dash: 1}], {fmt: v => '$' + (v / 1000).toFixed(1) + 'k', xlab: 'example: $50k account, $2,500 trailing drawdown'}); }, cap: 'A trailing drawdown follows your highest balance up (here it stops trailing once it reaches $50,100). Give back too much from a peak and the account fails.'},
+ body: `## Common rules (they vary by firm; always read the current rules)
+- **Profit target:** e.g. +6% to +10% to pass.
+- **Maximum loss / drawdown:**
+  - *Static:* fixed level below the starting balance (e.g. $50k account fails at $47,500).
+  - *Trailing:* follows your **highest balance** (end-of-day or even intraday, including open profits on some firms) and often stops trailing once it reaches the starting balance or a small buffer above it. This is the rule that catches most people.
+- **Daily loss limit:** e.g. max $1,000-$2,500 or 2-5% in one day, sometimes including open losses.
+- **Consistency rule:** e.g. no single day may be more than 30-50% of total profit. One huge day can force you to keep trading longer.
+- **Minimum trading days**, **news trading restrictions**, **max contracts**, **no holding over weekends**, **payout rules**.
+
+## How trailing drawdown works (example)
+$50k account, $2,500 trailing:
+- Start: limit $47,500.
+- Balance peaks at $51,400 → limit trails to $48,900.
+- Then you lose $2,500 from that peak → **account fails**, even though you're still above $50k at times.
+
+## The hidden math
+If the drawdown is $2,500, risking $500 per trade means **5 losses** end the account. That's a tiny cushion. Risk per trade should usually be **10% or less of the max drawdown**, and much less of it near the limit.`,
+ take: ['Know: profit target, static vs trailing drawdown, daily loss, consistency, news and contract rules.', 'Trailing drawdown follows your peak balance.', 'Size so that many consecutive losses fit inside the drawdown.'],
+ miss: ['Not knowing if drawdown is end-of-day or intraday.', 'Risking 20-25% of the drawdown per trade.', 'Breaking the consistency rule with one huge day.', 'Trading news when it\'s restricted.'],
+ quiz: [
+  ['A trailing drawdown…', ['Follows your highest balance upward', 'Never moves', 'Moves down with losses', 'Only applies to stocks'], 0, 'It trails the peak.'],
+  ['$50k account, $2,500 trailing; balance peaks at $52,000. The limit (if still trailing) becomes…', ['$49,500', '$47,500', '$50,000', '$52,000'], 0, '52,000 − 2,500.'],
+  ['A consistency rule might say…', ['No single day can be more than a set % of total profit', 'Trade every day', 'Always use 10 contracts', 'Never use stops'], 0, 'Varies by firm.'],
+  ['With a $2,500 max drawdown, a sensible risk per trade is about…', ['$250 or less', '$1,000', '$2,500', '$5,000'], 0, '≤10% of the drawdown.'],
+ ]},
+{id: '10-12', t: 'Passing prop evaluations', m: 7,
+ intro: 'Passing an evaluation is a risk-management test more than a trading test. Slow and steady usually beats trying to hit the target in two days.',
+ body: `## A sensible plan
+1. **Read every rule** and write the key numbers on a card: target, max loss, daily loss, trailing type, consistency %, minimum days.
+2. **Risk 0.25-0.5% per trade** (or ≤10% of max drawdown), 1-2 trades per day.
+3. **Daily stop:** well inside the firm's daily limit (e.g. half of it).
+4. **Build a cushion first:** once you're up 1-2% (above the trailing threshold), the pressure drops.
+5. **Don't speed up near the target.** Keep the same size; finish over several days to respect consistency rules.
+6. **Treat each evaluation fee as a business expense**, not a lottery ticket.
+
+## Common reasons people fail
+- Oversizing on day one to "pass fast".
+- Revenge trading after the first loss.
+- Misunderstanding intraday trailing drawdown (open profit counts).
+- Trading restricted news events.
+
+## Funded is not the finish line
+After passing, rules usually continue (and payouts may have conditions). The same discipline is needed to **keep** the account. Also note: many people buy multiple evaluations; costs add up. Track your pass rate and total fees honestly in your journal.`,
+ take: ['Small risk, 1-2 trades a day, a daily stop inside the firm\'s limit.', 'Build a cushion first; don\'t rush the target.', 'Track evaluation fees and pass rate like a business.'],
+ miss: ['Trying to pass in one or two days.', 'Ignoring how the trailing drawdown is calculated.', 'Buying evaluation after evaluation without reviewing why you failed.'],
+ quiz: [
+  ['The most common reason for failing evaluations is…', ['Oversizing and breaking risk rules', 'Bad internet', 'Too few indicators', 'Trading micros'], 0, 'Risk, not analysis.'],
+  ['Near the profit target, you should…', ['Keep the same size and process', 'Double size to finish', 'Stop using stops', 'Trade news'], 0, 'Consistency.'],
+  ['Evaluation fees should be treated as…', ['A business expense to track', 'A lottery ticket', 'Free money', 'Irrelevant'], 0, 'Measure your costs.'],
+ ]},
+]});
+})();
+(function () {
+CS.level({n: 11, name: 'Trading Psychology', d: 'FOMO, revenge, tilt, patience, process, routines, journaling, streaks', lessons: [
+{id: '11-1', t: 'Why psychology decides results', m: 5,
+ intro: 'Two people can learn the exact same strategy and get opposite results. The difference is usually what happens in their heads while the market moves.',
+ body: `## Knowing vs doing
+Most traders who fail **know** what they should do. They break their rules under pressure: chasing, moving stops, oversizing after a loss. Trading is a **behaviour** skill as much as an analysis skill.
+
+## Your brain isn't built for this
+- **Loss aversion:** losses feel roughly twice as painful as equal gains feel good, so we hold losers and cut winners.
+- **Recency bias:** the last few trades feel more important than the last 200.
+- **Pattern hunger:** we see setups that aren't there when we want to trade.
+- **Fight-or-flight:** money on the line triggers stress that narrows thinking.
+
+## The fix is structure
+You don't beat these instincts by willpower alone. You build **systems**: checklists, fixed risk, loss limits, routines and a journal. This level covers each one.`,
+ take: ['Most failures are rule-breaking, not lack of knowledge.', 'Loss aversion, recency bias and stress are built in.', 'Structure beats willpower.'],
+ miss: ['Believing more strategy knowledge will fix discipline problems.', 'Relying on motivation instead of systems.'],
+ quiz: [
+  ['Most traders who fail…', ['Know the rules but break them under pressure', 'Never learned anything', 'Use too few indicators', 'Trade too little'], 0, 'Execution is the gap.'],
+  ['Loss aversion means…', ['Losses feel worse than equal gains feel good', 'You never lose', 'You love losing', 'Losses don\'t matter'], 0, 'About twice as strong.'],
+  ['The best defence against emotional mistakes is…', ['Structure: checklists, limits, routines, journal', 'Pure willpower', 'More screens', 'Bigger size'], 0, 'Systems.'],
+ ]},
+{id: '11-2', t: 'FOMO: fear of missing out', m: 5,
+ intro: 'FOMO is the panicky feeling that you have to get in right now or miss the move. It makes you chase price at the worst spots.',
+ body: `## What it looks like
+- Entering after a big candle has already moved.
+- Skipping checklist items "because it's running".
+- Jumping into a market you hadn't analysed because someone online is excited.
+
+## Why it's costly
+Chasing means a worse entry, a wider stop or no logical stop, and lower R:R. You're often buying right where smart money is taking profit.
+
+## Tools against FOMO
+- **There's always another setup.** Markets open every day. Missing a trade costs **0R**.
+- **Wait for the retracement.** If your model needs a return to an FVG and price doesn't come back, it wasn't your trade.
+- **Write down missed trades** in your journal without taking them. Reviewing them shows you most chases would have been poor entries.
+- **Limit your watchlist** to 1-2 markets.`,
+ take: ['FOMO = chasing; worse entries, bad stops.', 'A missed trade costs 0R.', 'If price doesn\'t retrace to your entry, it wasn\'t your trade.'],
+ miss: ['Entering on a huge candle.', 'Trading markets you haven\'t prepared.', 'Following social media hype.'],
+ quiz: [
+  ['A missed trade costs…', ['0R', '−1R', '−2R', 'Your account'], 0, 'Nothing.'],
+  ['Price displaces and never retraces to your FVG. You…', ['Let it go', 'Chase at market', 'Double size on the next one', 'Remove your stop'], 0, 'Not your trade.'],
+  ['A good FOMO remedy is…', ['Logging missed trades without taking them', 'Watching 20 markets', 'Lowering your standards', 'Trading every signal'], 0, 'Evidence calms FOMO.'],
+ ]},
+{id: '11-3', t: 'Revenge trading', m: 5,
+ intro: 'Revenge trading is trying to win back a loss immediately, usually with a bigger position and a worse setup. It’s the fastest way to turn a bad day into a disaster.',
+ body: `## Signs
+- Entering again within minutes of a loss, without a full checklist.
+- Increasing size "to make it back".
+- Feeling angry at the market or "it's out to get me".
+
+## Why it happens
+A loss hurts, and the brain wants to undo the pain quickly. The market doesn't know or care that you lost.
+
+## Prevention
+- **Cool-down rule:** after a loss, step away for at least 15-30 minutes.
+- **Two losses = done for the day.**
+- **Fixed size:** your plan sets risk; emotions don't.
+- **Accept losses before entering.** If you can't accept losing 1R on this trade, don't take it.`,
+ take: ['Revenge trading = trying to undo a loss immediately.', 'Cool-down after losses; 2 losses = done.', 'Accept the loss before entering.'],
+ miss: ['Raising size after a loss.', 'Re-entering instantly.', 'Blaming the market.'],
+ quiz: [
+  ['After a loss, the best next step is…', ['Take a break and follow your cool-down rule', 'Enter again with double size', 'Remove stops', 'Switch markets randomly'], 0, 'Reset first.'],
+  ['Revenge trading usually involves…', ['Bigger size and worse setups', 'Smaller size and better setups', 'Journaling', 'Waiting'], 0, 'Emotion drives it.'],
+  ['A simple rule against revenge trading is…', ['Two losses and you\'re done for the day', 'Never take losses', 'Trade until green', 'Ignore your plan'], 0, 'Hard stop.'],
+ ]},
+{id: '11-4', t: 'Overtrading', m: 5,
+ intro: 'Overtrading means taking more trades than your plan allows, usually from boredom, excitement or the need to be doing something.',
+ body: `## Forms of overtrading
+- Too many trades per day.
+- Trading outside your killzones.
+- Taking B and C setups because there was no A.
+- Trading too many markets at once.
+- Oversizing (one trade that's "too big" is a form of overtrading).
+
+## Costs
+More commissions and slippage, lower quality, more emotional decisions, faster fatigue.
+
+## Fixes
+- **Max trades per day** in your plan (e.g. 2).
+- **Only during killzones**; close the platform outside them.
+- **Grade setups** (A/B/C) and trade only A.
+- Track **"rule-following %"** in your journal: trades taken that met every rule ÷ total trades.`,
+ take: ['Overtrading = more or bigger trades than your plan allows.', 'Cap trades per day and trade only in killzones.', 'Grade setups; only take A.'],
+ miss: ['Trading out of boredom.', 'Leaving the platform open all day.', 'Counting B setups as A.'],
+ quiz: [
+  ['Which is overtrading?', ['Taking a 4th trade when your limit is 2', 'Taking one A+ trade', 'Not trading on a no-setup day', 'Journaling'], 0, 'Beyond plan limits.'],
+  ['A simple anti-overtrading habit is…', ['Closing the platform outside killzones', 'Watching every tick', 'Trading 10 markets', 'Removing limits'], 0, 'Reduce temptation.'],
+  ['Oversizing one trade is…', ['Also a form of overtrading', 'Good risk management', 'Required', 'Irrelevant'], 0, 'Too much exposure.'],
+ ]},
+{id: '11-5', t: 'Tilt', m: 5,
+ intro: 'Tilt is when emotions take over and you stop trading your plan. It comes from poker, where a frustrated player starts making wild bets.',
+ body: `## Early warning signs
+- Faster heart rate, tight jaw, clicking quickly.
+- Talking to the screen.
+- Thinking "I need" (to make it back, to be right, to hit my goal).
+- Ignoring your checklist "just this once".
+
+## The tilt protocol
+1. **Notice it** and name it: "I'm on tilt."
+2. **Stop.** Close positions per plan, close the platform.
+3. **Move your body:** walk, breathe slowly (e.g. 4 seconds in, 6 out) for a few minutes.
+4. **Write** what happened and how you felt.
+5. **No trading** for the rest of the session.
+
+## Reduce tilt triggers
+Sleep, food, stress at home, and trading with money you can't afford to lose all make tilt much more likely.`,
+ take: ['Tilt = emotions override the plan.', 'Notice, stop, move, write, no more trading today.', 'Reduce triggers: sleep, stress, money pressure.'],
+ miss: ['Thinking you can trade your way out of tilt.', 'Ignoring physical warning signs.', 'Trading with rent money.'],
+ quiz: [
+  ['First step when you notice tilt?', ['Name it and stop trading', 'Increase size', 'Switch to a faster timeframe', 'Call a friend for a tip'], 0, 'Awareness, then stop.'],
+  ['Which makes tilt more likely?', ['Trading money you can\'t afford to lose', 'Good sleep', 'Small size', 'A routine'], 0, 'Pressure fuels emotion.'],
+  ['A sign of tilt is…', ['Ignoring your checklist "just this once"', 'Following your plan', 'Logging trades', 'Taking breaks'], 0, 'Rules slipping.'],
+ ]},
+{id: '11-6', t: 'Fear and greed', m: 5,
+ intro: 'Fear makes you exit too early or skip good trades. Greed makes you hold too long, oversize or move targets. Both pull you away from your plan.',
+ body: `## Fear shows up as
+- Skipping valid setups after losses.
+- Closing winners at +0.5R when the plan says 2R.
+- Moving the stop to breakeven too early.
+
+## Greed shows up as
+- Moving the target further after entry.
+- Not taking planned partials.
+- Oversizing on "sure things".
+- Holding past the draw because "it could go further".
+
+## Solutions
+- **Pre-set orders:** stop and target placed at entry (bracket/OCO orders).
+- **Small size:** if the dollar amount scares you, it's too big. Size down until you can follow the plan calmly.
+- **Rules for management** written in advance (when to partial, when to move to breakeven).
+- **Review:** compare what you did vs what the plan said; track "R left on the table" and "R lost to fear".`,
+ take: ['Fear: early exits, skipped trades. Greed: moved targets, oversizing.', 'Use bracket orders and pre-written management rules.', 'Size down until you can follow the plan calmly.'],
+ miss: ['Managing trades by feel.', 'Trading a size that scares you.', 'Moving targets after entry.'],
+ quiz: [
+  ['Closing a planned 2R trade at +0.4R because you\'re nervous is driven by…', ['Fear', 'Greed', 'Discipline', 'Patience'], 0, 'Fear of giving back.'],
+  ['Moving your target further after entry without a reason is…', ['Greed', 'Fear', 'Good management', 'Required'], 0, 'Wanting more.'],
+  ['If your position size scares you…', ['Reduce it', 'Increase it to get used to it', 'Remove the stop', 'Ignore the feeling'], 0, 'Size for calm execution.'],
+ ]},
+{id: '11-7', t: 'Patience and sitting on your hands', m: 5,
+ intro: 'Most of a professional trader’s day is waiting. Being able to do nothing when there’s no setup is a skill, and a profitable one.',
+ body: `## Why waiting pays
+Your edge only exists in **your setups**. Every trade outside them has, at best, random expectancy, and costs commissions. A day with no trade is a **successful day** if there was no setup.
+
+## Practical patience tools
+- **Set alerts** at your levels (PDH/PDL, HTF arrays) and look away until they trigger.
+- **Use limit orders** at planned entries when appropriate.
+- **Have a "no-trade" checklist**: lunch hour, red news soon, no sweep yet, bias unclear, outside killzone.
+- **Do something else**: read your journal, backtest, exercise.
+
+## The 80/20 of a trading day
+Roughly: 80% preparation, waiting and review; 20% (or less) executing. If you're clicking all session, something is off.`,
+ take: ['No setup, no trade, and that\'s a good day.', 'Use alerts and limit orders; look away.', 'Have a no-trade checklist.'],
+ miss: ['Feeling you must trade every day.', 'Staring at 1-minute charts for hours.', 'Treating no-trade days as failures.'],
+ quiz: [
+  ['A day with no valid setup and no trades is…', ['A successful day', 'A failure', 'A reason to force a trade', 'Bad luck'], 0, 'You protected capital.'],
+  ['A good patience tool is…', ['Price alerts at key levels', 'Watching every tick', 'Trading lunch hour', 'Lowering standards'], 0, 'Let the market come to you.'],
+  ['Which belongs on a no-trade checklist?', ['High-impact news in 10 minutes', 'A clean A+ setup', 'Killzone open', 'Bias clear'], 0, 'Reasons to stand aside.'],
+ ]},
+{id: '11-8', t: 'Process over outcome', m: 5,
+ intro: 'A good trade is one where you followed your plan, even if it lost. A bad trade is one where you broke your rules, even if it won.',
+ chart: {f: H => '<svg viewBox="0 0 360 150" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue,Helvetica,Arial,sans-serif"><text x="125" y="14" text-anchor="middle" font-size="9" fill="#555">Won</text><text x="265" y="14" text-anchor="middle" font-size="9" fill="#555">Lost</text><text x="50" y="55" text-anchor="end" font-size="9" fill="#555">Followed plan</text><text x="50" y="118" text-anchor="end" font-size="9" fill="#555">Broke rules</text><rect x="58" y="20" width="135" height="60" fill="#fff" stroke="#000"/><rect x="198" y="20" width="135" height="60" fill="#fff" stroke="#000"/><rect x="58" y="85" width="135" height="60" fill="#000"/><rect x="198" y="85" width="135" height="60" fill="rgba(0,0,0,.12)" stroke="#000"/><text x="125" y="54" text-anchor="middle" font-size="10" font-weight="700">Good trade</text><text x="265" y="54" text-anchor="middle" font-size="10" font-weight="700">Good trade</text><text x="125" y="113" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">Dangerous</text><text x="125" y="127" text-anchor="middle" font-size="8.5" fill="#fff">(rewards bad habits)</text><text x="265" y="119" text-anchor="middle" font-size="10" font-weight="700">Bad trade</text></svg>', cap: 'Judge trades by process. The most dangerous trade is a rule-break that wins.'},
+ body: `## Why outcomes mislead
+Any single trade is partly luck. A rule-breaking trade that wins teaches you to break rules again. A perfect trade that loses is just the cost of doing business.
+
+## Grade every trade on process
+After each trade, score:
+- Did it meet all 8 checklist items?
+- Was size correct?
+- Did I manage it per plan?
+- Did I respect my limits?
+
+Track **process score** separately from P&L. Over 50-100 trades, a high process score with a positive-expectancy model produces results.
+
+## Goals that work
+- Good: "Follow my plan on 95% of trades this month."
+- Weak: "Make $3,000 this month." (The market doesn't care about your goal, and it pushes you to force trades.)`,
+ take: ['Judge trades by process, not P&L.', 'A winning rule-break is the most dangerous trade.', 'Set process goals, not money goals.'],
+ miss: ['Feeling great about a lucky rule-break.', 'Changing a strategy after a few losses that followed the plan.', 'Setting monthly dollar targets.'],
+ quiz: [
+  ['You broke two rules and the trade won 3R. This was…', ['A bad (dangerous) trade', 'A great trade', 'Proof rules don\'t matter', 'A reason to break rules again'], 0, 'It rewards bad habits.'],
+  ['You followed every rule and lost 1R. This was…', ['A good trade', 'A bad trade', 'A reason to quit', 'A reason to revenge trade'], 0, 'Losses are part of the process.'],
+  ['Which is a process goal?', ['Follow my plan on 95% of trades', 'Make $5,000', 'Win every day', 'Double my account'], 0, 'Controllable.'],
+ ]},
+{id: '11-9', t: 'Routines: before, during, after', m: 6,
+ intro: 'Professionals follow the same routine every day. It turns trading into a calm, repeatable job instead of a reaction to whatever price is doing.',
+ body: `## Pre-market (30-60 min)
+1. Sleep, food, water. Check your state: if you're ill, angry or exhausted, reduce size or don't trade.
+2. **Economic calendar:** mark red-folder news times.
+3. **Top-down analysis:** weekly/daily bias, DOL, key levels (PDH/PDL, session highs/lows, midnight open, HTF arrays).
+4. Write your **scenarios**: "If price sweeps X and shifts, I look for longs to Y. If price breaks Z, no trade."
+5. Set alerts.
+
+## During the session
+- Trade only in killzones, only A setups, only with the checklist.
+- One screen, one or two markets.
+- Follow the loss/trade limits.
+
+## Post-session (15-30 min)
+- **Journal every trade** with screenshots.
+- Grade process.
+- Note one thing to keep and one to improve.
+- Close the platform and do something else.
+
+## Weekly
+A longer review on the weekend: stats, rule-following %, best and worst trades, plan for next week.`,
+ take: ['Pre-market: calendar, top-down, scenarios, alerts.', 'During: killzones, A setups, limits.', 'After: journal, grade, one lesson; weekly review.'],
+ miss: ['Opening charts with no plan.', 'Skipping the journal on losing days.', 'Trading when unwell or upset.'],
+ quiz: [
+  ['Which belongs in pre-market preparation?', ['Checking the economic calendar and writing scenarios', 'Revenge trading', 'Random entries', 'Checking social media for tips'], 0, 'Plan before the open.'],
+  ['When should you journal?', ['After every session, wins and losses', 'Only after wins', 'Only after big losses', 'Never'], 0, 'Every session.'],
+  ['If you feel ill and exhausted before the session…', ['Reduce size or don\'t trade', 'Trade more to feel better', 'Double size', 'Ignore it'], 0, 'Your state matters.'],
+ ]},
+{id: '11-10', t: 'Journaling for psychology', m: 5,
+ intro: 'A trading journal isn’t just numbers. Writing down how you felt shows you the emotional patterns behind your mistakes.',
+ body: `## What to record (besides the trade data)
+- **Emotion before entry** (calm, anxious, excited, bored) on a 1-5 scale.
+- **Why** you took it in one sentence.
+- **During:** urges to interfere (move stop, close early).
+- **After:** how you reacted to the result.
+- **Rule breaks** and what triggered them.
+
+## Finding patterns
+After 30-50 entries, look for links:
+- "My rule breaks happen after two losses."
+- "Trades taken while bored lose."
+- "I cut winners early on Mondays after bad weekends."
+
+Then write a **specific rule** for each pattern ("After two losses, done for the day").
+
+## Keep it simple
+A few lines per trade beats a beautiful spreadsheet you abandon in two weeks. Level 12 covers the full stats journal.`,
+ take: ['Record emotions, reasons, urges and rule breaks.', 'Look for patterns after 30-50 entries.', 'Turn each pattern into a specific rule.'],
+ miss: ['Recording only numbers.', 'Writing vague notes like "bad trade".', 'Over-complicating the journal and quitting.'],
+ quiz: [
+  ['Why record emotions in a journal?', ['To find patterns behind mistakes', 'For decoration', 'Brokers require it', 'To feel bad'], 0, 'Patterns lead to rules.'],
+  ['You notice rule breaks often follow two losses. A good response is…', ['A rule: after two losses, stop for the day', 'Trade more after losses', 'Ignore it', 'Bigger size after losses'], 0, 'Specific rule.'],
+  ['How many entries before looking for patterns?', ['About 30-50', '1', '1,000', 'Never'], 0, 'Enough data.'],
+ ]},
+{id: '11-11', t: 'Handling losing streaks', m: 6,
+ intro: 'Every trader, even the best, goes through losing streaks. How you handle them decides whether you survive to the next winning period.',
+ body: `## Expect them
+At a 40-50% win rate, 5-8 losses in a row will happen several times a year. It doesn't automatically mean your strategy is broken.
+
+## Diagnose: variance or mistakes?
+Check the losing trades:
+- **All met the plan?** Likely normal variance. Keep going, perhaps at reduced size.
+- **Several broke rules?** It's an execution problem. Fix that first.
+- **Market conditions changed?** (e.g. very low volatility, holiday season) Consider trading less.
+
+## The streak protocol (example)
+- After **5 losses** or −5%: cut risk in half.
+- After **8 losses** or −10%: stop live trading; review 50 trades; return to sim or minimum size until 10 rule-following trades.
+- Restore normal risk gradually after recovery.
+
+## Protect your mindset
+- Remember your long-run stats, not the last 5 trades.
+- Don't change the strategy mid-streak based on feelings.
+- Talk to a trading buddy or mentor; isolation makes it worse.`,
+ take: ['Losing streaks are normal.', 'Diagnose: variance, rule breaks, or market conditions.', 'Pre-set protocol: cut size, review, rebuild.'],
+ miss: ['Switching strategies after every streak.', 'Increasing size to end it.', 'Assuming every streak means the edge is gone.'],
+ quiz: [
+  ['After 5 losses in a row that all followed your plan, the most likely cause is…', ['Normal variance', 'Your strategy is definitely broken', 'The market is rigged against you', 'You need bigger size'], 0, 'Streaks happen.'],
+  ['A sensible step during a streak is…', ['Cut risk in half per your protocol', 'Double size', 'Try three new strategies', 'Stop journaling'], 0, 'Reduce damage.'],
+  ['If several losing trades broke rules, the problem is…', ['Execution', 'Variance', 'The broker', 'The moon'], 0, 'Fix behaviour first.'],
+ ]},
+{id: '11-12', t: 'Building real confidence', m: 5,
+ intro: 'Real confidence doesn’t come from a good week or a motivational video. It comes from evidence: hundreds of trades showing your process works.',
+ body: `## Where confidence comes from
+- **Backtesting** 100+ examples of your model.
+- **Forward testing** (sim) with a positive result over 50+ trades.
+- **A journal** showing you follow your rules.
+- **Small live results** that match your tests.
+
+## False confidence
+- From a few big wins.
+- From social media (people post wins, not losses).
+- From certainty about "where price will go". Professionals think in probabilities, not certainties.
+
+## Probability thinking
+Every trade is one sample from your edge. You don't need to know if this one wins; you only need to execute it correctly. That mindset removes the pressure to be right.
+
+## Humility
+The market will regularly prove you wrong. Confidence in your **process** and humility about **any single trade** go together.`,
+ take: ['Confidence comes from evidence: backtests, forward tests, journals.', 'Think in probabilities; each trade is one sample.', 'Confident in process, humble about outcomes.'],
+ miss: ['Feeling invincible after a hot streak.', 'Comparing yourself with social media highlight reels.', 'Needing to be right on each trade.'],
+ quiz: [
+  ['Real trading confidence comes from…', ['Evidence like backtests and journals', 'A few big wins', 'Social media', 'Expensive courses alone'], 0, 'Data.'],
+  ['Thinking in probabilities means…', ['Each trade is one sample from your edge', 'You know every outcome', 'Every trade will win', 'Stops are optional'], 0, 'Focus on execution.'],
+  ['After a big winning week, a pro…', ['Keeps the same size and process', 'Triples size', 'Skips the checklist', 'Quits the job immediately'], 0, 'Stay consistent.'],
+ ]},
+{id: '11-13', t: 'Lifestyle: sleep, health and money pressure', m: 5,
+ intro: 'Your body and your life outside the charts affect every trading decision. Tired, stressed or financially desperate traders make worse choices.',
+ body: `## Basics that matter
+- **Sleep:** poor sleep reduces impulse control and focus. Many day traders who trade the London session wreck their sleep; pick sessions that fit your life (e.g. NY AM only).
+- **Exercise and food:** steady energy, less anxiety.
+- **Breaks:** step away from screens between sessions.
+
+## Money pressure
+- **Never trade money you need** for rent, bills or debt repayment.
+- **Keep an income** (a job or business) while learning. Needing trading income to pay bills creates pressure that ruins decisions.
+- Build an **emergency fund** before risking capital.
+
+## Family, school and work
+- For younger learners: school comes first. Learn with simulated or paper trading; in most countries you must be an adult (often 18+) to open a brokerage account.
+- For working adults: choose a session that fits your job.
+- For retirees: protect retirement savings. Trade only a small, separate amount you can afford to lose.
+
+## Burnout
+Signs: dreading the charts, irritability, poor sleep. Take days or weeks off. The market will be there when you come back.`,
+ take: ['Sleep, health and breaks affect decisions.', 'Never trade money you need; keep an income while learning.', 'Fit trading to your life stage; take breaks to avoid burnout.'],
+ miss: ['Trading exhausted.', 'Quitting a job before proven, consistent results.', 'Using retirement or rent money.'],
+ quiz: [
+  ['Trading money you need for rent…', ['Creates pressure that leads to bad decisions', 'Improves focus', 'Is recommended', 'Is fine with tight stops'], 0, 'Never do it.'],
+  ['While learning to trade, you should…', ['Keep a steady income', 'Quit your job', 'Borrow money', 'Use a credit card'], 0, 'Remove pressure.'],
+  ['A student under 18 who wants to learn should…', ['Practise with paper or simulated trading', 'Use a parent\'s account secretly', 'Borrow money', 'Skip school to trade'], 0, 'Practise safely.'],
+ ]},
+]});
+})();
+(function () {
+CS.level({n: 12, name: 'Becoming a Professional', d: 'Trading plan, backtesting, forward testing, metrics, taxes, business mindset', lessons: [
+{id: '12-1', t: 'Your written trading plan', m: 10,
+ intro: 'A trading plan is a written rulebook for your trading business. If it isn’t written down, it isn’t a plan; it’s a mood.',
+ body: `## Why write it
+- It decides **in advance**, when you're calm, what you'll do when you're not.
+- It makes your results **measurable**: you can only test rules that are fixed.
+- It's what prop firms, mentors and your future self will ask for.
+
+## What it must cover
+Why you trade, markets, hours, timeframes, how you form bias, your setups (max 2), the entry checklist, risk per trade, daily/weekly limits, management, news rules, routine, review process, and when you do **not** trade.
+
+## Build yours now
+Fill in each section below. Your answers are saved on this device; you can copy or download the result. Start simple and refine it monthly.
+
+{{plan}}
+
+## Rules for your rules
+- **Specific:** "Max 2 trades per day" not "don't overtrade".
+- **Testable:** each rule can be checked yes/no in your journal.
+- **Short:** a plan that fits on 1-2 pages gets followed.
+- **Versioned:** date every change; never change it mid-session.`,
+ take: ['A plan decides in advance what you\'ll do.', 'Cover markets, times, setups, checklist, risk, limits, management, news, routine, review, no-trade rules.', 'Specific, testable, short, versioned.'],
+ miss: ['Keeping the plan in your head.', 'Vague rules like "be disciplined".', 'Changing rules during the session.'],
+ quiz: [
+  ['Which is a well-written rule?', ['Max 2 trades per day; stop after 2 losses', 'Don\'t overtrade', 'Be careful', 'Trade when it feels right'], 0, 'Specific and testable.'],
+  ['When should you change your plan?', ['During a scheduled review, with the change dated', 'Mid-trade', 'After every loss', 'Never under any circumstances'], 0, 'Calm, planned changes.'],
+  ['How many setups should a newer trader focus on?', ['1-2', '10+', 'Every model in this app', 'None'], 0, 'Master a few.'],
+ ]},
+{id: '12-2', t: 'Backtesting methodology', m: 10,
+ intro: 'Backtesting means going back in time on the charts and recording how your exact rules would have performed. It’s how you find out if you have an edge before risking money.',
+ body: `## Step by step
+1. **Fix the rules.** Write the setup precisely: bias method, time window, entry trigger, stop, targets, management. No discretion you can't describe.
+2. **Choose the data.** At least 6-12 months, including different conditions (trending, ranging, high and low volatility).
+3. **Go bar by bar.** Use a replay feature so you can't see the future. Make the decision as the chart develops.
+4. **Record every instance**, not just the good ones: date, time, direction, entry, stop, target, result in R, screenshot, notes.
+5. **Get a sample:** aim for **100+ trades** for a single setup.
+6. **Analyse:** win rate, average win/loss in R, expectancy, max drawdown, longest losing streak, results by day/session.
+
+## Avoid these biases
+- **Hindsight bias:** "I would have seen that." Use replay.
+- **Cherry-picking:** skipping ugly examples.
+- **Curve-fitting:** adding rules until past results look perfect. Every added rule must make sense in advance.
+- **Ignoring costs:** subtract commissions and estimated slippage.
+
+## Then what?
+If expectancy is clearly positive after costs, move to forward testing. If not, adjust **one** variable at a time and retest on fresh data.`,
+ take: ['Fixed rules, replay bar by bar, record every instance, 100+ trades.', 'Measure win rate, avg R, expectancy, drawdown, streaks.', 'Avoid hindsight, cherry-picking and curve-fitting.'],
+ miss: ['Backtesting by scrolling with the future visible.', 'Only recording the nice-looking setups.', 'Adding rules until the past looks perfect.', 'Forgetting costs.'],
+ quiz: [
+  ['Why use bar replay?', ['To avoid seeing the future (hindsight bias)', 'It\'s faster', 'To skip losing trades', 'Brokers require it'], 0, 'Honest decisions.'],
+  ['Curve-fitting means…', ['Adding rules until past results look perfect', 'Drawing curves', 'Testing on new data', 'Using a moving average'], 0, 'It won\'t hold in the future.'],
+  ['A reasonable sample size for one setup is…', ['100+ trades', '5 trades', '1 week', '1 trade'], 0, 'More data, more trust.'],
+  ['When changing your rules after a test, you should…', ['Change one variable at a time and retest on fresh data', 'Change everything at once', 'Never test again', 'Go live immediately'], 0, 'Controlled experiments.'],
+ ]},
+{id: '12-3', t: 'Forward testing', m: 6,
+ intro: 'Forward testing means trading your rules in real time, usually on a simulator, to see if the backtest holds up when you don’t know what comes next.',
+ body: `## Why it's needed
+Backtests can't fully capture real-time pressure, speed, fills, news spikes or your own hesitation. Forward testing reveals the gap between "the rules work" and "I can execute the rules".
+
+## How to do it
+- Use a **simulator/paper account** with realistic size (as if it were your real account size).
+- Follow your **full routine**: prep, killzone, checklist, journal.
+- Run for **at least 1-3 months / 30-50 trades**.
+- Compare: win rate, average R, expectancy, rule-following % vs the backtest.
+
+## What to look for
+- **Results similar to backtest:** good sign; move to small live.
+- **Much worse:** usually execution (late entries, skipped trades, early exits). Fix that before going live.
+- **Too few trades:** your rules may be too strict for real-time use, or you're hesitating.
+
+## Limitations
+Sim fills can be better than reality, and there's no real money fear. That's why the next step is **small** live size, not full size.`,
+ take: ['Forward test in sim with your full routine for 30-50+ trades.', 'Compare against the backtest.', 'Sim isn\'t real pressure; next step is small live size.'],
+ miss: ['Skipping forward testing.', 'Using unrealistic sim size.', 'Treating sim trades casually.'],
+ quiz: [
+  ['Forward testing mainly reveals…', ['Whether you can execute the rules in real time', 'Future prices', 'Tax rates', 'Broker fees'], 0, 'Execution gap.'],
+  ['Forward test results are much worse than backtest. Most likely cause?', ['Execution problems', 'The calendar', 'Too much journaling', 'Correct sizing'], 0, 'Check your execution.'],
+  ['After a successful forward test, the next step is…', ['Small live size', 'Maximum size', 'Quit your job', 'Skip stops'], 0, 'Gradual.'],
+ ]},
+{id: '12-4', t: 'Journaling metrics that matter', m: 8,
+ intro: 'Your journal is your performance data. A few key numbers tell you whether you have an edge and where you are leaking money.',
+ body: `## Record per trade
+Date/time, market, session/killzone, setup name, direction, entry, stop, target, size, risk $, result $ and **R**, max favourable/adverse excursion (MFE/MAE in R), checklist score, rule breaks, emotion (1-5), screenshot before and after.
+
+## Key metrics (monthly)
+<table class="t"><tr><th>Metric</th><th>What it tells you</th></tr><tr><td>Win rate</td><td>% of trades that win</td></tr><tr><td>Average win / loss (R)</td><td>Size of wins vs losses</td></tr><tr><td>Expectancy (R)</td><td>Edge per trade</td></tr><tr><td>Profit factor</td><td>Gross profit ÷ gross loss (above 1.0 = profitable; 1.5+ is solid)</td></tr><tr><td>Max drawdown</td><td>Worst peak-to-trough</td></tr><tr><td>Longest losing streak</td><td>What you must survive</td></tr><tr><td>Rule-following %</td><td>Discipline</td></tr><tr><td>R by setup / session / weekday</td><td>Where your edge actually is</td></tr></table>
+
+## Using the data
+- **Cut** what loses: if Friday trades are −0.3R on average over 40 trades, stop trading Fridays.
+- **Focus** on what works: if one setup produces most of your R, trade only that.
+- **Check MFE:** if winners often reach 3R but you exit at 1.5R, your management may be leaving money behind.
+
+## Tools
+A spreadsheet works fine. Dedicated journaling apps can import trades from brokers. Pick one you'll actually use daily.`,
+ take: ['Record R, setup, session, MFE/MAE, rule breaks, emotions, screenshots.', 'Track win rate, avg R, expectancy, profit factor, drawdown, streaks, rule-following %.', 'Cut what loses; focus on what works.'],
+ miss: ['Tracking only P&L in dollars.', 'No screenshots.', 'Never acting on the data.'],
+ quiz: [
+  ['Profit factor is…', ['Gross profit ÷ gross loss', 'Win rate × 2', 'Account size ÷ risk', 'The number of trades'], 0, 'Above 1.0 is profitable.'],
+  ['Gross profit $6,000, gross loss $4,000. Profit factor?', ['1.5', '2.0', '0.67', '10'], 0, '6,000 ÷ 4,000.'],
+  ['Your data shows Friday trades lose on average over 40 trades. A sensible action is…', ['Stop trading Fridays', 'Trade more on Fridays', 'Ignore it', 'Double size on Fridays'], 0, 'Act on evidence.'],
+ ]},
+{id: '12-5', t: 'The path: demo → small live → scale', m: 7,
+ intro: 'Going from learning to trading real money should happen in stages, each with clear requirements to move up, and to move back down.',
+ chart: {f: H => H.ladder([{p: 5, label: '5. Scale up gradually', note: 'after 3+ consistent months', kind: 'buy'}, {p: 4, label: '4. Funded / normal size', note: 'process proven live', kind: 'cur'}, {p: 3, label: '3. Small live', note: 'micros, 0.25-0.5% risk', kind: 'cur'}, {p: 2, label: '2. Forward test (sim)', note: '30-50+ trades', kind: 'muted'}, {p: 1, label: '1. Learn + backtest', note: '100+ trades of one setup', kind: 'muted'}], {h: 180}).replace(/>\d<\/text>/g, '></text>'), cap: 'Move up only when the stage requirements are met. Move down when they stop being met.'},
+ body: `## Stage requirements (example)
+1. **Learn + backtest:** finish the curriculum; 100+ backtested trades of one setup with positive expectancy after costs.
+2. **Forward test (sim):** 30-50+ trades, results close to backtest, rule-following ≥ 90%.
+3. **Small live:** smallest size available (micro futures, small share size), 0.25-0.5% risk. Goal: 2-3 months of following rules with real emotions.
+4. **Normal size / funded:** only after consistent small live results.
+5. **Scale up:** in small steps after each consistent period.
+
+## Moving down is part of the plan
+If rule-following drops below 80%, or drawdown hits your limit, step **down** one stage until it's fixed. Professionals do this without ego.
+
+## How long does it take?
+For most people, **years**, not weeks. Many never reach consistent profitability. That's not a reason to give up; it's a reason to go slowly and protect your money while learning.`,
+ take: ['Stages: backtest → sim → small live → normal size → scale.', 'Clear requirements to move up; step down when they slip.', 'It usually takes years.'],
+ miss: ['Skipping straight to large live size.', 'Refusing to move back down.', 'Expecting to be consistent in a few weeks.'],
+ quiz: [
+  ['After a positive backtest, the next step is…', ['Forward testing on a simulator', 'Full-size live trading', 'Quitting your job', 'Buying 10 evaluations'], 0, 'Stage by stage.'],
+  ['Rule-following drops to 70% at small live. You…', ['Step back down a stage until it\'s fixed', 'Increase size', 'Ignore it', 'Change strategies'], 0, 'Fix execution first.'],
+  ['How long does becoming consistently profitable usually take?', ['Often years', 'A weekend', 'One month always', 'Never possible for anyone'], 0, 'Be patient.'],
+ ]},
+{id: '12-6', t: 'Prop firm capital vs your own capital', m: 6,
+ intro: 'You can trade your own money or try to trade a prop firm’s. Each has real advantages and real catches.',
+ body: `<table class="t"><tr><th></th><th>Prop firm</th><th>Personal account</th></tr><tr><td>Money at risk</td><td>Evaluation fees (and resets)</td><td>Your full deposit</td></tr><tr><td>Buying power</td><td>Large accounts for a fee</td><td>Limited to what you deposit</td></tr><tr><td>Rules</td><td>Strict: trailing drawdown, daily loss, consistency, news</td><td>Your own plan</td></tr><tr><td>Payouts</td><td>Profit split (often 80-90%) with conditions</td><td>100% yours</td></tr><tr><td>Risk</td><td>Firm can change rules or close; payouts not guaranteed</td><td>Broker risk; choose regulated brokers</td></tr><tr><td>Taxes</td><td>Payouts often treated as contractor income (varies)</td><td>Capital gains/losses (varies)</td></tr></table>
+
+## Things to check about any prop firm
+- How long it's existed, payout history, reviews from multiple sources.
+- Exact drawdown type (intraday vs end-of-day trailing).
+- Payout rules, minimum days, buffers, activation fees.
+- Whether accounts are "live" or simulated (many funded accounts are simulated, with the firm paying out based on results).
+
+## A balanced approach
+Many traders use both: a small personal account to trade without rule pressure, and prop accounts once they're consistent. Either way, **track all fees as costs**.`,
+ take: ['Prop: big buying power for a fee, strict rules, profit split.', 'Personal: full control, your money at risk.', 'Research firms carefully and track fees as costs.'],
+ miss: ['Thinking prop fees are "free money".', 'Not researching payout reliability.', 'Ignoring tax treatment of payouts.'],
+ quiz: [
+  ['A main advantage of prop firms is…', ['Large buying power for a relatively small fee', 'No rules', 'Guaranteed payouts', 'No taxes'], 0, 'Leverage of capital.'],
+  ['A main downside of prop firms is…', ['Strict rules and fees that add up', 'Unlimited risk', 'You keep 0%', 'You must use indicators'], 0, 'Rules and costs.'],
+  ['Before joining a prop firm, you should check…', ['Payout history, rules and drawdown type', 'Only the logo', 'Social media hype only', 'Nothing'], 0, 'Due diligence.'],
+ ]},
+{id: '12-7', t: 'Taxes: the basics', m: 8,
+ intro: 'Profits from trading are usually taxable, and the rules differ a lot by country and by what you trade. This lesson covers the basics so you know what to ask a professional.',
+ body: `> **Important:** this is general education, not tax advice. Rules differ by country, change over time, and depend on your situation. Consult a qualified tax professional.
+
+## General principles (most countries)
+- Trading profits are usually **taxable**; losses may be **deductible** or offset gains, within limits.
+- How you're taxed can depend on the **instrument** (stocks, futures, forex, crypto, CFDs), how long you held it, and whether you're classed as a hobbyist, investor or business.
+- You need **records** of every trade (Lesson 12-8).
+
+## United States (overview)
+- **Stocks and most options:** held **one year or less** = **short-term capital gains**, taxed at your ordinary income rate. Held more than a year = long-term rates (lower). Most day traders' gains are short-term.
+- **Futures (Section 1256 contracts):** regulated futures and broad-based index options get **60/40 treatment**: 60% taxed as long-term and 40% as short-term, **regardless of holding period**. Positions are marked to market at year end. Reported on IRS Form 6781.
+- **Wash sale rule:** for stocks and options, a loss can be disallowed if you buy a substantially identical security within 30 days before or after the sale. It does not apply to Section 1256 contracts.
+- **Forex** (spot) and **crypto** have their own rules; crypto is generally treated as property.
+- **Prop firm payouts** are often reported as independent-contractor income rather than capital gains.
+- Some full-time traders may qualify for **trader tax status**; the criteria are strict.
+
+## Other countries
+Rules vary widely (for example, the UK treats spread betting and CFDs differently, and some countries tax trading as income). Check your local tax authority's guidance and get professional advice.
+
+## Practical habits
+- Set aside a percentage of profits for tax.
+- Keep records from day one.
+- Talk to a professional **before** your first profitable year ends, not after.`,
+ take: ['Not tax advice; rules vary by country and instrument; consult a professional.', 'US: short-term gains taxed as ordinary income; Section 1256 futures get 60/40 regardless of holding period.', 'Keep records and set money aside for taxes.'],
+ miss: ['Assuming trading profits aren\'t taxed.', 'Not keeping records.', 'Spending all profits before tax time.', 'Copying a friend\'s tax treatment from a different country.'],
+ quiz: [
+  ['In the US, stock gains on positions held under a year are generally…', ['Short-term capital gains taxed at ordinary income rates', 'Tax-free', 'Always 60/40', 'Taxed only if over $1 million'], 0, 'Short-term.'],
+  ['Section 1256 (US regulated futures) treatment is…', ['60% long-term, 40% short-term regardless of holding period', '100% short-term', '100% long-term', 'Tax-free'], 0, '60/40.'],
+  ['Who should you ask about your specific tax situation?', ['A qualified tax professional', 'A trading chat room', 'Nobody', 'A random video'], 0, 'Rules vary and change.'],
+  ['A good tax habit is…', ['Set aside part of profits and keep records from day one', 'Spend everything', 'Ignore it until audited', 'Only record wins'], 0, 'Be prepared.'],
+ ]},
+{id: '12-8', t: 'Record keeping', m: 5,
+ intro: 'Good records protect you at tax time, help you prove performance, and power your journal. Set them up once and keep them going.',
+ body: `## What to keep
+- **Broker statements** (monthly and annual) and tax forms.
+- **Trade logs**: every trade with date, instrument, size, entry, exit, P&L, fees.
+- **Deposits and withdrawals.**
+- **Expenses**: data feeds, platforms, prop evaluation fees, education, hardware (deductibility depends on your country and status).
+- **Prop firm payout records.**
+- **Your trading plan versions** and journal.
+
+## How
+- A dedicated **bank account** for trading money, separate from personal spending.
+- A folder per year (digital, backed up) with statements, exports and receipts.
+- Monthly: download statements, reconcile with your journal.
+
+## How long
+Keep records for several years; tax authorities can ask about past years (in the US, generally at least 3 years, longer in some cases). Ask your tax professional what applies to you.`,
+ take: ['Keep statements, trade logs, deposits/withdrawals, expenses and payouts.', 'Separate trading bank account; monthly reconciliation.', 'Keep records for years.'],
+ miss: ['Mixing trading and personal money.', 'Relying on the broker to keep everything forever.', 'Losing receipts for fees.'],
+ quiz: [
+  ['Why keep a separate trading bank account?', ['Clean records and clear performance', 'Higher interest', 'It is illegal not to', 'No reason'], 0, 'Clarity.'],
+  ['Which should you keep?', ['Statements, trade logs, expenses and payout records', 'Only winning trades', 'Nothing', 'Only screenshots of P&L'], 0, 'Everything relevant.'],
+  ['How often should you reconcile records with your journal?', ['Monthly', 'Once a decade', 'Never', 'Only when audited'], 0, 'Regularly.'],
+ ]},
+{id: '12-9', t: 'The business mindset', m: 6,
+ intro: 'Treat trading like a small business: it has costs, revenue, risk management and a long-term plan. Hobbies cost money; businesses track whether they make it.',
+ body: `## Business thinking
+- **Capital:** your account is inventory. Protect it.
+- **Costs:** commissions, data, software, evaluations, education. Know your monthly "burn".
+- **Revenue:** net profit after costs and taxes, not gross P&L.
+- **Edge:** your tested setups. A business without a product has no customers.
+- **Operations:** routines, checklists, risk rules.
+- **Review:** monthly and quarterly reports, like any business.
+
+## Questions a business owner asks
+- What is my **net** result over the last 6 months after all costs?
+- Which activity (setup, session) earns the most per hour?
+- What's the next improvement with the biggest impact?
+- What's my plan if I have a 15% drawdown?
+
+## Education spending
+Free resources (including ICT's free YouTube content) teach the core concepts. Be careful with expensive courses, signal groups or "guaranteed" systems. No legitimate educator can guarantee profits.
+
+## Scams to avoid
+- "Account managers" who trade for you.
+- Guaranteed returns, pressure to deposit quickly, recruitment schemes.
+- Anyone asking for your login or to send them money to "unlock" profits.`,
+ take: ['Run trading like a business: capital, costs, revenue, edge, operations, review.', 'Measure net results after all costs.', 'Avoid guaranteed-profit offers and account managers.'],
+ miss: ['Measuring only gross P&L.', 'Paying for expensive signals.', 'Sharing account logins.'],
+ quiz: [
+  ['A business-minded trader measures…', ['Net results after all costs and taxes', 'Only the best day', 'Followers', 'Gross P&L only'], 0, 'Net is real.'],
+  ['Someone offers guaranteed 20% monthly returns if you send them money. This is…', ['A red flag for a scam', 'A great deal', 'Normal', 'Required for funding'], 0, 'No guarantees exist.'],
+  ['Evaluation fees and data feeds are…', ['Business costs to track', 'Irrelevant', 'Profits', 'Taxes'], 0, 'Track every cost.'],
+ ]},
+{id: '12-10', t: 'Continual review and improvement', m: 6,
+ intro: 'Markets change and so do you. A regular review cycle keeps your trading improving instead of drifting.',
+ body: `## The review cycle
+- **Daily (10-15 min):** journal each trade, grade process, one lesson.
+- **Weekly (30-60 min):** stats for the week, rule breaks, best and worst trades, screenshots of A+ examples, plan for next week.
+- **Monthly (1-2 h):** full metrics (Lesson 12-4), compare with previous months, decide **one** change to test.
+- **Quarterly:** bigger questions: is the strategy still working? Is size right? Am I on track with my stage plan?
+
+## Improve one thing at a time
+Pick the single biggest leak (e.g. "early exits cost 12R this month") and work on it for a month. Then measure again.
+
+## Build a playbook
+Save screenshots of your best examples of each setup with notes. Over time this becomes your personal playbook: the clearest guide to what your edge looks like.
+
+## Keep learning
+Re-read lessons in this app, review the glossary with flashcards, and keep backtesting new periods. Even professionals revisit the basics.`,
+ take: ['Daily, weekly, monthly and quarterly reviews.', 'Fix one biggest leak at a time.', 'Build a playbook of your best examples.'],
+ miss: ['Reviewing only when things go badly.', 'Changing many things at once.', 'Stopping learning once profitable.'],
+ quiz: [
+  ['How many changes should you test at once?', ['One', 'Five', 'As many as possible', 'None ever'], 0, 'Clean experiments.'],
+  ['A personal playbook is…', ['A collection of your best setup examples with notes', 'A sports book', 'Your broker statement', 'A list of excuses'], 0, 'Visual guide to your edge.'],
+  ['When should you review?', ['On a fixed schedule: daily, weekly, monthly, quarterly', 'Only after losses', 'Only after wins', 'Never'], 0, 'Routine.'],
+ ]},
+{id: '12-11', t: 'Realistic expectations', m: 6,
+ intro: 'Let’s be honest about trading: most people who try it lose money. You can still learn it, but only with realistic expectations and careful risk.',
+ body: `## The facts
+- Studies of retail day traders across different markets have repeatedly found that **a large majority lose money**, and only a small minority are consistently profitable over years.
+- Brokers offering CFDs in Europe and the UK are required to show what percentage of retail accounts lose money, and those figures are commonly above 60-70%.
+- **There are no guarantees.** No strategy, including anything in this app, guarantees profit.
+
+## What realistic success looks like
+- Years of learning and practice before consistency.
+- Months with losses even when you're good.
+- Returns that sound "boring" compared with social media, but survive.
+- For many people, the realistic win is: understanding markets, managing their own investments wisely, and maybe a supplementary income, not quitting a job in month three.
+
+## Healthy goals by stage
+- **Students (middle and high school):** learn the concepts, practise on paper, focus on school. Long-term investing knowledge is a great life skill.
+- **Working adults:** keep your career; trade one session with small risk; treat it as a skill-building project.
+- **Retirees / near retirement:** protect your savings. If you trade, use a small, separate amount you can afford to lose. Consider talking to a licensed financial adviser.
+
+## Final word
+Learning to read charts, manage risk and control your emotions is valuable even if you never trade full-time. Go slowly, protect your money, and let your journal, not hope, tell you when you're ready.
+
+*Educational only, not financial advice. Not affiliated with ICT.*`,
+ take: ['Most retail traders lose money; no strategy guarantees profit.', 'Consistency usually takes years.', 'Set goals that fit your age and situation; protect your capital.'],
+ miss: ['Believing social media lifestyles are typical.', 'Quitting a job before proven results.', 'Risking savings or retirement funds.'],
+ quiz: [
+  ['What percentage of retail day traders are consistently profitable over years?', ['A small minority', 'Most of them', 'Everyone who studies ICT', '100%'], 0, 'Most lose.'],
+  ['Does any strategy guarantee profits?', ['No', 'Yes, ICT', 'Yes, indicators', 'Yes, prop firms'], 0, 'No guarantees.'],
+  ['A realistic plan for someone near retirement is…', ['Protect savings; trade only a small separate amount they can afford to lose', 'Trade the entire retirement fund', 'Use maximum leverage', 'Borrow to trade'], 0, 'Capital protection first.'],
+ ]},
+]});
+})();

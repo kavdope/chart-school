@@ -1,4 +1,4 @@
-/* Chart School: app engine. Plain JS, no dependencies, works offline. Content lives in content/*.js */
+/* Chart School: app engine. Plain JS, no dependencies, works offline. Content scripts load first (see index.html). */
 'use strict';
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
@@ -8,7 +8,7 @@ const LESSONS = LEVELS.flatMap(L => L.lessons);
 const LMAP = Object.fromEntries(LESSONS.map(l => [l.id, l]));
 const GLOSSARY = CS.glossary;
 const G = Object.fromEntries(GLOSSARY.map(g => [g[0], g]));
-const FOOT = '<p class="foot">Educational only, not financial advice. Not affiliated with ICT.</p>';
+const FOOT = '<p class="foot">Educational only, not financial advice. Not affiliated with ICT. <a href="#about">Disclaimer &amp; About</a></p>';
 
 /* ---------------- Mini markup ----------------
    blocks: "## h2", "### h3", "- list", "1. list", "> callout", "<raw html>", "{{widget}}", else paragraph
@@ -50,7 +50,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); return ymd(new Date(y, m - 1, d + n)); };
 function load() {
   let s; try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  s = Object.assign({q: {}, days: [], spot: {}, take: {right: 0, total: 0}, fc: {}, fcNew: {}, start: 0, placed: false, unlockAll: false, plan: {}, calc: {}}, s || {});
+  s = Object.assign({q: {}, days: [], spot: {}, take: {right: 0, total: 0}, fc: {}, fcNew: {}, start: 0, placed: false, unlockAll: false, plan: {}, calc: {}, dr: {}, drf: {k: 'all', lv: 0}, bm: {}}, s || {});
   if (!s.days.includes(today())) s.days.push(today());
   s.days = s.days.slice(-400);
   return s;
@@ -235,18 +235,21 @@ const H = {chart, walk, plot, mirrorW, K, ladder, bars, curve, anatomy, rng};
 
 /* ---------------- Router / shell ---------------- */
 const view = $('#view');
-function setTop(title, left = '', right = '') { $('#tt').textContent = title; $('#tl').innerHTML = left; $('#tr').innerHTML = right; }
+const SEARCH_BTN = '<button class="sbtn" id="sbtn" aria-label="Search" title="Search (/)" onclick="location.hash=\'#search\'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg></button>';
+function setTop(title, left = '', right = '', noSearch) { $('#tt').textContent = title; $('#tl').innerHTML = left; $('#tr').innerHTML = right + (noSearch ? '' : SEARCH_BTN); }
 const back = (href, t) => `<button onclick="location.hash='${href}'">‹ ${t}</button>`;
 let timer = null;
 const ROUTES = {};
 function route() {
   clearInterval(timer); timer = null; closePop();
-  const [h, arg] = (location.hash || '#home').slice(1).split('/');
-  if (!S.placed && h !== 'placement') { location.replace('#placement'); return; }
-  const tabOf = {lesson: 'home', quiz: 'home', level: 'home', placement: 'home', spot: 'practice', take: 'practice', flash: 'practice', calc: 'tools', plan: 'tools', settings: 'tools'};
+  const raw = (location.hash || '#home').slice(1), cut = raw.indexOf('/');
+  const h = cut < 0 ? raw : raw.slice(0, cut), arg = cut < 0 ? '' : raw.slice(cut + 1);
+  if (!S.placed && h !== 'placement' && h !== 'about') { location.replace('#placement'); return; }
+  const tabOf = {lesson: 'home', quiz: 'home', level: 'home', placement: 'home', spot: 'practice', take: 'practice', flash: 'practice', calc: 'tools', plan: 'tools', settings: 'tools', drill: 'drills', term: 'glossary', about: 'tools', bookmarks: 'tools', search: ''};
   const tab = tabOf[h] || h;
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
-  (ROUTES[h] || ROUTES.home)(arg && decodeURIComponent(arg));
+  let a2 = arg; try { a2 = decodeURIComponent(arg); } catch (e) {}
+  (ROUTES[h] || ROUTES.home)(a2);
   window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
@@ -297,7 +300,7 @@ ROUTES.lesson = function (id) {
   const nxt = L.lessons[l.idx + 1], q = l.quiz.length;
   setTop(l.t.length > 26 ? l.t.slice(0, 25) + '…' : l.t, back('#home', 'Learn'), `<span>${l.id.replace('-', '.')}</span>`);
   view.innerHTML = `<div class="lesson">
-  <div class="crumb">Level ${L.n} · ${L.name} · Lesson ${l.idx + 1} of ${L.lessons.length} · ${l.m || 6} min</div>
+  <div class="crumb row"><span>Level ${L.n} · ${L.name} · Lesson ${l.idx + 1} of ${L.lessons.length} · ${l.m || 6} min</span>${bmBtn('l:' + l.id)}</div>
   <h1>${l.t}</h1>
   <p class="lead">${inline(l.intro)}</p>
   ${renderChart(l.chart)}
@@ -363,7 +366,7 @@ const PLACEMENT = [
   ['ES makes a new high but NQ fails to. This is called…', ['A breaker', 'SMT divergence', 'A volume imbalance', 'The Judas swing'], 1],
 ];
 ROUTES.placement = function (arg) {
-  setTop('Welcome', S.placed ? back('#settings', 'Settings') : '', '');
+  setTop('Welcome', S.placed ? back('#settings', 'Settings') : '', '', !S.placed);
   if (arg !== 'quiz') {
     view.innerHTML = `<h1>Welcome to Chart School</h1><p class="sub">Let's find the right starting point. You can change this any time in Settings.</p>
       <div class="label">Choose one</div>
@@ -408,6 +411,7 @@ ROUTES.practice = function () {
   const due = fcDue().length;
   const sc = k => { const v = S.spot[k]; return v ? `${v.right}/${v.total}` : 'New'; };
   view.innerHTML = `<h1>Practice</h1><p class="sub">Drills on generated charts. Every chart is new.</p>
+    <div class="label">Chart drills</div><ul class="menu"><li><a href="#drills"><div><b>Chart drills</b><span>${DR.length} hand-built scenarios across ${Object.keys(DK).length} concepts</span></div><em>${drSolved()}/${DR.length}</em></a></li></ul>
     <div class="label">Spot It</div><ul class="menu">${Object.entries(DRILLS).map(([k, d]) => `<li><a href="#spot/${k}"><div><b>${d.name}</b><span>${d.d}</span></div><em>${sc(k)}</em></a></li>`).join('')}</ul>
     <div class="label">Decision training</div><ul class="menu"><li><a href="#take"><div><b>Should I take it?</b><span>Run the pre-entry checklist on a live-looking setup</span></div><em>${S.take.right}/${S.take.total}</em></a></li></ul>
     <div class="label">Memory</div><ul class="menu"><li><a href="#flash"><div><b>Flashcards</b><span>Spaced repetition over ${GLOSSARY.length} glossary terms</span></div><em>${due} due</em></a></li></ul>${FOOT}`;
@@ -747,14 +751,18 @@ ROUTES.tools = function () {
     <li><a href="#calc"><div><b>Position size calculator</b><span>Futures, stocks, forex, crypto</span></div><em>›</em></a></li>
     <li><a href="#plan"><div><b>Trading plan builder</b><span>Fill-in template, copy or download</span></div><em>›</em></a></li>
     <li><a href="#clock"><div><b>Killzone clock</b><span>Sessions and Silver Bullet windows</span></div><em>›</em></a></li>
-    <li><a href="#settings"><div><b>Settings</b><span>Unlock all, placement, reset</span></div><em>›</em></a></li></ul>${FOOT}`;
+    <li><a href="#search"><div><b>Search</b><span>Lessons, glossary and drills · press / on desktop</span></div><em>›</em></a></li>
+    <li><a href="#bookmarks"><div><b>Bookmarks</b><span>Saved lessons, terms and drills</span></div><em>${Object.keys(S.bm).length}</em></a></li>
+    <li><a href="#settings"><div><b>Settings</b><span>Unlock all, placement, reset</span></div><em>›</em></a></li>
+    <li><a href="#about"><div><b>About &amp; disclaimer</b><span>Not financial advice · how your data is stored</span></div><em>›</em></a></li></ul>${FOOT}`;
 };
 ROUTES.settings = function () {
   setTop('Settings', back('#tools', 'Tools'));
   view.innerHTML = `<h1>Settings</h1>
     <ul class="menu" style="margin-top:10px"><li><label class="tog"><div><b>Unlock all levels</b><span>For experienced traders who want to jump around</span></div><input type="checkbox" id="unlockall" ${S.unlockAll ? 'checked' : ''}></label></li>
     <li><a href="#placement"><div><b>Starting level</b><span>Currently ${START_NAMES[S.start] || 'Level ' + S.start} · retake placement</span></div><em>›</em></a></li>
-    <li><a href="#" id="reset"><div><b>Reset all progress</b><span>Quizzes, drills, flashcards, streak</span></div><em>›</em></a></li></ul>
+    <li><a href="#about"><div><b>About &amp; disclaimer</b><span>What Chart School is, risks, your data</span></div><em>›</em></a></li>
+    <li><a href="#" id="reset"><div><b>Reset all progress</b><span>Quizzes, drills, flashcards, bookmarks, streak</span></div><em>›</em></a></li></ul>
     <p class="sub" style="margin-top:12px">Progress is stored only in this browser on this device.</p>${FOOT}`;
   $('#unlockall').onchange = e => { S.unlockAll = e.target.checked; save(); };
   $('#reset').onclick = e => { e.preventDefault(); if (confirm('Reset all progress on this device?')) { localStorage.removeItem(KEY); S = load(); save(); location.hash = '#placement'; } };
@@ -880,17 +888,293 @@ ROUTES.clock = function () {
 };
 
 /* ---------------- Glossary ---------------- */
-ROUTES.glossary = function () {
+ROUTES.glossary = function (arg) {
   setTop('Glossary', '', `<span>${GLOSSARY.length} terms</span>`);
   view.innerHTML = `<input class="search" id="gq" type="search" placeholder="Search ${GLOSSARY.length} terms" autocomplete="off"><ul class="gl" id="gl"></ul>${FOOT}`;
   const list = GLOSSARY.slice().sort((a, b) => a[1].localeCompare(b[1]));
   const render = q => {
     q = q.trim().toLowerCase();
     const f = list.filter(g => !q || (g[1] + ' ' + g[2] + ' ' + g[3]).toLowerCase().includes(q));
-    $('#gl').innerHTML = f.length ? f.map(g => `<li id="g-${g[0]}"><b>${esc(g[1])}</b>${g[2] ? `<span class="ab">${esc(g[2])}</span>` : ''}<p>${esc(g[3])}</p></li>`).join('') : '<li class="sub">No matching terms.</li>';
+    $('#gl').innerHTML = f.length ? f.map(g => `<li id="g-${g[0]}"><div class="gh"><a href="#term/${g[0]}"><b>${esc(g[1])}</b>${g[2] ? `<span class="ab">${esc(g[2])}</span>` : ''}</a>${bmBtn('g:' + g[0], true)}</div><p>${esc(g[3])}</p></li>`).join('') : '<li class="sub">No matching terms.</li>';
   };
-  $('#gq').oninput = e => render(e.target.value); render('');
+  $('#gq').oninput = e => render(e.target.value);
+  if (arg) $('#gq').value = arg; render(arg || '');
 };
+
+/* ---------------- Bookmarks ----------------
+   S.bm keys: 'l:<lessonId>', 'g:<termKey>', 'd:<drillId>' → timestamp */
+const BM_ICON = '<svg viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></svg>';
+function bmBtn(key, iconOnly) {
+  const on = !!S.bm[key];
+  return `<button class="bm${on ? ' on' : ''}${iconOnly ? ' ic' : ''}" data-bm="${key}" aria-pressed="${on}" aria-label="${on ? 'Remove bookmark' : 'Bookmark'}">${BM_ICON}${iconOnly ? '' : `<span>${on ? 'Saved' : 'Save'}</span>`}</button>`;
+}
+function toggleBm(key) {
+  if (S.bm[key]) delete S.bm[key]; else S.bm[key] = Date.now();
+  save();
+  const on = !!S.bm[key];
+  document.querySelectorAll(`.bm[data-bm="${key}"]`).forEach(b => {
+    b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Remove bookmark' : 'Bookmark');
+    const t = b.querySelector('span'); if (t) t.textContent = on ? 'Saved' : 'Save';
+  });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.bm'); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); toggleBm(b.dataset.bm);
+  if (location.hash.startsWith('#bookmarks')) ROUTES.bookmarks();
+}, true);
+function bmItem(key) {
+  const [t, id] = [key.slice(0, 1), key.slice(2)];
+  if (t === 'l' && LMAP[id]) { const l = LMAP[id]; return {g: 'Lessons', t: l.t, s: `Level ${l.level} · ${LEVELS.find(L => L.n === l.level).name}`, href: '#lesson/' + id}; }
+  if (t === 'g' && G[id]) return {g: 'Glossary', t: G[id][1], s: G[id][3].slice(0, 70) + (G[id][3].length > 70 ? '…' : ''), href: '#term/' + id};
+  if (t === 'd' && DMAP[id]) { const d = DMAP[id]; return {g: 'Drills', t: d.t, s: `${DK[d.k][0]} · ${DIFF[d.lv]}`, href: '#drill/' + id}; }
+  return null;
+}
+ROUTES.bookmarks = function () {
+  setTop('Bookmarks', back('#tools', 'Tools'), `<span>${Object.keys(S.bm).length}</span>`);
+  const items = Object.entries(S.bm).sort((a, b) => b[1] - a[1]).map(([k]) => [k, bmItem(k)]).filter(x => x[1]);
+  let h = '<h1>Bookmarks</h1>';
+  if (!items.length) h += '<p class="sub">Nothing saved yet. Tap the bookmark icon on any lesson, glossary term or drill to keep it here.</p><a class="btn ghost block" href="#search" style="margin-top:10px">Search everything →</a>';
+  for (const grp of ['Lessons', 'Glossary', 'Drills']) {
+    const g = items.filter(x => x[1].g === grp); if (!g.length) continue;
+    h += `<div class="label">${grp} · ${g.length}</div><ul class="menu bml">${g.map(([k, it]) => `<li><a href="${it.href}"><div><b>${esc(it.t)}</b><span>${esc(it.s)}</span></div></a>${bmBtn(k, true)}</li>`).join('')}</ul>`;
+  }
+  view.innerHTML = h + FOOT;
+};
+
+/* ---------------- Glossary term page ---------------- */
+ROUTES.term = function (key) {
+  const g = G[key]; if (!g) { location.replace('#glossary'); return; }
+  setTop('Glossary', back('#glossary', 'Glossary'));
+  const uses = LESSONS.filter(l => [l.intro, l.body, ...l.take, ...l.miss].join(' ').includes('[[' + key));
+  view.innerHTML = `<div class="crumb row"><span>Glossary term</span>${bmBtn('g:' + key)}</div><h1>${esc(g[1])}${g[2] ? ` <span class="sub">${esc(g[2])}</span>` : ''}</h1>
+    <p class="lead">${esc(g[3])}</p>
+    ${uses.length ? `<div class="label">Taught in · ${uses.length}</div><ul class="menu">${uses.slice(0, 12).map(l => `<li><a href="#lesson/${l.id}"><div><b>${esc(l.t)}</b><span>Level ${l.level}</span></div><em>›</em></a></li>`).join('')}</ul>` : ''}
+    ${DR.some(d => DK[d.k][1] === key) ? `<a class="btn ghost block" style="margin-top:12px" href="#drills" onclick="S.drf.k='${DR.find(d => DK[d.k][1] === key).k}';save()">Practise in chart drills →</a>` : ''}${FOOT}`;
+};
+
+/* ---------------- Chart drills (data from drills.js) ---------------- */
+const DR = CS.drillList || [];
+const DMAP = Object.fromEntries(DR.map(d => [d.id, d]));
+const DK = {liq: ['BSL / SSL', 'bsl'], eq: ['Equal highs/lows', 'eqhl'], fvg: ['Fair value gap', 'fvg'], ob: ['Order block', 'ob'], brk: ['Breaker', 'breaker'],
+  ms: ['Structure', 'mss'], disp: ['Displacement', 'displacement'], pd: ['Premium/discount', 'ote'], sweep: ['Sweep & entry', 'sweep'], dol: ['Draw on liquidity', 'dol'],
+  kz: ['Killzones', 'killzone'], conf: ['Confirmation', 'checklist']};
+const DIFF = {1: 'Beginner', 2: 'Intermediate', 3: 'Advanced'};
+const drSolved = () => DR.filter(d => (S.dr[d.id] || {}).best === 100).length;
+const drList = () => DR.filter(d => (S.drf.k === 'all' || d.k === S.drf.k) && (!S.drf.lv || d.lv === S.drf.lv));
+ROUTES.drills = function () {
+  setTop('Drills', '', `<span>${drSolved()}/${DR.length}</span>`);
+  if (S.drf.k !== 'all' && !DK[S.drf.k]) S.drf.k = 'all';
+  const list = drList(), tries = DR.reduce((a, d) => a + ((S.dr[d.id] || {}).n || 0), 0), rights = DR.reduce((a, d) => a + ((S.dr[d.id] || {}).r || 0), 0);
+  const first = list.find(d => (S.dr[d.id] || {}).best !== 100) || list[0];
+  view.innerHTML = `<h1>Chart drills</h1><p class="sub">Hand-built charts. Tap the candle, level or zone, or pick an answer.</p>
+    <div class="stats"><div><b>${drSolved()}<small style="font-size:11px;color:#8a8a8a;font-weight:400">/${DR.length}</small></b><span>Solved</span></div><div><b>${tries ? Math.round(rights / tries * 100) + '%' : '–'}</b><span>Accuracy</span></div><div><b>${tries}</b><span>Attempts</span></div></div>
+    <div class="label">Concept</div><div class="chips" id="dkf"><button data-k="all" class="${S.drf.k === 'all' ? 'on' : ''}">All</button>${Object.entries(DK).map(([k, v]) => `<button data-k="${k}" class="${S.drf.k === k ? 'on' : ''}">${v[0]}</button>`).join('')}</div>
+    <div class="label">Difficulty</div><div class="seg" id="dlf">${[0, 1, 2, 3].map(l => `<button data-l="${l}" class="${S.drf.lv === l ? 'on' : ''}">${l ? DIFF[l] : 'All'}</button>`).join('')}</div>
+    ${first ? `<a class="btn block" style="margin-top:12px" id="dstart" href="#drill/${first.id}">Start · ${list.length} drill${list.length === 1 ? '' : 's'}</a>` : ''}
+    <ul class="menu drl" style="margin-top:10px">${list.length ? list.map(d => { const st = S.dr[d.id] || {}; return `<li data-id="${d.id}"><a href="#drill/${d.id}"><span class="dm ${st.best === 100 ? 'ok' : st.n ? 'x' : ''}">${st.best === 100 ? '✓' : st.n ? '•' : ''}</span><div><b>${esc(d.t)}</b><span>${DK[d.k][0]} · ${DIFF[d.lv]} · ${{candle: 'Tap a candle', level: 'Tap a level', zone: 'Tap a zone', choice: 'Choose'}[d.type]}</span></div></a>${bmBtn('d:' + d.id, true)}</li>`; }).join('') : '<li class="sub" style="padding:10px 0">No drills match this filter.</li>'}</ul>${FOOT}`;
+  view.querySelectorAll('#dkf button').forEach(b => b.onclick = () => { S.drf.k = b.dataset.k; save(); ROUTES.drills(); });
+  view.querySelectorAll('#dlf button').forEach(b => b.onclick = () => { S.drf.lv = +b.dataset.l; save(); ROUTES.drills(); });
+};
+let DS = null;
+ROUTES.drill = function (id) {
+  const d = DMAP[id]; if (!d) { location.replace('#drills'); return; }
+  const list = drList().some(x => x.id === id) ? drList() : DR, pos = list.indexOf(d), nxt = list[(pos + 1) % list.length];
+  DS = {d, answered: false, tap: null, ok: null, pick: null};
+  setTop(DK[d.k][0], back('#drills', 'Drills'), `<span>${pos + 1}/${list.length}</span>`);
+  const st = S.dr[d.id] || {};
+  view.innerHTML = `<div class="crumb row"><span>${DK[d.k][0]} · ${DIFF[d.lv]}${st.best === 100 ? ' · solved' : st.n ? ` · ${st.r || 0}/${st.n} right` : ''}</span>${bmBtn('d:' + d.id)}</div>
+    <h1>${esc(d.t)}</h1><p class="sub" id="dq" style="color:#333;font-size:13px">${d.q}</p>
+    ${d.card ? `<div class="card">${d.card.map(x => `<div>${x}</div>`).join('')}</div>` : ''}
+    <div class="chart spot" id="dc"></div>
+    ${d.type === 'choice' ? `<div id="dopts" style="margin-top:8px">${d.ans.opts.map((o, i) => `<button class="opt" data-i="${i}">${String.fromCharCode(65 + i)}. ${o}</button>`).join('')}</div>` : `<p class="cap" style="margin-top:4px">${{candle: 'Tap the candle on the chart.', level: 'Tap the price level on the chart.', zone: 'Tap inside the zone on the chart.'}[d.type]}</p>`}
+    <div id="dres"></div>
+    <div class="row" style="margin-top:6px"><button class="btn ghost" id="dshow">Show answer</button><button class="btn ghost" id="dretry" style="display:none">Try again</button><a class="btn" id="dnext" style="margin-left:auto" href="#drill/${nxt.id}">Next →</a></div>${FOOT}`;
+  drawDrill();
+  $('#dshow').onclick = () => { if (!DS.answered) drAnswer(null); };
+  $('#dretry').onclick = () => ROUTES.drill(id);
+  if (d.type === 'choice') view.querySelectorAll('#dopts .opt').forEach(b => b.onclick = () => { if (!DS.answered) drAnswer({pick: +b.dataset.i}); });
+};
+function drOpts(d, revealed, tap) {
+  const o = {h: 230, pt: 18, pb: d.times ? 26 : 16, pr: 8, extra: d.extra, zones: [], lines: [], labels: [], marks: []};
+  const add = sp => sp && ['zones', 'lines', 'labels'].forEach(k => (sp[k] || []).forEach(x => o[k].push(Object.assign({}, x))));
+  add(d.pre); if (revealed) add(d.show);
+  if (d.times) o.marks.push((x, y, sp) => Object.entries(d.times).map(([i, t]) => `<line x1="${x(+i)}" x2="${x(+i)}" y1="${o.h - 20}" y2="${o.h - 16}" stroke="#999"/><text x="${x(+i)}" y="${o.h - 6}" text-anchor="${+i === 0 ? 'start' : 'middle'}" font-size="8.5" fill="#777">${t}</text>`).join(''));
+  if (tap) {
+    const col = tap.ok ? '#000' : '#c0392b';
+    o.marks.push(() => (d.type === 'level' || d.type === 'zone' ? `<line x1="0" x2="360" y1="${tap.y}" y2="${tap.y}" stroke="${col}" stroke-width=".8" stroke-dasharray="2 2"/>` : '') +
+      `<circle cx="${tap.x}" cy="${tap.y}" r="7" fill="none" stroke="${col}" stroke-width="1.6"/><circle cx="${tap.x}" cy="${tap.y}" r="1.6" fill="${col}"/>`);
+  }
+  if (revealed && d.type === 'candle') d.ans.i.forEach(i => o.marks.push((x, y, sp) => { const k = d.c[i]; return `<rect x="${x(i) - sp * .55}" y="${y(k[1]) - 4}" width="${sp * 1.1}" height="${y(k[2]) - y(k[1]) + 8}" fill="none" stroke="#000" stroke-width="1.2" rx="2"/>`; }));
+  return o;
+}
+function drawDrill() {
+  const d = DS.d, el = $('#dc');
+  DS.ch = chart(d.c.map(k => K(k[0], k[1], k[2], k[3])), drOpts(d, DS.answered, DS.tap));
+  el.innerHTML = DS.ch.svg;
+  if (d.type === 'choice') return;
+  const svg = el.querySelector('svg');
+  svg.addEventListener('click', ev => {
+    if (DS.answered) return;
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+    drAnswer({x: q.x, y: q.y});
+  });
+}
+// Hit test in SVG units. Touch tolerance: at least 14px around levels/zones; candles use the nearest column.
+function drHit(d, ch, x, y) {
+  const a = d.ans, slack = 14;
+  if (d.type === 'candle') { const i = Math.max(0, Math.min(d.c.length - 1, Math.round((x - ch.x(0)) / ch.sp))); return a.i.includes(i); }
+  if (d.type === 'level') { const tol = Math.max(slack, Math.abs(ch.y(a.p + (a.tol || 0)) - ch.y(a.p))); return Math.abs(y - ch.y(a.p)) <= tol; }
+  if (d.type === 'zone') {
+    if (a.i0 != null && x < ch.x(a.i0) - ch.sp * .8) return false;
+    if (a.i1 != null && x > ch.x(a.i1) + ch.sp * .8) return false;
+    return y >= ch.y(a.top) - slack * .7 && y <= ch.y(a.bot) + slack * .7;
+  }
+  return false;
+}
+function drAnswer(res) {
+  const d = DS.d; DS.answered = true; $('#dshow').disabled = true;
+  let ok = false;
+  if (res && d.type === 'choice') ok = res.pick === d.ans.a;
+  else if (res) { ok = drHit(d, DS.ch, res.x, res.y); DS.tap = {x: res.x, y: res.y, ok}; }
+  if (res) {
+    const st = S.dr[d.id] = S.dr[d.id] || {best: 0, n: 0, r: 0};
+    st.n++; if (ok) st.r++; st.best = Math.max(st.best, ok ? 100 : 0); st.last = ok ? 1 : 0; save();
+  }
+  if (d.type === 'choice') view.querySelectorAll('#dopts .opt').forEach(b => { b.disabled = true; const j = +b.dataset.i; if (j === d.ans.a) b.classList.add('right'); else if (res && j === res.pick) b.classList.add('wrong'); });
+  drawDrill();
+  $('#dres').innerHTML = (res ? (ok ? '<div class="result" id="dverdict" data-ok="1"><b>Correct.</b> +100</div>' : '<div class="result bad" id="dverdict" data-ok="0"><b>Not quite.</b> The answer is marked on the chart.</div>')
+    : '<div class="result" id="dverdict" data-ok="-1">Here is the answer.</div>') + `<div class="explain">${inline(d.ex)}${G[DK[d.k][1]] ? ` <span class="sub">Term:</span> <span class="term" data-t="${DK[d.k][1]}">${G[DK[d.k][1]][1]}</span>` : ''}</div>`;
+  if (!ok) $('#dretry').style.display = '';
+}
+// Test hooks: client coordinates of a correct / clearly wrong tap for the current drill.
+window.__drill = (wrong) => {
+  if (!DS || !DS.ch) return null;
+  const d = DS.d, ch = DS.ch, a = d.ans; let x, y;
+  if (d.type === 'candle') { let i = a.i[0]; if (wrong) i = [...Array(d.c.length).keys()].find(j => !a.i.includes(j) && Math.abs(j - a.i[0]) > 2); const k = d.c[i]; x = ch.x(i); y = ch.y((k[1] + k[2]) / 2); }
+  else if (d.type === 'level') { x = ch.W * .7; y = ch.y(a.p); if (wrong) y = ch.y(a.p) > ch.H / 2 ? 20 : ch.H - 20; }
+  else if (d.type === 'zone') { x = a.i0 != null ? Math.min(ch.W - 10, ch.x(a.i0) + ch.sp * 1.5) : ch.W * .75; y = ch.y((a.top + a.bot) / 2); if (wrong) y = ch.y((a.top + a.bot) / 2) > ch.H / 2 ? 20 : ch.H - 20; }
+  else return {choice: wrong ? (a.a + 1) % a.opts.length : a.a};
+  const svg = $('#dc svg'), m = svg.getScreenCTM();
+  return {x: m.a * x + m.e, y: m.d * y + m.f};
+};
+
+/* ---------------- Search ---------------- */
+let IDX = null;
+const plain = s => String(s || '').replace(/\[\[([a-z0-9_]+)(?:\|([^\]]+))?\]\]/g, (m, k, t) => t || (G[k] ? G[k][1] : k)).replace(/\{\{[^}]*\}\}/g, ' ').replace(/<[^>]+>/g, ' ')
+  .replace(/&amp;/g, '&').replace(/&[a-z]+;/g, ' ').replace(/(^|\s)#{1,6} /g, '$1').replace(/[*`>]/g, '').replace(/\s+/g, ' ').trim();
+function buildIdx() {
+  IDX = [
+    ...LESSONS.map(l => ({g: 'Lessons', key: 'l:' + l.id, t: l.t, s: `Level ${l.level} · ${l.id.replace('-', '.')}`, body: plain([l.intro, l.body, ...l.take, ...l.miss].join(' ')), href: '#lesson/' + l.id, lock: !unlocked(LEVELS.find(L => L.n === l.level))})),
+    ...GLOSSARY.map(g => ({g: 'Glossary', key: 'g:' + g[0], t: g[1] + (g[2] ? ' (' + g[2] + ')' : ''), s: 'Glossary', body: g[3], href: '#term/' + g[0]})),
+    ...DR.map(d => ({g: 'Drills', key: 'd:' + d.id, t: d.t, s: `${DK[d.k][0]} · ${DIFF[d.lv]}`, body: plain(d.q + ' ' + d.ex + ' ' + DK[d.k][0]), href: '#drill/' + d.id})),
+  ];
+  IDX.forEach(e => { e.lt = e.t.toLowerCase(); e.lb = e.body.toLowerCase(); });
+}
+function searchAll(q) {
+  if (!IDX) buildIdx();
+  const toks = q.toLowerCase().split(/[\s,]+/).filter(Boolean); if (!toks.length) return [];
+  const ql = q.trim().toLowerCase(), out = [];
+  for (const e of IDX) {
+    let sc = 0, ok = true;
+    for (const t of toks) { const inT = e.lt.includes(t), inB = !inT && e.lb.includes(t); if (!inT && !inB) { ok = false; break; } sc += inT ? 10 : 1; }
+    if (!ok) continue;
+    if (e.lt === ql || e.lt.startsWith(ql + ' ') || e.lt.includes('(' + ql + ')')) sc += 40; else if (e.lt.startsWith(ql)) sc += 20;
+    out.push({e, sc});
+  }
+  return out.sort((a, b) => b.sc - a.sc || a.e.t.length - b.e.t.length).map(x => x.e);
+}
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function hl(text, toks) {
+  if (!toks.length) return esc(text);
+  const re = new RegExp('(' + toks.map(reEsc).sort((a, b) => b.length - a.length).join('|') + ')', 'gi');
+  return text.split(re).map((p, i) => i % 2 ? `<mark>${esc(p)}</mark>` : esc(p)).join('');
+}
+function snippet(body, toks) {
+  const lb = body.toLowerCase(); let at = -1;
+  for (const t of toks) { const i = lb.indexOf(t); if (i >= 0 && (at < 0 || i < at)) at = i; }
+  if (at < 0) return body.slice(0, 110) + (body.length > 110 ? '…' : '');
+  let s0 = Math.max(0, at - 40), s1 = Math.min(body.length, at + 90);
+  if (s0) { const sp = body.lastIndexOf(' ', s0); s0 = sp < 0 || at - sp > 60 ? s0 : sp + 1; }
+  if (s1 < body.length) { const sp = body.indexOf(' ', s1); if (sp > 0 && sp - s1 < 20) s1 = sp; }
+  return (s0 ? '…' : '') + body.slice(s0, s1) + (s1 < body.length ? '…' : '');
+}
+ROUTES.search = function (q0) {
+  setTop('Search', back('#home', 'Home'), '', true);
+  view.innerHTML = `<input class="search" id="sq" type="search" placeholder="Search lessons, terms and drills" autocomplete="off" enterkeyhint="search">
+    <div id="sres"></div>${FOOT}`;
+  const inp = $('#sq'), more = {};
+  const render = () => {
+    const q = inp.value, toks = q.toLowerCase().split(/[\s,]+/).filter(Boolean);
+    try { history.replaceState(null, '', '#search' + (q ? '/' + encodeURIComponent(q) : '')); } catch (e) {}
+    if (!toks.length) {
+      const n = Object.keys(S.bm).length;
+      $('#sres').innerHTML = `<p class="sub" style="margin-top:10px">Search ${LESSONS.length} lessons, ${GLOSSARY.length} glossary terms and ${DR.length} chart drills.${matchMedia('(hover:hover)').matches ? ' Press <code>/</code> anywhere to search.' : ''}</p>
+        <div class="label">Try</div><div class="chips">${['FVG', 'order block', 'BSL', 'killzone', 'OTE', 'breaker', 'risk', 'Silver Bullet'].map(t => `<button data-q="${t}">${t}</button>`).join('')}</div>
+        <ul class="menu" style="margin-top:14px"><li><a href="#bookmarks"><div><b>Bookmarks</b><span>Your saved lessons, terms and drills</span></div><em>${n}</em></a></li></ul>`;
+      $('#sres').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { inp.value = b.dataset.q; render(); });
+      return;
+    }
+    const res = searchAll(q);
+    if (!res.length) { $('#sres').innerHTML = `<p class="sub" style="margin-top:12px" id="snone">No results for “${esc(q)}”.</p>`; return; }
+    let h = `<p class="sub" style="margin-top:8px" id="scount">${res.length} result${res.length === 1 ? '' : 's'}</p>`;
+    for (const grp of ['Lessons', 'Glossary', 'Drills']) {
+      const g = res.filter(e => e.g === grp); if (!g.length) continue;
+      const lim = more[grp] ? g.length : 6;
+      h += `<div class="label">${grp} · ${g.length}</div><ul class="sr" data-g="${grp}">${g.slice(0, lim).map(e => `<li><a href="${e.href}"><b>${hl(e.t, toks)}</b><span class="tag">${esc(e.s)}${e.lock ? ' · 🔒' : ''}</span><p>${hl(snippet(e.body, toks), toks)}</p></a>${bmBtn(e.key, true)}</li>`).join('')}</ul>`;
+      if (g.length > lim) h += `<button class="btn ghost block smore" data-g="${grp}">Show all ${g.length} ${grp.toLowerCase()}</button>`;
+    }
+    $('#sres').innerHTML = h;
+    $('#sres').querySelectorAll('.smore').forEach(b => b.onclick = () => { more[b.dataset.g] = 1; render(); });
+  };
+  inp.oninput = render;
+  inp.value = q0 || ''; render();
+  if (!q0 || matchMedia('(hover:hover)').matches) inp.focus();
+};
+document.addEventListener('keydown', e => {
+  if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+  if (document.querySelector('.modal')) return;
+  e.preventDefault();
+  if (location.hash.startsWith('#search')) $('#sq').focus(); else location.hash = '#search';
+});
+
+/* ---------------- About & disclaimer ---------------- */
+const ACK = 'chartschool.ack';
+const REPO = 'https://github.com/kavdope/chart-school';
+const DISCLAIMER = [
+  ['Educational only', 'Chart School is for education only. It is not financial, investment, tax or legal advice, and nothing in it is a recommendation to buy or sell anything.'],
+  ['Trading is risky', 'Trading stocks, futures, forex, options and crypto involves substantial risk of loss and is not suitable for everyone. You can lose more than you deposit with leveraged products. Only trade money you can afford to lose.'],
+  ['No guarantees', 'Past performance, including any example, backtest or chart shown here, is not indicative of future results. Charts in lessons and drills are illustrations, not real trades.'],
+  ['Do your own research', 'Do your own research and consider speaking with a licensed financial professional before making any trading decision.'],
+  ['Accuracy', 'Content is provided as is, with no guarantee that it is accurate, complete or up to date. Session times and market rules can change.'],
+  ['Not affiliated with ICT', 'Chart School is independent. It is not affiliated with, endorsed by or connected to Michael J. Huddleston or The Inner Circle Trader (ICT). ICT concepts and terms are referenced for educational purposes.'],
+  ['Your data stays on your device', 'There are no accounts, ads or tracking. Your progress, bookmarks and notes are stored only in this browser on this device (localStorage). Clearing site data or using Reset removes them.'],
+];
+ROUTES.about = function () {
+  setTop('About', S.placed ? back('#tools', 'Tools') : back('#placement', 'Back'));
+  const n = LESSONS.length, q = LESSONS.reduce((a, l) => a + l.quiz.length, 0);
+  view.innerHTML = `<div class="lesson"><h1>About Chart School</h1>
+    <p class="lead">A free, open-source app that teaches trading from your first candle to professional-level ICT concepts.</p>
+    <p>It works offline and can be added to your home screen like an app.</p>
+    <div class="stats"><div><b>${LEVELS.length}</b><span>Levels</span></div><div><b>${n}</b><span>Lessons</span></div><div><b>${DR.length}</b><span>Drills</span></div></div>
+    <h2>Levels</h2><table class="t"><tbody>${LEVELS.map(L => `<tr><td style="width:26px">${L.n}</td><td><b>${esc(L.name)}</b><br><span class="sub">${esc(L.d)}</span></td></tr>`).join('')}</tbody></table>
+    <p class="sub">${q} quiz questions, ${GLOSSARY.length} glossary terms, ${DR.length} chart drills, flashcards, a killzone clock, a position-size calculator and a trading plan builder.</p>
+    <h2>How your progress is stored</h2><p>Everything (quiz scores, drill results, bookmarks, flashcards, your plan) is saved in this browser on this device only. Nothing is sent to a server. Progress doesn't sync between devices, and clearing your browser data erases it.</p>
+    <h2>Open source</h2><p>The code is public: <a href="${REPO}" target="_blank" rel="noopener" id="repolink">github.com/kavdope/chart-school</a></p>
+    <h2 id="disclaimer">Disclaimer</h2>${DISCLAIMER.map(([t, d]) => `<p><b>${t}.</b> ${d}</p>`).join('')}
+    <p class="sub">${localStorage.getItem(ACK) ? 'You acknowledged this disclaimer on ' + new Date(+localStorage.getItem(ACK) || Date.now()).toLocaleDateString() + '.' : ''}</p></div>${FOOT}`;
+};
+function maybeAck() {
+  let seen = null; try { seen = localStorage.getItem(ACK); } catch (e) { return; }
+  if (seen || document.querySelector('.modal')) return;
+  const m = document.createElement('div'); m.className = 'modal'; m.id = 'ack';
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ackt"><h1 id="ackt">Before you start</h1>
+    <ul>${DISCLAIMER.map(([t, d]) => `<li><b>${t}.</b> ${d}</li>`).join('')}</ul>
+    <button class="btn block" id="ackok">I understand</button></div>`;
+  document.body.appendChild(m); document.body.classList.add('noscroll');
+  $('#ackok').onclick = () => { try { localStorage.setItem(ACK, String(Date.now())); } catch (e) {} m.remove(); document.body.classList.remove('noscroll'); };
+}
 
 /* ---------------- Boot ---------------- */
 if (/^https?:/.test(location.protocol)) {
@@ -898,3 +1182,4 @@ if (/^https?:/.test(location.protocol)) {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 route();
+maybeAck();

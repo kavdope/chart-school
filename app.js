@@ -50,7 +50,7 @@ const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return 
 const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); return ymd(new Date(y, m - 1, d + n)); };
 function load() {
   let s; try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  s = Object.assign({q: {}, days: [], spot: {}, take: {right: 0, total: 0}, fc: {}, fcNew: {}, start: 0, placed: false, unlockAll: false, plan: {}, calc: {}, dr: {}, drf: {k: 'all', lv: 0}, bm: {}}, s || {});
+  s = Object.assign({q: {}, days: [], spot: {}, take: {right: 0, total: 0}, fc: {}, fcNew: {}, start: 0, placed: false, unlockAll: false, plan: {}, calc: {}, dr: {}, drf: {k: 'all', lv: 0}, bm: {}, tv: {}, twAnn: true, mf: 'all'}, s || {});
   if (!s.days.includes(today())) s.days.push(today());
   s.days = s.days.slice(-400);
   return s;
@@ -128,7 +128,7 @@ function chart(c, o = {}) {
   const W = o.w || 360, H = o.h || 200, pl = o.pl || 6, pr = o.pr || 6, pt = o.pt || 16, pb = o.pb || 16;
   let hi = Math.max(...c.map(k => k.h), ...(o.extra || [])), lo = Math.min(...c.map(k => k.l), ...(o.extra || []));
   const padv = (hi - lo) * 0.04; hi += padv; lo -= padv;
-  const sp = (W - pl - pr) / c.length, cw = Math.max(2, sp * (o.bw || 0.62));
+  const sp = (W - pl - pr) / Math.max(c.length, o.slots || 0), cw = Math.max(2, sp * (o.bw || 0.62));
   const x = i => pl + sp * i + sp / 2, y = p => pt + (hi - p) / (hi - lo) * (H - pt - pb);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica Neue,Helvetica,Arial,sans-serif">`;
   (o.zones || []).forEach(z => {
@@ -245,7 +245,7 @@ function route() {
   const raw = (location.hash || '#home').slice(1), cut = raw.indexOf('/');
   const h = cut < 0 ? raw : raw.slice(0, cut), arg = cut < 0 ? '' : raw.slice(cut + 1);
   if (!S.placed && h !== 'placement' && h !== 'about') { location.replace('#placement'); return; }
-  const tabOf = {lesson: 'home', quiz: 'home', level: 'home', placement: 'home', spot: 'practice', take: 'practice', flash: 'practice', calc: 'tools', plan: 'tools', settings: 'tools', drill: 'drills', term: 'glossary', about: 'tools', bookmarks: 'tools', search: ''};
+  const tabOf = {lesson: 'home', quiz: 'home', level: 'home', placement: 'home', spot: 'practice', take: 'practice', flash: 'practice', calc: 'tools', plan: 'tools', settings: 'tools', drill: 'drills', term: 'glossary', about: 'tools', bookmarks: 'tools', search: '', clock: 'tools', trade: 'trades', mistakes: 'trades', mistake: 'trades'};
   const tab = tabOf[h] || h;
   document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === tab));
   let a2 = arg; try { a2 = decodeURIComponent(arg); } catch (e) {}
@@ -751,8 +751,8 @@ ROUTES.tools = function () {
     <li><a href="#calc"><div><b>Position size calculator</b><span>Futures, stocks, forex, crypto</span></div><em>›</em></a></li>
     <li><a href="#plan"><div><b>Trading plan builder</b><span>Fill-in template, copy or download</span></div><em>›</em></a></li>
     <li><a href="#clock"><div><b>Killzone clock</b><span>Sessions and Silver Bullet windows</span></div><em>›</em></a></li>
-    <li><a href="#search"><div><b>Search</b><span>Lessons, glossary and drills · press / on desktop</span></div><em>›</em></a></li>
-    <li><a href="#bookmarks"><div><b>Bookmarks</b><span>Saved lessons, terms and drills</span></div><em>${Object.keys(S.bm).length}</em></a></li>
+    <li><a href="#search"><div><b>Search</b><span>Lessons, glossary, drills and trades · press / on desktop</span></div><em>›</em></a></li>
+    <li><a href="#bookmarks"><div><b>Bookmarks</b><span>Saved lessons, terms, drills and trades</span></div><em>${Object.keys(S.bm).length}</em></a></li>
     <li><a href="#settings"><div><b>Settings</b><span>Unlock all, placement, reset</span></div><em>›</em></a></li>
     <li><a href="#about"><div><b>About &amp; disclaimer</b><span>Not financial advice · how your data is stored</span></div><em>›</em></a></li></ul>${FOOT}`;
 };
@@ -762,7 +762,7 @@ ROUTES.settings = function () {
     <ul class="menu" style="margin-top:10px"><li><label class="tog"><div><b>Unlock all levels</b><span>For experienced traders who want to jump around</span></div><input type="checkbox" id="unlockall" ${S.unlockAll ? 'checked' : ''}></label></li>
     <li><a href="#placement"><div><b>Starting level</b><span>Currently ${START_NAMES[S.start] || 'Level ' + S.start} · retake placement</span></div><em>›</em></a></li>
     <li><a href="#about"><div><b>About &amp; disclaimer</b><span>What Chart School is, risks, your data</span></div><em>›</em></a></li>
-    <li><a href="#" id="reset"><div><b>Reset all progress</b><span>Quizzes, drills, flashcards, bookmarks, streak</span></div><em>›</em></a></li></ul>
+    <li><a href="#" id="reset"><div><b>Reset all progress</b><span>Quizzes, drills, trades viewed, flashcards, bookmarks, streak</span></div><em>›</em></a></li></ul>
     <p class="sub" style="margin-top:12px">Progress is stored only in this browser on this device.</p>${FOOT}`;
   $('#unlockall').onchange = e => { S.unlockAll = e.target.checked; save(); };
   $('#reset').onclick = e => { e.preventDefault(); if (confirm('Reset all progress on this device?')) { localStorage.removeItem(KEY); S = load(); save(); location.hash = '#placement'; } };
@@ -902,7 +902,7 @@ ROUTES.glossary = function (arg) {
 };
 
 /* ---------------- Bookmarks ----------------
-   S.bm keys: 'l:<lessonId>', 'g:<termKey>', 'd:<drillId>' → timestamp */
+   S.bm keys: 'l:<lessonId>', 'g:<termKey>', 'd:<drillId>', 'w:<walkthroughId>', 'm:<mistakeId>' → timestamp */
 const BM_ICON = '<svg viewBox="0 0 24 24"><path d="M7 4h10v16l-5-4-5 4z"/></svg>';
 function bmBtn(key, iconOnly) {
   const on = !!S.bm[key];
@@ -927,14 +927,16 @@ function bmItem(key) {
   if (t === 'l' && LMAP[id]) { const l = LMAP[id]; return {g: 'Lessons', t: l.t, s: `Level ${l.level} · ${LEVELS.find(L => L.n === l.level).name}`, href: '#lesson/' + id}; }
   if (t === 'g' && G[id]) return {g: 'Glossary', t: G[id][1], s: G[id][3].slice(0, 70) + (G[id][3].length > 70 ? '…' : ''), href: '#term/' + id};
   if (t === 'd' && DMAP[id]) { const d = DMAP[id]; return {g: 'Drills', t: d.t, s: `${DK[d.k][0]} · ${DIFF[d.lv]}`, href: '#drill/' + id}; }
+  if (t === 'w' && WMAP[id]) { const w = WMAP[id]; return {g: 'Walkthroughs', t: wName(w), s: wVar(w), href: '#trade/' + id + '/1'}; }
+  if (t === 'm' && MMAP[id]) { const x = MMAP[id]; return {g: 'Mistakes', t: x.t, s: TW.cats[x.cat], href: '#mistake/' + id}; }
   return null;
 }
 ROUTES.bookmarks = function () {
   setTop('Bookmarks', back('#tools', 'Tools'), `<span>${Object.keys(S.bm).length}</span>`);
   const items = Object.entries(S.bm).sort((a, b) => b[1] - a[1]).map(([k]) => [k, bmItem(k)]).filter(x => x[1]);
   let h = '<h1>Bookmarks</h1>';
-  if (!items.length) h += '<p class="sub">Nothing saved yet. Tap the bookmark icon on any lesson, glossary term or drill to keep it here.</p><a class="btn ghost block" href="#search" style="margin-top:10px">Search everything →</a>';
-  for (const grp of ['Lessons', 'Glossary', 'Drills']) {
+  if (!items.length) h += '<p class="sub">Nothing saved yet. Tap the bookmark icon on any lesson, glossary term, drill, walkthrough or mistake to keep it here.</p><a class="btn ghost block" href="#search" style="margin-top:10px">Search everything →</a>';
+  for (const grp of SGROUPS) {
     const g = items.filter(x => x[1].g === grp); if (!g.length) continue;
     h += `<div class="label">${grp} · ${g.length}</div><ul class="menu bml">${g.map(([k, it]) => `<li><a href="${it.href}"><div><b>${esc(it.t)}</b><span>${esc(it.s)}</span></div></a>${bmBtn(k, true)}</li>`).join('')}</ul>`;
   }
@@ -1060,6 +1062,7 @@ window.__drill = (wrong) => {
 };
 
 /* ---------------- Search ---------------- */
+const SGROUPS = ['Lessons', 'Walkthroughs', 'Mistakes', 'Glossary', 'Drills'];
 let IDX = null;
 const plain = s => String(s || '').replace(/\[\[([a-z0-9_]+)(?:\|([^\]]+))?\]\]/g, (m, k, t) => t || (G[k] ? G[k][1] : k)).replace(/\{\{[^}]*\}\}/g, ' ').replace(/<[^>]+>/g, ' ')
   .replace(/&amp;/g, '&').replace(/&[a-z]+;/g, ' ').replace(/(^|\s)#{1,6} /g, '$1').replace(/[*`>]/g, '').replace(/\s+/g, ' ').trim();
@@ -1068,6 +1071,8 @@ function buildIdx() {
     ...LESSONS.map(l => ({g: 'Lessons', key: 'l:' + l.id, t: l.t, s: `Level ${l.level} · ${l.id.replace('-', '.')}`, body: plain([l.intro, l.body, ...l.take, ...l.miss].join(' ')), href: '#lesson/' + l.id, lock: !unlocked(LEVELS.find(L => L.n === l.level))})),
     ...GLOSSARY.map(g => ({g: 'Glossary', key: 'g:' + g[0], t: g[1] + (g[2] ? ' (' + g[2] + ')' : ''), s: 'Glossary', body: g[3], href: '#term/' + g[0]})),
     ...DR.map(d => ({g: 'Drills', key: 'd:' + d.id, t: d.t, s: `${DK[d.k][0]} · ${DIFF[d.lv]}`, body: plain(d.q + ' ' + d.ex + ' ' + DK[d.k][0]), href: '#drill/' + d.id})),
+    ...WT.map(w => ({g: 'Walkthroughs', key: 'w:' + w.id, t: wName(w) + ' · ' + wVar(w), s: 'Walkthrough', body: plain(['Top-down walkthrough', w.m.sum, w.m.x2, w.m.x3, w.m.x4, w.m.zn, ...w.m.terms.map(k => G[k] ? G[k][1] : k)].map(x => tok(x || '', w.v.bear).replace(/\{[A-Z0-9]+\}/g, '')).join(' ')), href: '#trade/' + w.id + '/1'})),
+    ...MI.map(x => ({g: 'Mistakes', key: 'm:' + x.id, t: x.t, s: 'Mistake · ' + TW.cats[x.cat], body: plain([x.d, x.what, x.why, x.fix, 'mistake'].join(' ')), href: '#mistake/' + x.id})),
   ];
   IDX.forEach(e => { e.lt = e.t.toLowerCase(); e.lb = e.body.toLowerCase(); });
 }
@@ -1101,7 +1106,7 @@ function snippet(body, toks) {
 }
 ROUTES.search = function (q0) {
   setTop('Search', back('#home', 'Home'), '', true);
-  view.innerHTML = `<input class="search" id="sq" type="search" placeholder="Search lessons, terms and drills" autocomplete="off" enterkeyhint="search">
+  view.innerHTML = `<input class="search" id="sq" type="search" placeholder="Search lessons, terms, drills, trades" autocomplete="off" enterkeyhint="search">
     <div id="sres"></div>${FOOT}`;
   const inp = $('#sq'), more = {};
   const render = () => {
@@ -1109,16 +1114,16 @@ ROUTES.search = function (q0) {
     try { history.replaceState(null, '', '#search' + (q ? '/' + encodeURIComponent(q) : '')); } catch (e) {}
     if (!toks.length) {
       const n = Object.keys(S.bm).length;
-      $('#sres').innerHTML = `<p class="sub" style="margin-top:10px">Search ${LESSONS.length} lessons, ${GLOSSARY.length} glossary terms and ${DR.length} chart drills.${matchMedia('(hover:hover)').matches ? ' Press <code>/</code> anywhere to search.' : ''}</p>
-        <div class="label">Try</div><div class="chips">${['FVG', 'order block', 'BSL', 'killzone', 'OTE', 'breaker', 'risk', 'Silver Bullet'].map(t => `<button data-q="${t}">${t}</button>`).join('')}</div>
-        <ul class="menu" style="margin-top:14px"><li><a href="#bookmarks"><div><b>Bookmarks</b><span>Your saved lessons, terms and drills</span></div><em>${n}</em></a></li></ul>`;
+      $('#sres').innerHTML = `<p class="sub" style="margin-top:10px">Search ${LESSONS.length} lessons, ${GLOSSARY.length} glossary terms, ${DR.length} chart drills, ${WT.length} trade walkthroughs and ${MI.length} mistakes.${matchMedia('(hover:hover)').matches ? ' Press <code>/</code> anywhere to search.' : ''}</p>
+        <div class="label">Try</div><div class="chips">${['FVG', 'order block', 'Silver Bullet', 'OTE', 'breaker', 'revenge', 'stop', 'killzone'].map(t => `<button data-q="${t}">${t}</button>`).join('')}</div>
+        <ul class="menu" style="margin-top:14px"><li><a href="#bookmarks"><div><b>Bookmarks</b><span>Your saved lessons, terms, drills and trades</span></div><em>${n}</em></a></li></ul>`;
       $('#sres').querySelectorAll('[data-q]').forEach(b => b.onclick = () => { inp.value = b.dataset.q; render(); });
       return;
     }
     const res = searchAll(q);
     if (!res.length) { $('#sres').innerHTML = `<p class="sub" style="margin-top:12px" id="snone">No results for “${esc(q)}”.</p>`; return; }
     let h = `<p class="sub" style="margin-top:8px" id="scount">${res.length} result${res.length === 1 ? '' : 's'}</p>`;
-    for (const grp of ['Lessons', 'Glossary', 'Drills']) {
+    for (const grp of SGROUPS) {
       const g = res.filter(e => e.g === grp); if (!g.length) continue;
       const lim = more[grp] ? g.length : 6;
       h += `<div class="label">${grp} · ${g.length}</div><ul class="sr" data-g="${grp}">${g.slice(0, lim).map(e => `<li><a href="${e.href}"><b>${hl(e.t, toks)}</b><span class="tag">${esc(e.s)}${e.lock ? ' · 🔒' : ''}</span><p>${hl(snippet(e.body, toks), toks)}</p></a>${bmBtn(e.key, true)}</li>`).join('')}</ul>`;
@@ -1175,6 +1180,280 @@ function maybeAck() {
   document.body.appendChild(m); document.body.classList.add('noscroll');
   $('#ackok').onclick = () => { try { localStorage.setItem(ACK, String(Date.now())); } catch (e) {} m.remove(); document.body.classList.remove('noscroll'); };
 }
+
+/* ---------------- Trades: top-down walkthroughs + mistake library (data from trades.js / mistakes.js) ----------------
+   S.tv[walkthroughId] = furthest step seen (1-6); S.twAnn = annotations on/off; S.mf = mistake category filter. */
+const TW = CS.TW || {models: [], mistakes: [], cats: {}};
+const WT = TW.models.flatMap(m => m.variants.map(v => ({id: m.id + '-' + v.key, m, v})));
+const WMAP = Object.fromEntries(WT.map(w => [w.id, w]));
+const MI = TW.mistakes || [], MMAP = Object.fromEntries(MI.map(x => [x.id, x]));
+const tok = (s, bear) => String(s || '').replace(/\{\{([^|}]*)\|([^}]*)\}\}/g, (m, a, b) => bear ? b : a);
+const wName = w => tok(w.m.name, w.v.bear);
+const wVar = w => (w.m.vname && w.m.vname[w.v.key]) || (w.v.bear ? 'Bearish' : 'Bullish');
+const wViewed = id => (S.tv[id] || 0) >= 5;
+const f2 = v => (+v).toFixed(2);
+const hm = m => { m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m / 60), mm = m % 60; return `${h % 12 || 12}:${String(mm).padStart(2, '0')}${h < 12 ? 'am' : 'pm'}`; };
+const STEPS = ['4H · Bias & draw on liquidity', '15m · Liquidity & structure', '5m · Sweep & shift', 'Entry · Risk & reward', 'Outcome & checklist', 'What NOT to do'];
+const STEPS_SHORT = ['HTF', 'ITF', 'LTF', 'Entry', 'Result', 'Don\'t'];
+const GRN = '#1f8a4c', RED = '#c0392b';
+
+function wBuild(w) { const B = TW.build(w.m, w.v); return B && !B.err ? B : null; }
+// Text placeholders for one walkthrough.
+function wVals(w, B) {
+  const t = B.trade, lv = B.lv, bear = B.bear, z = B.en.zone3 || B.en.zone, M = B.ltf.length;
+  const tm = i => hm(B.t0 + 5 * i);
+  return {E: f2(t.E), SL: f2(t.SL), TP: f2(t.TP), TP1: f2(t.TP1), RR: t.rr.toFixed(1), RISK: f2(Math.abs(t.E - t.SL)), REW: f2(Math.abs(t.TP - t.E)),
+    POOL: f2(bear ? lv.ITFhigh : lv.ITFlow), TGT: f2(t.TP), DOL: f2(bear ? lv.HTFlow : lv.HTFhigh), LO: f2(lv.HTFlow), HI: f2(lv.HTFhigh),
+    SW: f2(B.P[B.ro.SW]), LH: f2(B.P[B.ro.LH]), Z: z ? f2(z.bot) + '–' + f2(z.top) : f2(t.E), EQ: f2(lv.EQ), HF: f2(lv.hfvg.bot) + '–' + f2(lv.hfvg.top),
+    OPEN: f2(B.ltf[0].o), WIN: w.v.wname || '', KZN: w.v.kzname || '', FILLT: tm(t.fill), EXITT: tm(t.exit), T0: tm(0), T1: tm(M)};
+}
+const fill = (s, V, bear) => tok(s, bear).replace(/\{([A-Z0-9]+)\}/g, (m, k) => V[k] != null ? V[k] : m);
+function wTexts(w, B) {
+  const m = w.m, V = wVals(w, B), b = B.bear, F = s => fill(s, V, b);
+  const s1 = F('On the 4H, price is in a {{bullish|bearish}} dealing range from {LO} to {HI}. The **draw on liquidity** is the {{old high (buy-side liquidity)|old low (sell-side liquidity)}} at **{DOL}**. Price has pulled back into **{{discount|premium}}**, {{below|above}} the 50% line at {EQ}, and into a **4H {{bullish|bearish}} FVG** ({HF}). Bias: **{{bullish|bearish}}**, so only look for {{longs|shorts}}.');
+  const s2 = F('Drop to the 15m. Mark the liquidity: {{sell|buy}}-side stops rest {{below|above}} the 15m {{low|high}} at **{POOL}**, and the 15m {{high|low}} at **{TGT}** is the first target. Price is trading inside the 4H FVG. Now wait for a run on {POOL} during a killzone.') + (m.x2 ? ' ' + F(m.x2) : '');
+  const s3 = F('On the 5m (' + (V.T0) + ' to ' + V.T1 + ' NY), price ran {POOL} to **{SW}** and then shifted structure: displacement closed {{above|below}} the swing at **{LH}**. ') + F(m.x3);
+  const s4 = F(m.x4) + F(' Entry **{E}**, stop **{SL}** beyond the sweep {{low|high}}, target **{TP}**. Risk {RISK}, reward {REW}: **R:R 1 : {RR}**. Optional partial at {TP1}, the nearest internal {{high|low}}.');
+  const s5 = F('Filled at {FILLT} NY. The target at {TP} was hit at {EXITT}: **+{RR}R**. The stop was never touched.');
+  const ck = [F('4H bias {{bullish|bearish}}, draw on liquidity at {DOL}'), F('Price in 4H {{discount|premium}} and inside the 4H FVG ({HF})'), F('15m {{sell|buy}}-side liquidity swept ({POOL} → {SW})'),
+    F('Market structure shift: displacement through {LH}'), F('Entry at the ' + m.zn + ' ({Z})'), F('Filled inside a killzone ({FILLT} NY)')];
+  if (m.win) ck.push(F('FVG formed inside the {WIN} Silver Bullet window'));
+  if (m.smt) ck.push(F('NQ did not confirm the sweep: SMT divergence'));
+  if (m.midnight) ck.push(F('{{Below|Above}} the midnight open ({OPEN})'));
+  if (m.po3) ck.push(F('Entry on the manipulation side of the 4H open ({OPEN})'));
+  ck.push(F('Stop beyond the sweep, R:R 1 : {RR}'));
+  return {s1, s2, s3, s4, s5, ck, V};
+}
+const DONT_TXT = {
+  early: ['Entering before the sweep', '{{Bought|Sold}} at {DE} as price approached the 15m {{low|high}}, before any sweep or shift, with the stop at {DSL}. That stop sat inside the liquidity. Price ran it on the way to {SW}, then made the real move without this trade.', 'before-displacement'],
+  tight: ['Stop inside the entry zone', 'The entry at {DE} was fine, but the stop at {DSL} was inside the {ZN} instead of beyond the sweep {{low|high}}. A normal retracement deeper into the zone took it out, and then price went to the target.', 'stop-inside-zone'],
+  chase: ['Chasing the displacement', '{{Bought|Sold}} {DE} near the end of the displacement with a tight stop at {DSL}. The retracement back into the {ZN} stopped it out before the move continued.', 'chasing'],
+  fade: ['{{Selling|Buying}} the sweep', '{{Shorted|Bought}} the break of the 15m {{low|high}} at {DE}. In 4H {{discount|premium}} with an untouched draw on liquidity {{above|below}}, that break was a sweep, not a breakdown. Price reversed through the stop at {DSL}.', 'fade-sweep'],
+};
+
+/* Trade box (TradingView style): reward and risk rectangles, entry/SL/TP lines and labels. */
+function boxMark(t, i0, i1, o = {}) {
+  return (x, y, sp) => {
+    const x0 = x(i0) - sp / 2, x1 = x(i1) + sp / 2, w = x1 - x0, slP = t.SL != null ? t.SL : t.showSL;
+    const yE = y(t.E), yT = y(t.TP), yS = y(slP), op = o.faint ? .5 : 1;
+    let s = `<g class="tbox" opacity="${op}" data-dir="${t.dir}">`;
+    s += `<rect class="rw" x="${x0}" y="${Math.min(yE, yT)}" width="${w}" height="${Math.abs(yT - yE)}" fill="rgba(31,138,76,.14)"/>`;
+    s += `<rect class="rk" x="${x0}" y="${Math.min(yE, yS)}" width="${w}" height="${Math.abs(yS - yE)}" fill="rgba(192,57,43,.13)"/>`;
+    s += `<line x1="${x0}" x2="${x1}" y1="${yT}" y2="${yT}" stroke="${GRN}" stroke-width=".9"/><line x1="${x0}" x2="${x1}" y1="${yS}" y2="${yS}" stroke="${RED}" stroke-width=".9" ${t.SL == null ? 'stroke-dasharray="3 2"' : ''}/>`;
+    s += `<line x1="${x0}" x2="${x1}" y1="${yE}" y2="${yE}" stroke="#000" stroke-width="1"/>`;
+    const lx = o.lx || 307, up = yT < yE, lab = !o.nolab;
+    const sep = (a, b) => b + Math.sign(b - a || 1) * Math.max(0, 9 - Math.abs(b - a)), lT = sep(yE, yT), lS = sep(yE, yS);
+    if (lab && x1 < lx - 8) [[yT, GRN], [yE, '#000'], [yS, RED]].forEach(([yy, cl]) => s += `<line x1="${x1}" x2="${lx - 2}" y1="${yy}" y2="${yy}" stroke="${cl}" stroke-width=".5" stroke-dasharray="1 2" opacity=".6"/>`);
+    if (lab) s += `<text x="${lx}" y="${lT + 3}" font-size="8" fill="${GRN}" font-weight="600">TP ${f2(t.TP)}</text><text x="${lx}" y="${yE + 3}" font-size="8" fill="#000" font-weight="600">${o.elab || 'Entry'} ${f2(t.E)}</text><text x="${lx}" y="${lS + 3}" font-size="8" fill="${RED}" font-weight="600">${t.SL == null ? 'no stop' : 'SL ' + f2(t.SL)}</text>`;
+    if (t.rr != null && !o.norr) { const h = Math.abs(yT - yE), ty = h > 13 ? (yT + yE) / 2 + 3 : (up ? yT - 3 : yT + 9); s += `<text class="rrl" x="${x0 + 3}" y="${ty}" font-size="8.5" fill="${GRN}" font-weight="600">R:R 1 : ${t.rr.toFixed(1)}</text>`; }
+    if (o.tag) s += `<text x="${x0 + 1}" y="${up ? yT - 3 : yT + 9}" font-size="8" fill="#555">${esc(o.tag)}</text>`;
+    return s + '</g>';
+  };
+}
+const txtMark = (i, p, text, c = '#000', pos = 'above') => (x, y) => `<text x="${x(i)}" y="${y(p) + (pos === 'above' ? -6 : 13)}" text-anchor="middle" font-size="8.5" font-weight="600" fill="${c}">${text}</text>`;
+const colMark = (i0, i1, label) => (x, y, sp) => { const a = x(i0) - sp / 2, b = x(i1) + sp / 2; return `<rect x="${a}" y="2" width="${b - a}" height="188" fill="none" stroke="#000" stroke-width=".7" stroke-dasharray="3 2"/><text x="${(a + b) / 2}" y="12" text-anchor="middle" font-size="8" fill="#000">${label}</text>`; };
+const timeMark = (t0, n, step) => (x, y, sp) => { let s = ''; for (let i = 0; i < n; i++) { const m = t0 + step * i; if (m % 60 === 0) s += `<line x1="${x(i) - sp / 2}" x2="${x(i) - sp / 2}" y1="194" y2="198" stroke="#bbb"/><text x="${x(i) - sp / 2}" y="207" text-anchor="middle" font-size="7.5" fill="#8a8a8a">${hm(m).replace(':00', '')}</text>`; } return s; };
+const shadeT = (i0, i1, label) => (x, y, sp) => { const a = x(i0) - sp / 2, b = x(i1) + sp / 2; return `<rect x="${a}" y="2" width="${b - a}" height="190" fill="rgba(0,0,0,.045)"/><text x="${a + 2}" y="189" font-size="7.5" fill="#555">${label}</text>`; };
+function resMark(t, c) {
+  if (t.res === 'nofill') return (x, y) => `<text x="${x(c.length - 1)}" y="${y(t.E) - 5}" text-anchor="end" font-size="8.5" font-weight="600" fill="#555">not filled</text>`;
+  if (t.res === 'open') { const last = c[c.length - 1].c, r = t.showSL != null ? (last - t.E) * t.dir / Math.abs(t.E - t.showSL) : 0; return txtMark(c.length - 1, last, `${r.toFixed(1)}R, still open`, RED, t.dir > 0 ? 'below' : 'above'); }
+  const win = t.res === 'win', p = win ? t.TP : t.SL, below = (t.dir > 0) !== win;
+  return txtMark(t.exit, p, win ? `✓ +${t.rr.toFixed(1)}R` : '✗ −1R', win ? GRN : RED, below ? 'below' : 'above');
+}
+
+/* Renders one step of a walkthrough. Returns svg html. */
+function wChart(w, B, step) {
+  const ann = S.twAnn !== false, bear = B.bear, lv = B.lv, ro = B.ro, at = B.at, t = B.trade;
+  const pool = bear ? lv.ITFhigh : lv.ITFlow, tgt = t.TP, dol = bear ? lv.HTFlow : lv.HTFhigh, side = bear ? 'BSL' : 'SSL', oside = bear ? 'SSL' : 'BSL';
+  const base = {w: 360, h: 212, pt: 16, pb: 22, pl: 6, pr: 56};
+  if (step === 1) {
+    const V = TW.view(B, 0), c = V.htf, o = Object.assign({}, base, {slots: 28, zones: [], lines: [], labels: [], marks: [], extra: [lv.HTFlow, lv.HTFhigh]});
+    if (ann) {
+      const disc = bear ? {top: lv.HTFhigh, bot: lv.EQ} : {top: lv.EQ, bot: lv.HTFlow};
+      o.zones.push({i0: 0, top: disc.top, bot: disc.bot, fill: 'rgba(0,0,0,.035)', label: bear ? 'Premium' : 'Discount', la: 'start', lb: !bear, lc: '#8a8a8a'});
+      o.zones.push({i0: lv.hfvg.i, top: lv.hfvg.top, bot: lv.hfvg.bot, fill: bear ? 'rgba(192,57,43,.12)' : 'rgba(31,138,76,.14)', label: '4H FVG', lb: !bear, lc: '#000'});
+      o.lines.push({y: lv.EQ, dash: '4 3', label: 'EQ ' + f2(lv.EQ), out: 1, c: '#555'});
+      o.lines.push({y: dol, dash: '2 2', label: oside + ' · DOL', out: 1, sw: 1.1});
+      o.lines.push({y: bear ? lv.HTFhigh : lv.HTFlow, dash: '2 2', label: 'range ' + (bear ? 'high' : 'low'), out: 1, c: '#8a8a8a'});
+      o.marks.push(colMark(26, 27, '15m ›'));
+      o.marks.push(txtMark(13, dol, 'draw ' + (bear ? '↓' : '↑'), '#000', bear ? 'below' : 'above'));
+    }
+    return chart(c, o).svg;
+  }
+  if (step === 2) {
+    const n = at[ro.La] + 1, V = TW.view(B, n), c = V.itf, pre = B.itfPre.length;
+    const o = Object.assign({}, base, {slots: 32, zones: [], lines: [], labels: [], marks: [], extra: [pool, tgt]});
+    if (ann) {
+      const pf = (w.m.itf.poolFrom || 0); let pi = pf; for (let i = pf; i < pre; i++) if (bear ? c[i].h > c[pi].h : c[i].l < c[pi].l) pi = i;
+      let ti = 0; for (let i = 0; i < pre; i++) if (bear ? c[i].l < c[ti].l : c[i].h > c[ti].h) ti = i;
+      o.zones.push({i0: 0, top: lv.hfvg.top, bot: lv.hfvg.bot, fill: bear ? 'rgba(192,57,43,.06)' : 'rgba(31,138,76,.07)', label: '4H FVG zone', la: 'start', lb: bear, lc: '#555'});
+      o.lines.push({i0: pi, y: pool, dash: '3 2', label: side + ' ' + f2(pool), out: 1});
+      o.lines.push({i0: ti, y: tgt, dash: '3 2', label: oside + ' ' + f2(tgt), out: 1, c: GRN});
+      o.marks.push(colMark(pre, 31, '5m ›'));
+    }
+    return chart(c, o).svg;
+  }
+  const now = B.now, n = step === 3 ? now + 1 : step === 4 ? t.fill + 1 : B.ltf.length;
+  const c = B.ltf.slice(0, n), en = B.en, z = en.zone;
+  const ex = [t.TP, t.SL, pool]; if (step === 6) B.donts.forEach(d => ex.push(d.SL, d.TP, d.E));
+  const o = Object.assign({}, base, {slots: B.ltf.length, zones: [], lines: [], labels: [], marks: [], extra: step >= 4 ? ex : [pool]});
+  o.marks.push(timeMark(B.t0, B.ltf.length, 5));
+  if (ann) {
+    if (w.v.win) o.marks.unshift(shadeT((w.v.win[0] - B.t0) / 5, Math.min(B.ltf.length - 1, (w.v.win[1] - B.t0) / 5 - 1), 'SB ' + w.v.wname));
+    if (w.m.midnight || w.m.po3) o.lines.push({y: B.ltf[0].o, dash: '1 2', label: w.m.po3 ? '4H open' : 'midnight open', la: 'start', c: '#555'});
+    if (step <= 4 || step === 5) {
+      o.lines.push({i0: 0, i1: at[ro.SW], y: pool, dash: '3 2', label: side + ' ' + f2(pool), la: 'start', below: bear ? 0 : 1});
+      const mi = c.findIndex((k, i) => i > at[ro.SW] && (bear ? k.c < B.P[ro.LH] : k.c > B.P[ro.LH]));
+      o.lines.push({i0: at[ro.LH], i1: mi > 0 ? mi : n - 1, y: B.P[ro.LH], dash: '3 2', label: 'MSS', la: 'start', below: bear ? 1 : 0});
+      o.marks.push(txtMark(at[ro.SW], B.P[ro.SW], 'sweep', '#000', bear ? 'above' : 'below'));
+      const pz = en.zone3 || en.zone, zz = [en.zone, en.zone2, en.zone3].filter(q => q && q !== pz).concat(pz ? [pz] : []);
+      zz.forEach((q, k) => { const last = k === zz.length - 1, i0 = q.i != null ? q.i : at[ro.D]; o.zones.push({i0, top: q.top, bot: q.bot, fill: last ? 'rgba(0,0,0,.14)' : 'rgba(0,0,0,.06)', stroke: last ? '#000' : 'none', dash: 1});
+        o.marks.push((x, y, sp) => `<text x="${x(Math.min(i0 + (last ? 3 : 0), n - 1)) - sp / 2 + 2}" y="${bear && last ? y(q.bot) + 9 : y(q.top) - 2}" font-size="${last ? 8.5 : 7.5}" font-weight="${last ? 600 : 400}" fill="${last ? '#000' : '#555'}">${q.label}</text>`); });
+      if (en.fib) { const {lo, hi} = en.fib; o.lines.push({i0: at[ro.D], y: hi - .705 * (hi - lo), dash: '1 2', sw: .7, c: '#555'}); }
+    }
+    if (step === 4) o.marks.push(boxMark(t, t.fill, Math.min(B.ltf.length - 1, t.fill + 12)));
+    if (step === 5) { o.marks.push(boxMark(t, t.fill, t.exit)); o.marks.push(resMark(t, B.ltf)); o.lines.push({y: t.TP1, dash: '1 2', sw: .6, label: 'TP1', la: 'start', c: GRN}); }
+  }
+  return chart(c, o).svg;
+}
+// SMT companion chart (NQ) for steps 3-5.
+function wSmt(B, step) {
+  if (!B.smt || step < 3 || step > 5) return '';
+  const n = step === 3 ? B.now + 1 : step === 4 ? B.trade.fill + 1 : B.ltf.length, c = B.smt.slice(0, n), ro = B.ro, at = B.at, bear = B.bear, ann = S.twAnn !== false;
+  const o = {w: 360, h: 120, pt: 12, pb: 10, pr: 56, slots: B.ltf.length, lines: [], marks: []};
+  if (ann) { const p1 = B.P[ro.La]; o.lines.push({i0: at[ro.La], i1: at[ro.SW], y: p1, dash: '3 2', label: bear ? 'prior high' : 'prior low', la: 'start', below: bear ? 0 : 1}); o.marks.push(txtMark(at[ro.SW], B.smtLow, bear ? 'lower high · SMT' : 'higher low · SMT', '#000', bear ? 'above' : 'below')); }
+  return `<div class="chart tw-smt">${chart(c, o).svg}</div><p class="cap">NQ, 5m. ES swept its ${bear ? 'high' : 'low'}; NQ did not.</p>`;
+}
+function dontChart(B, d, wide) {
+  const ann = S.twAnn !== false, c = B.ltf;
+  const o = {w: 360, h: 212, pt: 16, pb: 22, pr: 56, slots: c.length, extra: [d.SL, d.TP, d.E], marks: [timeMark(B.t0, c.length, 5)], lines: [], zones: []};
+  if (ann) { o.marks.push(boxMark(d, d.fill, d.exit != null ? Math.max(d.exit, d.fill + 2) : c.length - 1, {elab: 'Entry'})); o.marks.push(resMark(d, c)); const z = B.en.zone3 || B.en.zone; if (z) o.zones.push({i0: z.i, top: z.top, bot: z.bot, fill: 'rgba(0,0,0,.08)'}); }
+  return chart(c, o).svg;
+}
+
+let TWS = null;
+ROUTES.trades = function () {
+  setTop('Trades', '', `<span>${WT.filter(w => wViewed(w.id)).length}/${WT.length}</span>`);
+  const seen = WT.filter(w => wViewed(w.id)).length;
+  view.innerHTML = `<h1>Trades</h1><p class="sub">Top-down examples: what to mark on the 4H, 15m and 5m, where to enter, and where the stop and target go. Plus what not to do.</p>
+    <div class="seg twseg" style="margin-top:10px"><button class="on">Walkthroughs</button><button onclick="location.hash='#mistakes'">Mistake library</button></div>
+    <div class="stats"><div><b>${TW.models.length}</b><span>Models</span></div><div><b>${seen}<small style="font-size:11px;color:#8a8a8a;font-weight:400">/${WT.length}</small></b><span>Viewed</span></div><div><b>${MI.length}</b><span>Mistakes</span></div></div>
+    <ul class="menu twl" style="margin-top:12px">${TW.models.map(m => { const ws = WT.filter(w => w.m === m), done = ws.every(w => wViewed(w.id));
+      return `<li data-m="${m.id}"><div class="twm"><a href="#trade/${ws[0].id}/1"><span class="dm ${done ? 'ok' : ws.some(w => S.tv[w.id]) ? 'x' : ''}">${done ? '✓' : ''}</span><div><b>${esc(tok(m.name, false).replace(/ Buy Model$/, ' Buy/Sell Model'))}</b><span>${esc(tok(m.sum, false))}</span></div></a>
+      <div class="chips twv">${ws.map(w => `<a class="chip${wViewed(w.id) ? ' on' : ''}" href="#trade/${w.id}/1" data-w="${w.id}">${wViewed(w.id) ? '✓ ' : ''}${esc(wVar(w))}</a>`).join('')}</div></div></li>`; }).join('')}</ul>
+    <p class="sub" style="margin-top:10px">Charts are built examples, not real market data. Every level is checked: the example trade hits its target and each "don't" version is stopped out on the same candles.</p>${FOOT}`;
+};
+ROUTES.trade = function (arg) {
+  const [id, st] = arg.split('/'), w = WMAP[id]; if (!w) { location.replace('#trades'); return; }
+  const B = wBuild(w); if (!B) { view.innerHTML = '<p class="sub">This example could not be built.</p>'; return; }
+  const step = Math.min(6, Math.max(1, parseInt(st, 10) || 1));
+  S.tv[id] = Math.max(S.tv[id] || 0, step); save();
+  const T = wTexts(w, B), list = WT, pos = list.indexOf(w);
+  TWS = {id, step, B};
+  setTop(wName(w).length > 24 ? wName(w).slice(0, 23) + '…' : wName(w), back('#trades', 'Trades'), `<span>${step}/6</span>`);
+  const lesson = LMAP[w.m.lesson];
+  let body = '';
+  if (step === 1) body = `<p>${inline(T.s1)}</p>`;
+  if (step === 2) body = `<p>${inline(T.s2)}</p>`;
+  if (step === 3) body = `<p>${inline(T.s3)}</p>`;
+  if (step === 4) body = `<p>${inline(T.s4)}</p>`;
+  if (step === 5) body = `<p>${inline(T.s5)}</p><div class="label">Checklist</div><ul class="ck">${T.ck.map(c => `<li>${inline(c)}</li>`).join('')}</ul>`;
+  let charts = '';
+  const caps = {1: '4H chart. The dashed box is where the 15m chart zooms in.', 2: '15m chart. Its last 16 candles are the 5m chart on the next step.', 3: `5m chart, ${T.V.T0} to ${T.V.T1} NY.`, 4: '5m chart at the moment of entry.', 5: '5m chart, full session.'};
+  if (step <= 5) charts = `<div class="chart" id="twc">${wChart(w, B, step)}</div>${wSmt(B, step)}<p class="cap">${caps[step]}</p>`;
+  else charts = B.donts.map((d, k) => { const [h, txt, mid] = DONT_TXT[d.kind];
+      const V = Object.assign({}, T.V, {DE: f2(d.E), DSL: f2(d.SL), ZN: w.m.zn});
+      return `<div class="dont" data-kind="${d.kind}"><h2>✗ ${esc(fill(h, V, B.bear))}</h2><div class="chart${k ? '' : '" id="twc'}">${dontChart(B, d)}</div><p>${inline(fill(txt, V, B.bear))}</p><p class="sub">Result: ${d.res === 'loss' ? 'stopped out, −1R' : d.res}. ${MMAP[mid] ? `<a href="#mistake/${mid}">In the mistake library →</a>` : ''}</p></div>`; }).join('') +
+    `<div class="callout">Do it instead like step 4: wait for the sweep and the shift, enter at the ${esc(w.m.zn)}, stop beyond the sweep. <a href="#trade/${id}/4">Back to the entry</a></div>`;
+  view.innerHTML = `<div class="tw" id="tw" data-step="${step}"><div class="crumb row"><span>${esc(wVar(w))} · ${pos + 1} of ${list.length}</span>${bmBtn('w:' + id)}</div>
+    <h1>${esc(wName(w))}</h1>
+    <div class="stp" id="stp">${STEPS_SHORT.map((s, i) => `<a href="#trade/${id}/${i + 1}" class="${i + 1 === step ? 'on' : i + 1 < step ? 'past' : ''}${i === 5 ? ' bad' : ''}" data-s="${i + 1}">${s}</a>`).join('')}</div>
+    <div class="row twh"><b id="twt">${STEPS[step - 1]}</b><label class="ann"><input type="checkbox" id="twann" ${S.twAnn !== false ? 'checked' : ''}> Marks</label></div>
+    <div id="twbody">${charts}${body}</div>
+    <div class="row stepnav"><button class="btn ghost" id="twprev" ${step === 1 ? 'disabled' : ''}>‹ Back</button><button class="btn" id="twnext">${step === 6 ? (list[pos + 1] ? 'Next example ›' : 'All trades') : step === 5 ? 'What not to do ›' : 'Next ›'}</button></div>
+    <div class="label">Related</div><ul class="menu">${lesson ? `<li><a href="#lesson/${lesson.id}"><div><b>${esc(lesson.t)}</b><span>Lesson ${lesson.id.replace('-', '.')}</span></div><em>›</em></a></li>` : ''}</ul>
+    <div class="chips" style="margin-top:8px">${w.m.terms.filter(k => G[k]).map(k => `<a class="chip" href="#term/${k}">${esc(G[k][1])}</a>`).join('')}</div>
+    <div class="chips twv" style="margin-top:8px">${WT.filter(x => x.m === w.m).map(x => `<a class="chip${x.id === id ? ' on' : ''}" href="#trade/${x.id}/${step}">${esc(wVar(x))}</a>`).join('')}</div></div>${FOOT}`;
+  const go = s => { location.hash = '#trade/' + id + '/' + s; };
+  $('#twprev').onclick = () => step > 1 && go(step - 1);
+  $('#twnext').onclick = () => step < 6 ? go(step + 1) : (location.hash = list[pos + 1] ? '#trade/' + list[pos + 1].id + '/1' : '#trades');
+  $('#twann').onchange = e => { S.twAnn = e.target.checked; save(); ROUTES.trade(arg); };
+  const el = $('#twbody'); let sx = null, sy = null;
+  el.addEventListener('touchstart', e => { const p = e.touches[0]; sx = p.clientX; sy = p.clientY; }, {passive: true});
+  el.addEventListener('touchend', e => { if (sx == null) return; const p = e.changedTouches[0], dx = p.clientX - sx, dy = p.clientY - sy; sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { if (dx < 0 && step < 6) go(step + 1); else if (dx > 0 && step > 1) go(step - 1); } }, {passive: true});
+};
+document.addEventListener('keydown', e => {
+  if (!TWS || !location.hash.startsWith('#trade/') || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' && TWS.step < 6) location.hash = `#trade/${TWS.id}/${TWS.step + 1}`;
+  if (e.key === 'ArrowLeft' && TWS.step > 1) location.hash = `#trade/${TWS.id}/${TWS.step - 1}`;
+});
+window.__tw = () => TWS && {id: TWS.id, step: TWS.step, trade: TWS.B.trade, donts: TWS.B.donts.map(d => ({kind: d.kind, res: d.res})), boxes: document.querySelectorAll('#tw .tbox').length};
+
+/* Mistake charts */
+function mChart(x) {
+  const sp = x.chart, ann = true;
+  if (sp.curve) return curve(sp.curve, {fmt: v => (Math.round(v * 10) / 10) + 'R', legend: sp.legend, h: 170, xlab: 'trades →'});
+  if (sp.wt) {
+    const w = WMAP[sp.wt], B = w && wBuild(w); if (!B) return '';
+    if (sp.dont) { const d = B.donts.find(q => q.kind === sp.dont); return dontChart(B, d); }
+    const t = B.trade, c = B.ltf, o = {w: 360, h: 212, pt: 16, pb: 22, pr: 56, slots: c.length, extra: [t.SL, t.TP], marks: [timeMark(B.t0, c.length, 5), boxMark(t, t.fill, t.exit, {elab: 'Skipped'}), resMark(t, c)]};
+    return chart(c, o).svg;
+  }
+  const r = TW.mchart(sp); if (r.err) return '';
+  const A = r.A, mp = p => A != null ? A - p : p, c = r.c, trs = r.trades;
+  const ex = trs.flatMap(t => [t.E, t.TP, t.SL != null ? t.SL : t.showSL]);
+  const o = {w: 360, h: sp.t0 != null ? 212 : 200, pt: 16, pb: sp.t0 != null ? 22 : 12, pr: 56, slots: c.length, extra: ex, zones: [], lines: [], marks: []};
+  if (sp.t0 != null) o.marks.push(timeMark(sp.t0, c.length, 5));
+  if (sp.window && sp.t0 != null) { const a = (sp.window[0] - sp.t0) / 5, b = (sp.window[1] - sp.t0) / 5 - 1; if (b >= 0) o.marks.unshift(shadeT(Math.max(0, a), Math.min(c.length - 1, b), sp.window[2] + ' ' + hm(sp.window[0]) + '–' + hm(sp.window[1]))); }
+  if (sp.shade) o.zones.push({i0: 0, top: Math.max(mp(sp.shade[0]), mp(sp.shade[1])), bot: Math.min(mp(sp.shade[0]), mp(sp.shade[1])), fill: 'rgba(0,0,0,.04)', label: sp.shade[2], la: 'start', lc: '#8a8a8a'});
+  (sp.zones || []).forEach(z => o.zones.push({i0: 0, top: Math.max(mp(z.top), mp(z.bot)), bot: Math.min(mp(z.top), mp(z.bot)), label: z.label, la: 'start', fill: 'rgba(0,0,0,.09)', lc: '#555'}));
+  (sp.fvgs || []).forEach(([k, l]) => { const f = r.fvg[k]; if (f) { const top = Math.max(mp(f.top), mp(f.bot)), bot = Math.min(mp(f.top), mp(f.bot)); o.zones.push({i0: f.i, top, bot, fill: 'rgba(0,0,0,.1)'}); o.marks.push((x, y, s2) => `<text x="${x(f.i) - s2 / 2 + 1}" y="${y(top) - 3}" font-size="7.5" fill="#555">${esc(l)}</text>`); } });
+  (sp.lines || []).forEach(([p, l]) => o.lines.push({y: mp(p), dash: '3 2', label: l, la: 'start', c: '#555'}));
+  (sp.labels || []).forEach(([wp, t]) => { const i = r.at[wp], k = c[i], top = Math.abs(k.h - r.P[wp]) < Math.abs(k.l - r.P[wp]); o.marks.push(txtMark(i, top ? k.h : k.l, esc(t), '#000', top ? 'above' : 'below')); });
+  trs.forEach(t => { if (t.res === 'nofill') { o.marks.push((x, y, s2) => `<line x1="${x(t.from) - s2 / 2}" x2="${x(c.length - 1) + s2 / 2}" y1="${y(t.E)}" y2="${y(t.E)}" stroke="#000" stroke-dasharray="2 2"/><text x="${x(c.length - 1) + s2 / 2 + 3}" y="${y(t.E) + 3}" font-size="8" fill="#000" font-weight="600">Limit ${f2(t.E)}</text>`); o.marks.push(resMark(t, c)); return; }
+    const end = t.res === 'open' ? c.length - 1 : Math.max(t.exit, t.fill + 2); o.marks.push(boxMark(t, t.fill, Math.min(c.length - 1, end), {tag: t.tag, norr: t.SL == null, nolab: t !== trs[trs.length - 1]})); o.marks.push(resMark(t, c)); });
+  return chart(c, o).svg;
+}
+const mCatCount = k => MI.filter(x => x.cat === k).length;
+ROUTES.mistakes = function () {
+  setTop('Mistakes', back('#trades', 'Trades'), `<span>${MI.length}</span>`);
+  const k = S.mf && TW.cats[S.mf] ? S.mf : 'all';
+  view.innerHTML = `<h1>Mistake library</h1><p class="sub">${MI.length} common trading mistakes, each with a chart of the bad trade and what happened next.</p>
+    <div class="seg twseg" style="margin-top:10px"><button onclick="location.hash='#trades'">Walkthroughs</button><button class="on">Mistake library</button></div>
+    <input class="search" id="mq" type="search" placeholder="Filter mistakes" autocomplete="off" style="margin-top:12px">
+    <div class="chips" id="mcf" style="margin-top:8px"><button data-k="all" class="${k === 'all' ? 'on' : ''}">All · ${MI.length}</button>${Object.entries(TW.cats).map(([c, n]) => `<button data-k="${c}" class="${k === c ? 'on' : ''}">${n} · ${mCatCount(c)}</button>`).join('')}</div>
+    <div id="mlist"></div>${FOOT}`;
+  const render = () => {
+    const q = $('#mq').value.trim().toLowerCase(), toks = q.split(/\s+/).filter(Boolean);
+    const L = MI.filter(x => (k === 'all' || x.cat === k) && toks.every(t => (x.t + ' ' + x.d + ' ' + x.why + ' ' + x.fix + ' ' + TW.cats[x.cat]).toLowerCase().includes(t)));
+    let h = `<p class="sub" id="mcount" style="margin-top:10px">${L.length} mistake${L.length === 1 ? '' : 's'}</p>`;
+    for (const [c, n] of Object.entries(TW.cats)) { const g = L.filter(x => x.cat === c); if (!g.length) continue;
+      h += `<div class="label">${n}</div><ul class="menu mil">${g.map(x => `<li data-id="${x.id}"><a href="#mistake/${x.id}"><div><b>${esc(x.t)}</b><span>${esc(x.d)}</span></div></a>${bmBtn('m:' + x.id, true)}</li>`).join('')}</ul>`; }
+    $('#mlist').innerHTML = h;
+  };
+  $('#mq').oninput = render;
+  view.querySelectorAll('#mcf button').forEach(b => b.onclick = () => { S.mf = b.dataset.k; save(); const q = $('#mq').value; ROUTES.mistakes(); $('#mq').value = q; $('#mq').dispatchEvent(new Event('input')); });
+  render();
+};
+ROUTES.mistake = function (id) {
+  const x = MMAP[id]; if (!x) { location.replace('#mistakes'); return; }
+  const pos = MI.indexOf(x), nxt = MI[(pos + 1) % MI.length], prv = MI[(pos - 1 + MI.length) % MI.length];
+  setTop('Mistake', back('#mistakes', 'Mistakes'), `<span>${pos + 1}/${MI.length}</span>`);
+  const d = x.chart.wt && x.chart.dont && DONT_TXT[x.chart.dont], w = x.chart.wt && WMAP[x.chart.wt];
+  const ls = x.lessons.map(l => LMAP[l]).filter(Boolean);
+  view.innerHTML = `<div class="lesson mi"><div class="crumb row"><span>${esc(TW.cats[x.cat])}</span>${bmBtn('m:' + x.id)}</div>
+    <h1>${esc(x.t)}</h1><p class="lead">${esc(x.d)}</p>
+    <div class="chart" id="mc">${mChart(x)}</div>
+    <p class="cap">${x.chart.curve ? 'Equity curve in R (multiples of risk).' : w ? `From the ${esc(wName(w))} walkthrough (${esc(wVar(w))}). <a href="#trade/${w.id}/${x.chart.good ? 4 : 6}">Open it →</a>` : 'Red box: risk. Green box: reward. Built example, not real data.'}</p>
+    <h2>What happened</h2><p>${esc(x.what)}</p>
+    <h2>Why it happens</h2><p>${esc(x.why)}</p>
+    <h2>The fix</h2><div class="callout">${esc(x.fix)}</div>
+    <div class="label">Related</div><ul class="menu">${ls.map(l => `<li><a href="#lesson/${l.id}"><div><b>${esc(l.t)}</b><span>Lesson ${l.id.replace('-', '.')}${unlocked(LEVELS.find(L => L.n === l.level)) ? '' : ' · 🔒'}</span></div><em>›</em></a></li>`).join('')}
+    ${x.drill && DMAP[x.drill] ? `<li><a href="#drill/${x.drill}"><div><b>Drill: ${esc(DMAP[x.drill].t)}</b><span>${DK[DMAP[x.drill].k][0]} · ${DIFF[DMAP[x.drill].lv]}</span></div><em>›</em></a></li>` : ''}</ul>
+    <div class="chips" style="margin-top:8px">${x.terms.filter(k => G[k]).map(k => `<a class="chip" href="#term/${k}">${esc(G[k][1])}</a>`).join('')}</div>
+    <div class="row stepnav"><a class="btn ghost" href="#mistake/${prv.id}">‹ Previous</a><a class="btn" href="#mistake/${nxt.id}" id="mnext">Next mistake ›</a></div></div>${FOOT}`;
+};
 
 /* ---------------- Boot ---------------- */
 if (/^https?:/.test(location.protocol)) {

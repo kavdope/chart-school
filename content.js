@@ -4224,3 +4224,564 @@ CS.addDrills([
   ex: 'The pattern is there, but it is lunch hour and the trade only offers 1.2R. Two checklist items fail, so it is not an A+ setup. Passing is a decision too.'},
 ]);
 })();
+
+/* ---- content/trades.js ---- */
+/* Trades section: candle engine, multi-timeframe walkthrough builder and ICT model scenarios. Plain data + deterministic builders, no dependencies. */
+/* Trade walkthrough engine + scenarios. Plain data + a deterministic candle builder.
+   Each scenario is authored as price waypoints per timeframe (4H → 15m → 5m). Candles between waypoints are
+   generated deterministically (seeded), never exceeding the waypoints, so every level is exact. The 15m chart's
+   last 16 candles ARE the 5m chart (3:1), and the 4H chart's last 2 candles ARE the 15m chart (16:1).
+   Bearish variants mirror a bullish scenario around price 240. Text uses {{bull|bear}} tokens and {E}/{SL}/{TP}/{RR}. */
+(function () {
+const K = (o, h, l, c) => ({o, h, l, c});
+function rng(seed) { let a = (seed >>> 0) || 1; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// walk(): same generator as the app's lesson charts. Waypoint highs/lows are exact; a {disp:true} leg leaves an FVG.
+function walk(pts, legs, seed, v) {
+  const R = rng(seed), r = (a, b) => a + R() * (b - a);
+  const P = pts.map(p => typeof p === 'number' ? {p} : p);
+  const c = [], at = [0], fvg = [];
+  let price = P[0].p;
+  legs.forEach((lg, i) => {
+    const pa = P[i].p, pb = P[i + 1].p, d = pb >= pa ? 1 : -1, D = Math.abs(pb - pa);
+    const n = typeof lg === 'number' ? lg : lg.n, disp = typeof lg === 'object' && lg.disp;
+    const out = u => d === 1 ? K(pa + u.o, pa + u.h, pa + u.l, pa + u.c) : K(pa - u.o, pa - u.l, pa - u.h, pa - u.c);
+    let uo = (price - pa) * d;
+    const endClose = P[i + 1].close != null ? (P[i + 1].close - pa) * d : null;
+    if (disp) {
+      const pre = Math.max(0, n - 3);
+      for (let k = 1; k <= pre; k++) { const cl = D * 0.04 * k + r(0, .2) * v; const u = {o: uo, c: cl, h: Math.max(uo, cl) + r(.05, .3) * v, l: Math.max(0.03 * v, Math.min(uo, cl) - r(.05, .3) * v)}; u.l = Math.min(u.l, u.o, u.c); c.push(out(u)); uo = cl; }
+      const b1 = Math.max(uo, D * 0.04 * pre) + D * r(.06, .1);
+      const u1 = {o: uo, c: b1, l: Math.max(0.02 * v, Math.min(uo, b1) - r(.1, .3) * v)}; u1.l = Math.min(u1.l, uo, b1); u1.h = b1 + r(.08, .25) * v;
+      const b2 = D * r(.74, .82);
+      const u2 = {o: b1, c: b2, l: b1 - r(0, .12) * v, h: b2 + r(.05, .15) * v};
+      const cl3 = endClose != null ? endClose : D - r(.15, .45) * v, o3 = b2 - r(0, .08) * v;
+      const lo3 = Math.min(u1.h + D * r(.18, .26), o3, cl3);
+      [u1, u2, {o: o3, c: cl3, h: D, l: lo3}].forEach(u => c.push(out(u)));
+      const A = c[c.length - 3], B = c[c.length - 1];
+      fvg.push(d === 1 ? {i: c.length - 3, top: B.l, bot: A.h, dir: 1} : {i: c.length - 3, top: A.l, bot: B.h, dir: -1});
+      price = B.c;
+    } else {
+      for (let k = 1; k <= n; k++) {
+        const last = k === n;
+        let cl = last ? (endClose != null ? endClose : D - Math.min(r(.15, .55) * v, D * .45)) : Math.min(Math.max(D * k / n + r(-.45, .45) * v, .06 * v), D - .06 * v);
+        let h = Math.max(uo, cl) + r(0, .5) * v, l = Math.min(uo, cl) - r(0, .5) * v;
+        h = last ? D : Math.min(h, D - .04 * v); l = Math.max(l, k === 1 ? .08 * v : .02 * v);
+        h = Math.max(h, uo, cl); l = Math.min(l, uo, cl);
+        c.push(out({o: uo, c: cl, h, l})); uo = cl;
+      }
+      price = c[c.length - 1].c;
+    }
+    at.push(c.length - 1);
+  });
+  const rd = x => Math.round(x * 100) / 100;
+  c.forEach(k => { k.o = rd(k.o); k.h = rd(k.h); k.l = rd(k.l); k.c = rd(k.c); k.h = Math.max(k.h, k.o, k.c); k.l = Math.min(k.l, k.o, k.c); });
+  fvg.forEach(f => { const A = c[f.i], B = c[f.i + 2]; if (f.dir > 0) { f.top = B.l; f.bot = A.h; } else { f.top = A.l; f.bot = B.h; } });
+  return {c, at, fvg};
+}
+const agg = (c, f) => { const o = []; for (let i = 0; i < c.length; i += f) { const g = c.slice(i, i + f); o.push(K(g[0].o, Math.max(...g.map(k => k.h)), Math.min(...g.map(k => k.l)), g[g.length - 1].c)); } return o; };
+// Trade simulation: limit/stop order at E becomes active at candle `from`; fills when a candle trades through E.
+// After the fill candle, the first candle touching SL is a loss, touching TP is a win (both in one candle = loss).
+function sim(c, t) {
+  let fill = -1;
+  for (let i = t.from; i < c.length; i++) if (c[i].l <= t.E && c[i].h >= t.E) { fill = i; break; }
+  if (fill < 0) return {res: 'nofill'};
+  const L = t.dir > 0, hitSL = k => L ? k.l <= t.SL : k.h >= t.SL, hitTP = k => L ? k.h >= t.TP : k.l <= t.TP;
+  if (hitSL(c[fill])) return {res: 'ambig', fill};
+  for (let i = fill + 1; i < c.length; i++) { if (hitSL(c[i])) return {res: 'loss', fill, exit: i}; if (hitTP(c[i])) return {res: 'win', fill, exit: i}; }
+  return {res: 'open', fill, exit: c.length - 1};
+}
+const rr = t => Math.abs(t.TP - t.E) / Math.abs(t.E - t.SL);
+const mirK = (k, M) => K(M - k.o, M - k.l, M - k.h, M - k.c);
+const mirZ = (z, M) => z && Object.assign({}, z, {top: M - z.bot, bot: M - z.top});
+const lowIn = (c, a, b) => Math.min(...c.slice(a, b + 1).map(k => k.l));
+const highIn = (c, a, b) => Math.max(...c.slice(a, b + 1).map(k => k.h));
+const lastIdx = (c, a, b, pred) => { for (let i = b; i >= a; i--) if (pred(c[i])) return i; return -1; };
+const body = k => ({top: Math.max(k.o, k.c), bot: Math.min(k.o, k.c)});
+const overlap = (a, b) => { const top = Math.min(a.top, b.top), bot = Math.max(a.bot, b.bot); return top > bot ? {top, bot} : null; };
+const r2 = x => Math.round(x * 100) / 100;
+window.TB = {K, rng, walk, agg, sim, rr, mirK, mirZ, lowIn, highIn, lastIdx, body, overlap, r2};
+})();
+(function () {
+const T = window.TB, {walk, agg, sim, rr, mirK, mirZ, lowIn, highIn, lastIdx, body, overlap, r2} = T;
+const volOf = pts => { const n = pts.map(p => typeof p === 'number' ? p : p && p.p).filter(x => typeof x === 'number'); return (Math.max(...n) - Math.min(...n)) * 0.035; };
+const lastC = w => w.c[w.c.length - 1].c;
+const M = 240;
+/* Entry PD arrays (bullish canonical). X: {w, at, P (resolved prices), lv}. Return {E, R, zone, zone2?, from?, ok?} */
+const fvgUp = X => X.w.fvg.find(f => f.dir > 0 && f.i >= X.at[X.ro.SW]);
+const ENTRY = {
+  fvgtop: X => { const f = fvgUp(X); if (!f) return null; const s = f.top - f.bot; return {E: r2(f.top), R: f.bot + .2 * s, zone: {...f, label: 'FVG'}, ok: s > 0.08}; },
+  fvgce: X => { const f = fvgUp(X); if (!f) return null; const s = f.top - f.bot; return {E: r2((f.top + f.bot) / 2), R: f.bot + .2 * s, zone: {...f, label: 'FVG'}, ok: s > 0.08}; },
+  ob: X => { const {w, at, ro} = X, i = lastIdx(w.c, at[ro.LH] + 1, at[ro.SW], k => k.c < k.o); if (i < 0) return null; const b = body(w.c[i]), s = b.top - b.bot;
+    return {E: r2(b.top), R: b.top - .4 * s, zone: {...b, i, label: 'OB'}, ok: s > 0.12}; },
+  breaker: X => { const {w, at, ro} = X, mn = .22 * (X.P[ro.LH] - X.P[ro.La]), i = lastIdx(w.c, at[ro.La] + 1, at[ro.LH], k => k.c - k.o > mn); if (i < 0) return null; const b = body(w.c[i]), s = b.top - b.bot;
+    return {E: r2(b.top), R: b.top - .4 * s, zone: {...b, i, label: X.m.id === 'mitigation' ? 'Mitigation block' : 'Breaker'}, ok: s > 0.12 && b.top < X.P[ro.D] && b.top - X.P[ro.SW] > .4}; },
+  unicorn: X => { const b = ENTRY.breaker(X), f = fvgUp(X); if (!b || !f) return null; const ov = overlap(b.zone, f); if (!ov || ov.top - ov.bot < .1) return {ok: false};
+    return {E: r2(ov.top), R: ov.bot + .35 * (ov.top - ov.bot), zone: {...b.zone, label: 'Breaker'}, zone2: {...f, label: 'FVG'}, zone3: {...ov, i: f.i, label: 'Unicorn'}}; },
+  ifvg: X => { const fb = X.w.fvg.find(f => f.dir < 0), s = fb && fb.top - fb.bot; if (!fb || s < .08) return null;
+    const inv = X.w.c.findIndex((k, i) => i > X.at[X.ro.SW] && k.c > fb.top);
+    return {E: r2(fb.top), R: fb.top - .35 * s, zone: {...fb, label: 'IFVG'}, inv, ok: inv > 0 && inv <= X.at[X.ro.D]}; },
+  bpr: X => { const fb = X.w.fvg.find(f => f.dir < 0), fu = fvgUp(X); if (!fb || !fu) return null; const ov = overlap(fb, fu); if (!ov || ov.top - ov.bot < .1) return {ok: false};
+    return {E: r2(ov.top), R: ov.bot + .4 * (ov.top - ov.bot), zone: {...fb, label: 'SIBI'}, zone2: {...fu, label: 'BISI'}, zone3: {...ov, i: fu.i, label: 'BPR'}}; },
+  ote: X => { const lo = X.P[X.ro.SW], hi = X.P[X.ro.D], s = hi - lo; return {E: r2(hi - .705 * s), R: hi - .75 * s, zone: {top: hi - .62 * s, bot: hi - .79 * s, i: X.at[X.ro.D], label: 'OTE 62–79%'}, fib: {lo, hi}}; },
+  turtle: X => { const L = X.lv.ITFlow, lo = X.P[X.ro.SW]; return {E: r2(L + .02), R: L - .35 * (L - lo), zone: null, ok: L - lo > .3}; },
+  rejection: X => { const {w, at, ro} = X, k = w.c[at[ro.SW]], top = Math.min(k.o, k.c), s = top - k.l; return {E: r2(top), R: top - .5 * s, zone: {top, bot: k.l, i: at[ro.SW], label: 'Rejection block'}, ok: s > .3}; },
+  propulsion: X => { const {w, at, ro} = X, i = at[ro.R1], k = w.c[i]; const b = body(k), s = b.top - b.bot; const mt = (b.top + b.bot) / 2;
+    return {E: r2(mt), R: mt - .3 * (mt - b.bot), zone: {...b, i, label: 'Propulsion block'}, zone2: X.ob ? {...X.ob, label: 'OB'} : null, ok: k.c < k.o && s > .12 && X.ob && k.l <= X.ob.top}; },
+};
+const FN = {
+  R1ob: X => { const {w, at, ro} = X, i = lastIdx(w.c, at[ro.LH] + 1, at[ro.SW], k => k.c < k.o); const b = body(w.c[i]); X.ob = {...b, i}; return r2(b.top - .3 * (b.top - b.bot)); },
+};
+/* Don't variants (bullish canonical): return a trade that the trader shouldn't take; must lose on the same candles. */
+const DONT = {
+  early: (X, g) => { const {P, ro, at} = X, La = P[ro.La], LH = P[ro.LH], SW = P[ro.SW]; return {E: r2(La + .08 * (LH - La)), SL: r2(SW + .45 * (La - SW)), TP: g.TP, from: 0}; },
+  tight: (X, g) => { const z = X.en.zone3 || X.en.zone, R = X.P[X.ro.R]; return {E: r2(z.top), SL: r2(R + .4 * (z.top - R)), TP: g.TP, from: g.from}; },
+  chase: (X, g) => { const {P, ro, at} = X, D = P[ro.D], s = D - P[ro.SW]; return {E: r2(D - .08 * s), SL: r2(D - .3 * s), TP: g.TP, from: at[ro.D]}; },
+  fade: (X, g) => { const {P, ro} = X, L = X.lv.ITFlow, SW = P[ro.SW], LH = P[ro.LH]; return {dir: -1, E: r2(L - .05), SL: r2(LH + .1), TP: r2(L - 1.2 * (LH - L)), from: 0}; },
+};
+function build(m, v) {
+  const H0 = m.htf, I0 = m.itf, L0 = m.ltf, ro = Object.assign({La: 1, LH: 2, SW: 3, D: 4, R: 5}, L0.roles || {});
+  const H = walk(H0.pts, H0.legs, H0.seed, volOf(H0.pts));
+  const Ipts = [lastC(H), ...I0.pts], I = walk(Ipts, I0.legs, I0.seed, volOf(Ipts));
+  const lv = {HTFlow: Math.min(...H.c.map(k => k.l)), HTFhigh: Math.max(...H.c.map(k => k.h)), hfvg: H.fvg.find(f => f.dir > 0), ITFlow: Math.min(...I.c.slice(I0.poolFrom || 0).map(k => k.l)), ITFhigh: Math.max(...I.c.map(k => k.h))};
+  lv.EQ = (lv.HTFlow + lv.HTFhigh) / 2;
+  const s0 = lastC(I), raw = [s0, ...L0.pts], vol = volOf(raw), legs = L0.legs;
+  let out = null, why = '';
+  const sd0 = (L0.seed || 1) + (v.seedOff || 0);
+  for (let seed = sd0; seed < sd0 + 600 && !out; seed++) {
+    const X = {m, ro, lv, P: []};
+    let bad = false;
+    for (let i = 0; i < raw.length && !bad; i++) {
+      const p = raw[i];
+      if (typeof p === 'number' || (p && typeof p === 'object')) { X.P.push(p); continue; }
+      const w = walk(X.P, legs.slice(0, X.P.length - 1), seed, vol); X.w = w; X.at = w.at;
+      if (p === 'R') { X.en = ENTRY[m.entry](X); if (!X.en || X.en.ok === false || !(X.en.R > 0)) { bad = true; break; } X.P.push(r2(X.en.R)); }
+      else X.P.push(FN[p](X));
+    }
+    if (bad) { why = 'entry ' + JSON.stringify(X.en); continue; }
+    X.P = X.P.map(p => typeof p === 'number' ? p : p);
+    const w = walk(X.P, legs, seed, vol), c = w.c, at = w.at; X.w = w; X.at = at;
+    X.en = ENTRY[m.entry](X) || X.en; // recompute on full walk (identical prefix)
+    const num = i => typeof X.P[i] === 'number' ? X.P[i] : X.P[i].p;
+    X.P = X.P.map((p, i) => num(i));
+    const Dp = X.P[ro.D], LHp = X.P[ro.LH];
+    const swI = at[ro.SW], fill0 = (X.en.from != null ? X.en.from : at[ro.D] + 1);
+    const SLbase = lowIn(c, at[ro.LH], at[ro.R]), pad = .06 * (Dp - SLbase);
+    const g = {dir: 1, E: X.en.E, SL: r2(SLbase - pad), TP: r2(m.tp ? m.tp(lv) : lv.ITFhigh), TP1: r2(highIn(c, 0, at[ro.R])), from: fill0};
+    Object.assign(g, sim(c, g)); g.rr = rr(g);
+    const fails = [];
+    if (!c.some((k, i) => i > swI && i <= at[ro.D] && k.c > LHp)) fails.push('mss');
+    if (!(lowIn(c, 0, at[ro.R]) < lv.ITFlow)) fails.push('sweep');
+    if (!(SLbase < lv.EQ && SLbase <= lv.hfvg.top && SLbase > lv.HTFlow)) fails.push('discount/pd');
+    if (g.res !== 'win') fails.push('trade ' + g.res);
+    if (!(g.rr >= 2)) fails.push('rr ' + g.rr.toFixed(2));
+    if (!(g.TP1 < g.TP)) fails.push('tp1');
+    if (highIn(c, 0, g.fill || 0) >= g.TP) fails.push('tp touched before entry');
+    if (Math.max(...c.map(k => k.h)) >= lv.HTFhigh) fails.push('htf dol taken');
+    const t0 = v.t0 != null ? v.t0 : (L0.t0 != null ? L0.t0 : 420), tm = i => t0 + 5 * i;
+    const KZ = [[120, 300], [420, 600], [600, 660], [810, 960]];
+    if (!KZ.some(([a, b]) => tm(g.fill) >= a && tm(g.fill) < b)) fails.push('fill outside killzone ' + tm(g.fill));
+    if (v.win) { const f = X.w.fvg.find(f => f.dir > 0 && f.i >= swI); if (!f || tm(f.i + 1) < v.win[0] || tm(f.i + 1) >= v.win[1] || tm(g.fill) >= v.win[1] || tm(swI) < v.win[0] - 15) fails.push('silver bullet window'); }
+    if (m.check) { const e = m.check(X, g, lv); if (e) fails.push(e); }
+    const donts = (m.dont || ['early', 'tight']).map(kind => { const t = Object.assign({dir: 1, kind}, DONT[kind](X, g)); Object.assign(t, sim(c, t)); t.rr = rr(t); if (t.res === 'ambig') t.res = 'loss', t.exit = t.fill; if (t.res !== 'loss') fails.push('dont ' + kind + ' ' + t.res); return t; });
+    if (fails.length) { why = fails.join(','); continue; }
+    out = {m, seed, ltf: c, itfPre: I.c, htfPre: H.c, at, P: X.P, ro, lv, en: X.en, trade: g, donts, ob: X.ob, now: X.en.now || at[ro.D2 || ro.D], t0, smt: null};
+    if (m.smt) { const P2 = X.P.slice(); P2[ro.SW] = r2(X.P[ro.La] + .3 * (X.P[ro.LH] - X.P[ro.La])); P2[ro.R] = Math.max(P2[ro.R], P2[ro.SW] + .2); out.smt = walk(P2, legs, seed, vol).c; out.smtLow = P2[ro.SW]; }
+  }
+  if (!out) return {err: m.id + '/' + (v.key) + ': ' + why};
+  out.itf = out.itfPre.concat(agg(out.ltf, 3)); out.htf = out.htfPre.concat(agg(out.itf, 16));
+  out.bear = !!v.bear; out.v = v;
+  if (v.bear) mirror(out);
+  return out;
+}
+function mirror(o) {
+  ['ltf', 'itfPre', 'htfPre', 'itf', 'htf'].forEach(k => o[k] = o[k].map(x => mirK(x, M)));
+  if (o.smt) { o.smt = o.smt.map(x => mirK(x, M)); o.smtLow = M - o.smtLow; }
+  o.P = o.P.map(p => M - p);
+  const L = o.lv; o.lv = {HTFlow: M - L.HTFhigh, HTFhigh: M - L.HTFlow, hfvg: mirZ(L.hfvg, M), ITFlow: M - L.ITFhigh, ITFhigh: M - L.ITFlow, EQ: M - L.EQ, flip: true};
+  const en = o.en; o.en = Object.assign({}, en, {E: M - en.E, zone: mirZ(en.zone, M), zone2: mirZ(en.zone2, M), zone3: mirZ(en.zone3, M), fib: en.fib && {lo: M - en.fib.lo, hi: M - en.fib.hi}});
+  if (o.ob) o.ob = mirZ(o.ob, M);
+  const mt = t => Object.assign({}, t, {dir: -t.dir, E: r2(M - t.E), SL: r2(M - t.SL), TP: r2(M - t.TP), TP1: t.TP1 != null ? r2(M - t.TP1) : null});
+  o.trade = mt(o.trade); o.donts = o.donts.map(mt);
+}
+// view(B, n): candles visible when only the first n 5m candles have printed (forming candles aggregate partially).
+function view(B, n) { const l = B.ltf.slice(0, n), i = B.itfPre.concat(agg(l, 3)); return {ltf: l, itf: i, htf: B.htfPre.concat(agg(i, 16))}; }
+const cache = {};
+CS.TW = {build: (m, v) => { const k = m.id + '/' + v.key; return cache[k] || (cache[k] = build(m, v)); }, view, ENTRY, DONT, M};
+})();
+/* ---- Mistake charts: one timeframe, authored waypoints, trades simulated on the generated candles. ---- */
+(function () {
+const T = window.TB, {walk, sim, rr, mirK, r2} = T;
+function mchart(sp) {
+  if (sp.curve) return {curve: sp.curve};
+  if (sp.wt) return {wt: sp.wt};
+  const nums = sp.pts.filter(p => typeof p === 'number' || (p && p.p != null)).map(p => typeof p === 'number' ? p : p.p);
+  const vol = (Math.max(...nums) - Math.min(...nums)) * .035;
+  for (let seed = sp.seed || 1; seed < (sp.seed || 1) + 400; seed++) {
+    const P = [];
+    for (const p of sp.pts) { if (typeof p === 'function') { const w = walk(P, sp.legs.slice(0, P.length - 1), seed, vol); P.push(r2(p(w))); } else P.push(p); }
+    const w = walk(P, sp.legs, seed, vol), c = w.c;
+    const val = x => typeof x === 'function' ? r2(x(w)) : x;
+    let ok = true;
+    const trades = sp.trades.map(t0 => {
+      const t = {dir: t0.dir || 1, E: val(t0.E), SL: t0.noSL ? null : val(t0.SL), TP: val(t0.TP), from: t0.from != null ? w.at[t0.from] : 0, tag: t0.tag, expect: t0.expect, showSL: t0.noSL ? val(t0.SL) : null};
+      const s = sim(c, Object.assign({}, t, {SL: t.SL == null ? (t.dir > 0 ? -1e9 : 1e9) : t.SL}));
+      Object.assign(t, s); if (t.SL != null) t.rr = rr(t);
+      if (t.res !== t.expect) ok = false;
+      return t;
+    });
+    if (ok && sp.check && !sp.check(w, trades)) ok = false;
+    if (!ok) continue;
+    let out = {c, at: w.at, fvg: w.fvg, trades, P, seed, t0: sp.t0};
+    if (sp.mirror) { const A = sp.mirror; out.c = c.map(k => mirK(k, A)); out.trades = trades.map(t => Object.assign({}, t, {dir: -t.dir, E: r2(A - t.E), SL: t.SL == null ? null : r2(A - t.SL), TP: r2(A - t.TP), showSL: t.showSL == null ? null : r2(A - t.showSL)})); out.P = P.map(p => typeof p === 'number' ? A - p : p); out.A = A; }
+    return out;
+  }
+  return {err: 'no seed satisfies trades'};
+}
+CS.TW.mchart = mchart;
+})();
+/* ---- Walkthrough models. Text tokens: {{bullish word|bearish word}}; prices: {E} {SL} {TP} {TP1} {RR} {POOL} {TGT} {DOL} {SW} {LH} {Z} {EQ} {HF}. ---- */
+(function () {
+const DEF = {htf: {pts: [128, 104, 116, 112, 139, 131, 134.5, 121], legs: [5, 4, 3, {n: 5, disp: true}, 3, 2, 4], seed: 11},
+  itf: {pts: [124.2, 119.0, 121.6, 120.9], legs: [4, 6, 4, 2], seed: 5},
+  ltf: {pts: [119.6, 120.7, 118.3, 122.4, 'R', 124.8], legs: [7, 5, 8, {n: 6, disp: true}, 6, 16], seed: 1, t0: 420}};
+const L = o => Object.assign({}, DEF.ltf, o), I = o => Object.assign({}, DEF.itf, o);
+const BB = [{key: 'bull'}, {key: 'bear', bear: true}];
+const M = (o) => Object.assign({htf: DEF.htf, itf: DEF.itf, ltf: DEF.ltf, variants: BB, dont: ['early', 'tight']}, o);
+CS.TW.models = [
+M({id: 'fvg', ltf: L({seed: 1}), name: 'FVG entry', lesson: '3-2', terms: ['fvg', 'displacement', 'mss'], entry: 'fvgtop', dont: ['early', 'tight'],
+  sum: 'The core ICT entry: after a liquidity sweep and displacement, enter on the first return to the fair value gap.',
+  x3: 'The displacement leg left a **{{bullish|bearish}} FVG** at {Z}. That gap is the entry PD array: price moved too fast to trade there fairly, so it often returns to rebalance it.',
+  x4: 'A limit order at the {{top|bottom}} edge of the gap fills on the first touch.',
+  zn: 'FVG'}),
+M({id: 'ob', ltf: L({seed: 12}), name: 'Order block entry', lesson: '3-9', terms: ['ob', 'mean_threshold', 'displacement'], entry: 'ob', dont: ['chase', 'tight'],
+  sum: 'Enter on the return to the last opposite-colour candle before the displacement, the order block.',
+  x3: 'The last {{down|up}}-close candle before the displacement is the **{{bullish|bearish}} order block** ({Z}). It is valid because it swept liquidity and the move away broke structure with an FVG.',
+  x4: 'Enter at the OB {{open (top of the body)|open (bottom of the body)}}. A close beyond its mean threshold would weaken it.',
+  zn: 'order block'}),
+M({id: 'breaker', name: 'Breaker block entry', lesson: '3-10', terms: ['breaker', 'sweep', 'mss'], entry: 'breaker', dont: ['fade', 'tight'], ltf: L({seed: 30}),
+  sum: 'A failed order block: after a sweep, price breaks back through the last swing candle and then uses it from the other side.',
+  x3: 'The {{up|down}}-close candle at the 5m swing {{high|low}} before the sweep failed: price swept {POOL}, then closed back {{above|below}} it. That candle is now a **{{bullish|bearish}} breaker** ({Z}).',
+  x4: 'Enter when price retests the breaker from {{above|below}}.',
+  zn: 'breaker'}),
+M({id: 'mitigation', name: 'Mitigation block entry', lesson: '3-11', terms: ['mitigation', 'failure_swing', 'mss'], entry: 'breaker', dont: ['fade', 'tight'],
+  ltf: L({pts: [118.3, 120.7, 119.3, 122.6, 'R', 124.8], seed: 41}),
+  check: (X) => X.P[3] > X.P[1] ? '' : 'mitigation needs a higher low',
+  sum: 'Like a breaker, but the second {{low|high}} fails to sweep: a failure swing. The last swing candle becomes a mitigation block.',
+  x3: 'Price swept the 15m {{low|high}} first, bounced, then **failed to make a new {{low|high}}** ({SW}). When it closed {{above|below}} {LH}, the {{up|down}}-close candle at that swing became a **mitigation block** ({Z}).',
+  x4: 'Enter on the retest of the mitigation block. The stop goes beyond the failed swing.',
+  zn: 'mitigation block'}),
+M({id: 'ifvg', name: 'Inversion FVG (IFVG)', lesson: '3-4', terms: ['ifvg', 'fvg', 'displacement'], entry: 'ifvg', dont: ['chase', 'tight'],
+  itf: I({pts: [125.5, 119.0, 121.6, 120.9]}), ltf: L({pts: [119.6, 120.4, 118.3, 122.6, 'R', 126], legs: [7, 5, {n: 8, disp: true}, {n: 6, disp: true}, 6, 16], seed: 53}),
+  sum: 'A fair value gap that fails: price closes through it, and the gap flips to support or resistance.',
+  x3: 'The drop into the sweep left a **{{bearish|bullish}} FVG**. The displacement then **closed {{above|below}} it**, inverting it. The inverted gap ({Z}) is now {{support|resistance}}.',
+  x4: 'Enter on the retest of the inverted gap.',
+  zn: 'IFVG'}),
+M({id: 'ote', ltf: L({seed: 64}), name: 'OTE (62–79% retracement)', lesson: '8-14', terms: ['ote', 'fib', 'displacement'], entry: 'ote', dont: ['chase', 'early'],
+  sum: 'Measure the displacement leg and enter in the 62% to 79% retracement, the optimal trade entry.',
+  x3: 'Draw the Fibonacci from the sweep {{low|high}} ({SW}) to the displacement {{high|low}}. The **OTE zone** is the 62% to 79% band ({Z}); 70.5% is the sweet spot.',
+  x4: 'A limit order at the 70.5% level sits inside the OTE and inside the leg\'s {{discount|premium}}.',
+  zn: 'OTE zone'}),
+M({id: 'sb', ltf: L({seed: 75}), name: 'Silver Bullet', lesson: '8-8', terms: ['silver_bullet', 'fvg', 'killzone'], entry: 'fvgce', dont: ['early', 'chase'],
+  variants: [{key: 'am', t0: 500, win: [600, 660], wname: '10–11 am NY'}, {key: 'pm', bear: true, t0: 740, win: [840, 900], wname: '2–3 pm NY'}, {key: 'ldn', seedOff: 40, t0: 80, win: [180, 240], wname: '3–4 am NY (London)'}],
+  vname: {am: 'NY AM · bullish', pm: 'NY PM · bearish', ldn: 'London · bullish'},
+  sum: 'A one-hour window. Inside it, trade the first displacement FVG toward nearby liquidity.',
+  x3: 'Inside the **{WIN}** window, price swept {POOL} and displaced, leaving the **first FVG of the hour** ({Z}). That is the Silver Bullet entry.',
+  x4: 'Enter at the FVG\'s midpoint (CE) while still inside the window.',
+  zn: 'Silver Bullet FVG', win: true}),
+M({id: 'judas', name: 'Judas swing', lesson: '8-10', terms: ['judas', 'midnight_open', 'killzone'], entry: 'fvgce', dont: ['fade', 'tight'],
+  ltf: L({legs: [9, 6, 11, {n: 6, disp: true}, 6, 10], t0: 0, seed: 86}), midnight: true,
+  sum: 'The early-session fake move: price runs {{below|above}} the midnight open and the Asian {{low|high}}, then reverses for the real move.',
+  x3: 'From midnight, price drifted, then at the London open made the **Judas swing {{down|up}}**: {{below|above}} the midnight open and the 15m {{low|high}} ({POOL}). The reversal closed {{above|below}} {LH} and left an FVG ({Z}).',
+  x4: 'Enter in the FVG. A {{long|short}} from {{below|above}} the midnight open is buying {{discount|premium}} for the day.',
+  zn: 'FVG'}),
+M({id: 'turtle', ltf: L({seed: 97}), name: 'Turtle soup', lesson: '8-11', terms: ['turtle_soup', 'sweep', 'old_high'], entry: 'turtle', dont: ['early', 'fade'],
+  sum: 'A false breakout of an old {{low|high}}: price runs the stops, then trades back inside. Fade the breakout.',
+  x3: 'Price broke the old 15m {{low|high}} at {POOL}, ran the stops to {SW}, then **traded back {{above|below}} it** and shifted structure.',
+  x4: 'Enter as price returns to the old {{low|high}} from the other side. The stop goes beyond the turtle soup {{low|high}}.',
+  zn: 'old level'}),
+M({id: 'po3', name: 'Power of 3 (AMD)', lesson: '8-15', terms: ['quarterly_theory', 'judas', 'opening_price'], entry: 'fvgce', dont: ['fade', 'early'], ltf: L({pts: [120.3, 121.3, 118.3, 122.4, 'R', 124.8], legs: [8, 8, 4, {n: 6, disp: true}, 6, 16], seed: 108}), po3: true,
+  sum: 'Accumulation, manipulation, distribution. Each 4H candle opens, fakes one way, then expands the other.',
+  x3: 'This whole 5m chart is **one 4H candle**. It opened at {OPEN} and **accumulated** in a tight range, then **manipulated {{below|above}}** the open and the 15m {{low|high}} ({SW}). The shift and FVG ({Z}) start the **distribution**.',
+  x4: 'Enter in the FVG {{below|above}} the 4H open: you are buying the manipulation, not the breakout.',
+  zn: 'FVG'}),
+M({id: 'mmxm', name: 'Market Maker {{Buy|Sell}} Model', lesson: '8-12', terms: ['smr', 'reaccumulation', 'dol'], entry: 'fvgce', dont: ['fade', 'chase'],
+  itf: I({pts: [124.6, 122.6, 123.6, 120.9, 121.8, 119.0, 120.6], legs: [3, 2, 2, 3, 2, 2, 2]}), ltf: L({pts: [119.6, 120.4, 118.3, 122.4, 'R', 125.2], seed: 119}),
+  sum: 'Price leaves an original consolidation, runs a stair-step {{sell|buy}} program into a HTF PD array, makes a smart money reversal, then returns to the start.',
+  x2: 'On the 15m you can see the **{{sell|buy}} program**: {{lower highs|higher lows}} stepping {{down|up}} from the original consolidation at {TGT}. That level is the model\'s target.',
+  x3: 'At the 4H FVG, the **smart money reversal**: sweep of {POOL}, displacement and a shift through {LH}, leaving an FVG ({Z}).',
+  x4: 'Enter in the FVG. The {{buy|sell}} side of the curve targets the original consolidation.',
+  zn: 'FVG'}),
+M({id: 'm2022', name: '2022 Mentorship model', lesson: '8-9', terms: ['sweep', 'mss', 'displacement', 'fvg'], entry: 'fvgce', dont: ['early', 'tight'], ltf: L({seed: 131}),
+  sum: 'Sweep of liquidity, market structure shift with displacement, entry in the FVG, target the opposite pool.',
+  x3: '**1. Sweep**: price took {POOL}. **2. Shift**: displacement closed {{above|below}} {LH}. **3. FVG**: the move left a gap at {Z}. All three, in order.',
+  x4: 'Enter at the FVG midpoint (CE).',
+  zn: 'FVG'}),
+M({id: 'unicorn', name: 'Unicorn (breaker + FVG)', lesson: '8-13', terms: ['unicorn', 'breaker', 'fvg'], entry: 'unicorn', dont: ['early', 'tight'], ltf: L({pts: [118.9, 119.5, 118.3, 122.4, 'R', 124.8], seed: 142}),
+  sum: 'When a breaker and a fair value gap overlap, the overlap is a high-probability entry.',
+  x3: 'The breaker (the {{up|down}}-close candle at the swing before the sweep) and the displacement FVG **overlap** at {Z}: a unicorn.',
+  x4: 'Enter at the edge of the overlap.',
+  zn: 'unicorn overlap'}),
+M({id: 'bpr', name: 'Balanced price range (BPR)', lesson: '3-6', terms: ['bpr', 'fvg', 'bisi'], entry: 'bpr', dont: ['chase', 'tight'], ltf: L({pts: [118.8, 119.7, 118.3, 122.4, 'R', 124.8], legs: [7, 5, {n: 8, disp: true}, {n: 6, disp: true}, 6, 16], seed: 153}),
+  sum: 'A {{bearish|bullish}} FVG on the way {{down|up}} and a {{bullish|bearish}} FVG on the way {{up|down}} overlap. The overlap is balanced and very sensitive.',
+  x3: 'The drop left a **{{SIBI|BISI}}**, the displacement left a **{{BISI|SIBI}}**, and they overlap at {Z}. That overlap is the balanced price range.',
+  x4: 'Enter at the edge of the BPR.',
+  zn: 'BPR'}),
+M({id: 'rejection', name: 'Rejection block', lesson: '3-12', terms: ['rejection_block', 'wick', 'sweep'], entry: 'rejection', dont: ['early', 'tight'], ltf: L({pts: [119.6, 120.7, {p: 118.3, close: 119.0}, 122.4, 'R', 124.8], seed: 164}),
+  sum: 'Long wicks at a swing {{low|high}} show rejection. The wick range becomes the entry zone.',
+  x3: 'The sweep candle printed a long {{lower|upper}} wick: price was **rejected** {{below|above}} {POOL}. The wick, from the body to the extreme, is the **rejection block** ({Z}).',
+  x4: 'Enter when price returns into the wick. The stop sits beyond the wick\'s extreme.',
+  zn: 'rejection block'}),
+M({id: 'propulsion', name: 'Propulsion block', lesson: '3-13', terms: ['propulsion_block', 'ob', 'mean_threshold'], entry: 'propulsion', dont: ['chase', 'tight'],
+  ltf: L({pts: [119.6, 120.7, 118.3, 121.0, 'R1ob', 122.6, 'R', 124.8], legs: [6, 5, 7, {n: 5, disp: true}, 4, {n: 5, disp: true}, 4, 12], roles: {R1: 5, D2: 6, R: 7}, seed: 175}),
+  sum: 'A candle that trades into an order block and then propels price. Its mean threshold should hold on the next retest.',
+  x3: 'After the first shift, price retraced into the order block. The {{down|up}}-close candle that touched it ({Z}) launched the next leg: a **propulsion block**.',
+  x4: 'Enter at the propulsion block\'s mean threshold (50% of its body).',
+  zn: 'propulsion block'}),
+M({id: 'void', name: 'Liquidity void fill', lesson: '2-8', terms: ['liquidity_void', 'fvg', 'dol'], entry: 'fvgce', dont: ['fade', 'chase'],
+  itf: I({pts: [124.4, 119.0, 120.2, 120.9], legs: [4, {n: 6, disp: true}, 4, 2]}), ltf: L({pts: [119.6, 120.7, 118.3, 122.4, 'R', 125.0], seed: 186}),
+  sum: 'A fast one-way move leaves a void with almost no trading. Price tends to return and fill it.',
+  x2: 'The 15m sell-off from {TGT} was a **liquidity void**: long one-sided candles with little overlap. Voids act like magnets; the {{top|bottom}} of the void is the target.'.replace('sell-off', '{{sell-off|rally}}'),
+  x3: 'At the bottom of the void price swept {POOL}, shifted through {LH} and left an FVG ({Z}).',
+  x4: 'Enter in the FVG and target a full fill of the void.',
+  zn: 'FVG'}),
+M({id: 'kzrev', ltf: L({seed: 197}), name: 'Killzone reversal', lesson: '8-16', terms: ['killzone', 'session_hl', 'sweep'], entry: 'fvgce', dont: ['fade', 'early'],
+  variants: [{key: 'london', t0: 60, kzname: 'London open'}, {key: 'ny', bear: true, seedOff: 30, t0: 420, kzname: 'New York AM'}],
+  vname: {london: 'London open · bullish', ny: 'New York · bearish'},
+  sum: 'The session open runs the previous session\'s liquidity, then reverses for the day\'s real move.',
+  x3: 'Inside the **{KZN} killzone**, price ran the session {{low|high}} at {POOL} and reversed: displacement through {LH}, FVG at {Z}.',
+  x4: 'Enter in the FVG while the killzone is still open.',
+  zn: 'FVG'}),
+M({id: 'smt', name: 'SMT-confirmed reversal', lesson: '9-1', terms: ['smt', 'correlation', 'sweep'], entry: 'fvgce', dont: ['early', 'chase'], smt: true, ltf: L({seed: 208}),
+  sum: 'Two correlated markets disagree at the extreme: one sweeps, the other fails to. The divergence confirms the reversal.',
+  x3: 'ES swept {POOL} and made a **lower {{low|high}}**, but NQ (bottom chart) made a **higher {{low|high}}**. That **SMT divergence** says the sweep was a trap. Then the shift through {LH} and the FVG ({Z}).'.replace('lower {{low|high}}', '{{lower low|higher high}}').replace('higher {{low|high}}', '{{higher low|lower high}}'),
+  x4: 'Enter in the FVG on ES, the market that swept.',
+  zn: 'FVG'}),
+];
+// Bearish variant of every model with default variants; names resolved by app.
+})();
+
+/* ---- content/mistakes.js ---- */
+/* Mistake library. chart: {wt, dont|good} reuses a walkthrough's 5m candles; otherwise authored waypoints + trades
+   (E/SL/TP prices, `from` = waypoint index the order becomes active, expect = simulated result). */
+(function () {
+const f0 = w => w.fvg[0], f1 = w => w.fvg[1];
+CS.TW.mistakes = [
+/* ---- Bias & context ---- */
+{id: 'against-bias', cat: 'bias', t: 'Trading against the higher-timeframe bias', d: 'Shorting a 5m breakdown while the 4H is bullish and sitting in discount.',
+  chart: {wt: 'judas-bull', dont: 'fade'}, what: 'The break of the 15m low was the sweep. Price reversed into the 4H draw and ran the short stop.',
+  why: 'The 5m chart looks bearish in isolation, and the breakdown feels like momentum.', fix: 'Decide bias on the 4H/daily first. Only take 5m setups that point toward the higher-timeframe draw on liquidity.',
+  lessons: ['7-1', '7-2', '7-5'], terms: ['bias', 'htf', 'dol'], drill: 'dol-1'},
+{id: 'no-htf', cat: 'bias', t: 'No higher-timeframe context', d: 'Buying a 5m "shift" that is really a pullback inside a 4H downtrend.',
+  chart: {pts: [111, 109.2, 110, 108, 110.3, 109.4, 109.9, 106.5], legs: [5, 4, 6, {n: 5, disp: true}, 4, 3, 10], seed: 3,
+    trades: [{E: 109.5, SL: 107.8, TP: 111.6, from: 4, expect: 'loss'}], zones: [{top: 111.2, bot: 110.5, label: '4H bearish OB'}], labels: [[4, 'shift?']]},
+  what: 'The rally stalled under a 4H bearish order block and the downtrend resumed through the stop.',
+  why: 'Looking only at the entry timeframe makes every bounce look like a reversal.', fix: 'Mark 4H PD arrays and the dealing range before you open the 5m chart. A 5m shift into a 4H premium array is a sell signal, not a buy.',
+  lessons: ['7-1', '4-8'], terms: ['top_down', 'pd_array'], drill: 'ms-mss'},
+{id: 'premium-long', cat: 'bias', t: 'Buying in premium', d: 'Going long near the top of the dealing range, where sellers have the edge.',
+  chart: {pts: [100.5, 106, 100, 105.8, 105, 105.7, 101], legs: [6, 8, 8, 3, 3, 9], seed: 5,
+    trades: [{E: 105.3, SL: 104.6, TP: 107.5, from: 3, expect: 'loss'}], lines: [[106, 'range high'], [103, 'EQ 50%'], [100, 'range low']], shade: [106, 103, 'premium']},
+  what: 'Price was above equilibrium. It rotated back down toward the range low and stopped the long.',
+  why: 'Price going up feels safe to buy. Premium/discount is ignored because it is not on the entry chart.', fix: 'Draw the dealing range and its 50% line. Buy only below it (discount), sell only above it (premium).',
+  lessons: ['5-2', '5-6'], terms: ['premium', 'discount', 'equilibrium'], drill: 'pd-side'},
+{id: 'discount-short', cat: 'bias', t: 'Selling in discount', d: 'Shorting near the range low, right where buyers step in.',
+  chart: {pts: [100.5, 106, 100, 105.8, 105, 105.7, 101], legs: [6, 8, 8, 3, 3, 9], seed: 5, mirror: 206,
+    trades: [{E: 105.3, SL: 104.6, TP: 107.5, from: 3, expect: 'loss'}], lines: [[106, 'range low'], [103, 'EQ 50%'], [100, 'range high']], shade: [106, 103, 'discount']},
+  what: 'The short was taken below equilibrium. Price bounced toward the range high and took the stop.',
+  why: 'Chasing a move that already went most of the way.', fix: 'Shorts belong in premium, ideally at a bearish PD array above equilibrium.',
+  lessons: ['5-2'], terms: ['discount', 'premium'], drill: 'pd-eq'},
+{id: 'stale-bias', cat: 'bias', t: 'Holding yesterday\'s bias after structure changed', d: 'Buying the dip after price broke the last higher low with displacement.',
+  chart: {pts: [100, 104, 102.8, 105.2, 101.5, 103.2, 99.8], legs: [6, 4, 5, {n: 5, disp: true}, 5, 10], seed: 2,
+    trades: [{E: 103, SL: 101.3, TP: 105.5, from: 4, expect: 'loss'}], lines: [[102.8, 'last higher low (broken)']], labels: [[4, 'MSS down']]},
+  what: 'The displacement through the higher low was a bearish shift. The "dip" was a retracement in a new downtrend.',
+  why: 'Anchoring: once you have a bias, you want it to be right.', fix: 'Re-check bias at every session. A displacement close through the last swing against you means flat or flip, not buy more.',
+  lessons: ['4-2', '7-6'], terms: ['mss', 'bias', 'narrative'], drill: 'ms-choch'},
+
+/* ---- Entries ---- */
+{id: 'before-displacement', cat: 'entries', t: 'Entering before displacement', d: 'Buying the old low because it "looks like support", before any sweep or shift.',
+  chart: {wt: 'fvg-bull', dont: 'early'}, what: 'The stop under the old low was the liquidity. Price ran it, then the real move started without you.',
+  why: 'Anticipation feels like getting a better price.', fix: 'Wait for the sequence: sweep, displacement, MSS, then the PD array. No displacement, no trade.',
+  lessons: ['8-2', '4-3', '8-1'], terms: ['anticipation', 'confirmation', 'displacement'], drill: 'conf-wait'},
+{id: 'chasing', cat: 'entries', t: 'Chasing the displacement candle', d: 'Buying the top of the expansion with a tight stop.',
+  chart: {wt: 'ob-bull', dont: 'chase'}, what: 'The normal retracement into the gap and order block took the stop before price continued.',
+  why: 'Fear of missing the move after a big candle.', fix: 'Displacement is the signal, not the entry. Enter on the return to the FVG or OB, with the stop beyond the sweep.',
+  lessons: ['8-4', '11-2'], terms: ['displacement', 'fvg', 'ob'], drill: 'sweep-entry'},
+{id: 'no-sweep', cat: 'entries', t: 'No liquidity swept first', d: 'Buying a bounce that never took the obvious lows below.',
+  chart: {pts: [104, 102.2, 103.4, 102.6, 103.8, 103, 101.6, 105.4], legs: [5, 4, 4, 4, 3, 4, 10], seed: 4,
+    trades: [{E: 103.1, SL: 102.45, TP: 104.9, from: 4, expect: 'loss'}], lines: [[102.2, 'untouched lows (SSL)']], labels: [[6, 'the real sweep']]},
+  what: 'Sell-side liquidity under 102.2 was still resting. Price went and took it, and the stop with it, before rallying.',
+  why: 'A higher low looks bullish, but nothing was taken.', fix: 'Ask "which liquidity was just taken?" If the answer is none, the obvious pool is still the magnet.',
+  lessons: ['2-6', '2-3'], terms: ['sweep', 'ssl', 'liquidity'], drill: 'sweep-1'},
+{id: 'pd-no-mss', cat: 'entries', t: 'Blind limit order at a PD array', d: 'Buying the first touch of a 4H FVG with no lower-timeframe shift.',
+  chart: {pts: [108, 104.4, 104.9, 102], legs: [8, 3, 6], seed: 2, trades: [{E: 104.95, SL: 103.8, TP: 107, from: 0, expect: 'loss'}], zones: [{top: 105, bot: 104, label: '4H FVG'}]},
+  what: 'Price traded straight through the gap. No sweep, no shift, no displacement: the array simply failed.',
+  why: 'A zone on the higher timeframe feels like a guarantee.', fix: 'Treat HTF arrays as places to look, not places to buy. Drop to the 5m and wait for a sweep and MSS inside the zone.',
+  lessons: ['8-3', '3-15'], terms: ['pd_array', 'confirmation'], drill: 'conf-wait'},
+{id: 'fade-sweep', cat: 'entries', t: 'Selling the breakdown into a sweep', d: 'Shorting the break of a low in discount, at a higher-timeframe PD array.',
+  chart: {wt: 'breaker-bull', dont: 'fade'}, what: 'The break was a stop run. Price reclaimed the level, broke structure up and ran the short stop.',
+  why: 'Breakouts feel like momentum; the higher-timeframe location is ignored.', fix: 'Check where the break happens. Into HTF discount, expect a sweep. Wait for acceptance (closes and continuation) before trading a breakout.',
+  lessons: ['2-6', '2-7'], terms: ['sweep', 'stop_hunt', 'turtle_soup'], drill: 'sweep-break'},
+{id: 'early-fvg', cat: 'entries', t: 'Using a gap that formed before the sweep', d: 'Buying an old FVG instead of the one created by the reversal.',
+  chart: {pts: [104, 106.6, 105.3, w => f0(w).bot + .35 * (f0(w).top - f0(w).bot), 104.9, 103, 106.2, w => f1(w).bot + .3 * (f1(w).top - f1(w).bot), 108.4], legs: [{n: 5, disp: true}, 4, 3, 2, 4, {n: 5, disp: true}, 3, 12], seed: 6,
+    trades: [{E: w => (f0(w).top + f0(w).bot) / 2, SL: w => f0(w).bot - .25, TP: 107.6, from: 1, expect: 'loss', tag: 'old FVG'}, {E: w => f1(w).top, SL: 102.75, TP: 107.6, from: 6, expect: 'win', tag: 'valid FVG'}],
+    fvgs: [[0, 'old FVG'], [1, 'post-sweep FVG']], labels: [[5, 'sweep']]},
+  what: 'The first gap was formed before liquidity was taken. Price ran through it to sweep the lows. The gap created by the reversal displacement worked.',
+  why: 'Every FVG looks the same once it is drawn on the chart.', fix: 'Use the FVG created by the displacement that followed the sweep. Older gaps are context, not entries.',
+  lessons: ['3-2', '8-9'], terms: ['fvg', 'displacement', 'sweep'], drill: 'sweep-entry'},
+{id: 'limit-too-deep', cat: 'entries', t: 'Limit order too deep', d: 'Waiting for a perfect fill below the gap, so the trade runs without you.',
+  chart: {pts: [104, 102, 105, w => f0(w).top - .3 * (f0(w).top - f0(w).bot), 107], legs: [5, {n: 5, disp: true}, 4, 8], seed: 3,
+    trades: [{E: w => f0(w).bot - .35, SL: 101.8, TP: 106.5, from: 2, expect: 'nofill', tag: 'too deep'}, {E: w => f0(w).top, SL: 101.8, TP: 106.5, from: 2, expect: 'win', tag: 'FVG edge'}], fvgs: [[0, 'FVG']]},
+  what: 'Price tapped the top of the gap and expanded. The deep limit never filled.',
+  why: 'Greed for a bigger R:R, or a belief that price "must" fill the whole gap.', fix: 'Enter at the edge or CE of the array and accept a slightly smaller R:R. A missed winner is a real cost.',
+  lessons: ['8-4', '8-7'], terms: ['refinement', 'ce'], drill: 'fvg-ce'},
+
+/* ---- Stops & risk ---- */
+{id: 'stop-inside-zone', cat: 'stops', t: 'Stop inside the entry zone', d: 'Placing the stop inside the FVG instead of beyond the sweep.',
+  chart: {wt: 'fvg-bull', dont: 'tight'}, what: 'A normal retracement deeper into the gap took the stop. The setup was still valid.',
+  why: 'A tighter stop means a bigger R:R and a bigger position.', fix: 'The stop goes where the idea is wrong: beyond the sweep low. Size the position down to keep the risk fixed.',
+  lessons: ['8-5', '10-3'], terms: ['invalidation', 'stop_loss', 'position_size'], drill: 'sweep-stop'},
+{id: 'stop-obvious', cat: 'stops', t: 'Stop at the obvious level', d: 'Stop just under the old low that everyone can see.',
+  chart: {wt: 'turtle-bull', dont: 'early'}, what: 'The obvious low is where liquidity rests. The run on it took this stop.',
+  why: 'It "makes sense" to put stops below support.', fix: 'Assume obvious levels get swept. Wait for the sweep, then place the stop beyond the sweep extreme.',
+  lessons: ['2-3', '8-5'], terms: ['ssl', 'stop_hunt'], drill: 'liq-stops'},
+{id: 'stop-eql', cat: 'stops', t: 'Stop under equal lows', d: 'Equal lows look like double support, so the stop goes just under them.',
+  chart: {pts: [103, 100, 101.8, 100.03, 101.4, {p: 99.5, close: 100.2}, 103.5], legs: [6, 4, 4, 3, 3, 10], seed: 2,
+    trades: [{E: 100.6, SL: 99.85, TP: 103, from: 2, expect: 'loss'}], lines: [[100, 'equal lows']], labels: [[5, 'run on EQL']]},
+  what: 'Equal lows are engineered liquidity. Price ran them, took the stop, and reversed.',
+  why: 'Equal lows feel like strong support.', fix: 'Treat equal highs/lows as targets, not protection. Enter after they are swept.',
+  lessons: ['2-4'], terms: ['eqhl', 'relative_equal'], drill: 'eql-1'},
+{id: 'oversize', cat: 'stops', t: 'Risking too much per trade', d: 'A normal losing trade becomes a large hole because size was too big.',
+  chart: {wt: 'm2022-bear', dont: 'tight'}, what: 'One ordinary loss. At 10% risk it is a 10% drawdown; at 1% it is a non-event.',
+  why: 'Confidence after a few wins, or trying to recover faster.', fix: 'Risk a fixed 0.5–1% per trade. Use the calculator so a stopped trade costs exactly 1R.',
+  lessons: ['10-2', '10-7'], terms: ['risk_percent', 'drawdown', 'risk_of_ruin'], drill: null},
+{id: 'widening-stop', cat: 'stops', t: 'Moving the stop further away', d: 'Price nears the stop, so you give it "more room".',
+  chart: {pts: [102, 101, 101.5, 99.2, 100.1], legs: [5, 3, 6, 3], seed: 2, trades: [{E: 101.05, SL: 99.6, TP: 103, from: 0, expect: 'loss', tag: 'moved stop'}], lines: [[100.4, 'original stop']]},
+  what: 'The original stop would have lost 1R. The moved stop lost more than 2R.',
+  why: 'Not wanting to be wrong. Hope replaces the plan.', fix: 'Stops only move in the direction of profit. Set it, and leave it.',
+  lessons: ['8-5', '11-6'], terms: ['stop_loss', 'invalidation'], drill: null},
+{id: 'stop-too-wide', cat: 'stops', t: 'Stop so wide the R:R is upside down', d: 'Risking 2.5 points to make 1.',
+  chart: {pts: [102, 100.9, 102.3], legs: [6, 8], seed: 2, trades: [{E: 101, SL: 98.5, TP: 102, from: 0, expect: 'win'}]},
+  what: 'The trade worked, but only paid 0.4R. You need a 70%+ win rate just to break even like this.',
+  why: 'A far stop feels safe.', fix: 'Require at least 2:1. If the logical stop is too far for that, skip the trade or find a lower-timeframe entry.',
+  lessons: ['8-7', '10-6'], terms: ['rr', 'win_rate', 'expectancy'], drill: 'conf-time'},
+
+/* ---- Targets & management ---- */
+{id: 'target-nothing', cat: 'targets', t: 'Target into nothing', d: 'Placing the take profit beyond the obvious liquidity, in empty space.',
+  chart: {pts: [101, 104, 100.6, 102.5, 101.2, 104.02, 100.4], legs: [5, 6, 5, 4, 6, 10], seed: 2,
+    trades: [{E: 101.6, SL: 100.9, TP: 106, from: 3, expect: 'loss'}], lines: [[104, 'old high (real liquidity)']]},
+  what: 'Price reached the old high, the actual liquidity, then reversed. The far target was never hit.',
+  why: 'Wanting a bigger R:R than the chart offers.', fix: 'Target the next draw on liquidity: old highs/lows or an opposing PD array. Take at least partial profit there.',
+  lessons: ['8-6', '2-10'], terms: ['dol', 'take_profit', 'old_high'], drill: 'dol-2'},
+{id: 'be-early', cat: 'targets', t: 'Breakeven too early', d: 'Moving the stop to entry after a small move, then getting tagged out.',
+  chart: {pts: [102, 100.7, 101.6, 100.75, 103.2], legs: [5, 4, 4, 10], seed: 2, trades: [{E: 100.8, SL: 100, TP: 103, from: 0, expect: 'win', tag: 'original plan'}],
+    lines: [[100.8, 'stop moved to entry']], labels: [[3, 'BE stop hit']], check: (w) => w.c[w.at[3]].l <= 100.8},
+  what: 'The pullback tagged breakeven by a few ticks, then price went to the target. The plan would have paid +2.75R.',
+  why: 'Wanting a "free trade" after a loss or two.', fix: 'Move to breakeven only after structure confirms (a new high and a higher low), not after a fixed number of ticks.',
+  lessons: ['8-6'], terms: ['breakeven', 'trailing_stop'], drill: null},
+{id: 'no-partials', cat: 'targets', t: 'No partials at the first target', d: 'Price hits +2R, you hold everything for +4R, and it reverses to the stop.',
+  chart: {pts: [101.8, 100.7, 102.5, 99.8], legs: [5, 6, 10], seed: 2, trades: [{E: 100.8, SL: 100, TP: 104, from: 0, expect: 'loss'}], lines: [[102.4, 'TP1 +2R (touched)']]},
+  what: 'Internal liquidity was reached first, then price reversed all the way to the stop.',
+  why: 'Greed, or no written management plan.', fix: 'Take a partial at the first liquidity target and reduce risk. Let the rest run to the final target.',
+  lessons: ['8-6'], terms: ['partial', 'take_profit'], drill: null},
+{id: 'closing-early', cat: 'targets', t: 'Closing in fear on the first pullback', d: 'Cutting a valid winner at +0.9R because of a normal retracement.',
+  chart: {pts: [102, 100.8, 102, 101.5, 104.4], legs: [5, 5, 3, 10], seed: 2, trades: [{E: 100.9, SL: 100.2, TP: 104, from: 0, expect: 'win', tag: 'plan'}], lines: [[101.5, 'closed here (+0.9R)']]},
+  what: 'The pullback held above the entry. The planned target paid +4.4R.',
+  why: 'Recent losses make every red candle feel dangerous.', fix: 'Manage by structure, not emotion. If the stop and the reason for the trade are intact, hold.',
+  lessons: ['11-6', '11-8'], terms: ['r_multiple'], drill: null},
+{id: 'opposing-array', cat: 'targets', t: 'Target through an opposing PD array', d: 'Long target placed beyond a fresh bearish FVG overhead.',
+  chart: {pts: [101.6, 100.5, 103, 99.7], legs: [5, 7, 10], seed: 2, trades: [{E: 100.6, SL: 99.9, TP: 104.5, from: 0, expect: 'loss'}], zones: [{top: 103.3, bot: 102.6, label: 'bearish FVG'}]},
+  what: 'Price rallied into the opposing gap, sellers defended it, and the move reversed through the stop.',
+  why: 'The opposing array was not marked.', fix: 'Mark opposing PD arrays between entry and target. Take profit in front of them.',
+  lessons: ['3-15', '8-6'], terms: ['pd_array', 'fvg'], drill: 'fvg-bear'},
+
+/* ---- Timing / killzones ---- */
+{id: 'lunch-chop', cat: 'timing', t: 'Trading the NY lunch hour', d: 'Taking a breakout at 12:15 pm when volume has dried up.',
+  chart: {pts: [104, 103.2, 104.4, 103, 104.3, 102.9, 103.8], legs: [4, 4, 4, 4, 4, 4], seed: 2, t0: 710, trades: [{E: 103.9, SL: 103.1, TP: 105.2, from: 2, expect: 'loss'}]},
+  what: 'Price chopped in a range and took the stop. No follow-through.',
+  why: 'Boredom and wanting action.', fix: 'Trade the killzones (London 2–5 am, NY 7–10 am). Lunch (12–1:30 pm NY) is for reviewing, not trading.',
+  lessons: ['6-2', '6-5'], terms: ['lunch', 'killzone'], drill: 'kz-lunch'},
+{id: 'news-spike', cat: 'timing', t: 'Holding into red-folder news', d: 'An open trade with a tight stop seconds before CPI.',
+  chart: {pts: [101.5, 100.6, 101.4, 99.6, 101.8, 103.2], legs: [4, 3, 1, 1, 8], seed: 2, t0: 475, trades: [{E: 100.8, SL: 100.1, TP: 102.8, from: 0, expect: 'loss'}], labels: [[3, 'CPI 8:30']]},
+  what: 'The release spiked through the stop in one candle, then price went to the target.',
+  why: 'Not checking the economic calendar.', fix: 'Check the calendar every morning. Be flat or have no new entries in the minutes around high-impact news.',
+  lessons: ['6-11'], terms: ['cpi', 'economic_calendar', 'slippage'], drill: 'conf-news'},
+{id: 'asian-drift', cat: 'timing', t: 'Forcing trades in the Asian session', d: 'Buying a small breakout during a quiet range.',
+  chart: {pts: [103, 103.6, 103.2, 103.9, 103.5, 102.7], legs: [5, 4, 5, 4, 6], seed: 2, t0: 1230, trades: [{E: 103.75, SL: 103.3, TP: 104.8, from: 2, expect: 'loss'}]},
+  what: 'The Asian range is usually a range. The breakout faded and the stop was hit.',
+  why: 'It is the only time you can trade, so you force it.', fix: 'Use Asia to mark the range high and low. Trade the London or NY raid of those levels instead.',
+  lessons: ['6-3'], terms: ['asian_range', 'session'], drill: 'kz-ldn'},
+{id: 'outside-sb', cat: 'timing', t: 'Silver Bullet outside the window', d: 'Taking an FVG that formed at 11:20, after the 10–11 window closed.',
+  chart: {pts: [104, 102.6, 104.6, w => f0(w).bot + .3 * (f0(w).top - f0(w).bot), 102.2], legs: [5, {n: 5, disp: true}, 4, 10], seed: 2, t0: 640,
+    trades: [{E: w => f0(w).top, SL: 102.4, TP: 105.6, from: 2, expect: 'loss'}], fvgs: [[0, 'FVG 11:20']], window: [600, 660, 'Silver Bullet']},
+  what: 'Out of the window, the gap had no time-based edge. Price drifted back through it.',
+  why: 'The pattern looks identical, so the clock gets ignored.', fix: 'Time is part of the model. If the FVG did not form inside the window, it is not a Silver Bullet.',
+  lessons: ['6-6', '8-8'], terms: ['silver_bullet', 'macro'], drill: 'kz-sb'},
+
+/* ---- Psychology & discipline ---- */
+{id: 'revenge', cat: 'psych', t: 'Revenge trading', d: 'Re-entering right after a loss to "make it back".',
+  chart: {pts: [104, 103, 104, 102.9, 103.9, 102.8, 103.6, 101.8], legs: [4, 4, 4, 4, 4, 4, 6], seed: 2,
+    trades: [{E: 103.8, SL: 103.1, TP: 104.6, from: 1, expect: 'loss', tag: 'loss'}, {E: 103.7, SL: 103, TP: 104.6, from: 3, expect: 'loss', tag: 'revenge'}, {E: 103.4, SL: 102.9, TP: 104.6, from: 5, expect: 'loss', tag: 'revenge x2'}]},
+  what: 'Three losses in a row in the same chop, each taken faster and with less reason than the last.',
+  why: 'A loss feels personal; the urge is to fix it immediately.', fix: 'Set a rule: after a loss, step away for 15 minutes. After two, you are done for the day.',
+  lessons: ['11-3', '10-8'], terms: ['daily_loss'], drill: null},
+{id: 'fomo', cat: 'psych', t: 'FOMO entry', d: 'Jumping in after a big move because everyone is talking about it.',
+  chart: {pts: [100, 104.6, 104.1, 104.9, 102.6], legs: [{n: 8, disp: true}, 3, 3, 8], seed: 2, trades: [{E: 104.7, SL: 104.15, TP: 106, from: 2, expect: 'loss'}]},
+  what: 'The buy was at the top of an extended move. The normal retracement took the stop.',
+  why: 'Fear of missing out beats the plan.', fix: 'If you missed the entry, you missed it. Write down the next level where the setup would be valid again and wait.',
+  lessons: ['11-2', '11-7'], terms: ['a_setup'], drill: 'conf-wait'},
+{id: 'overtrading', cat: 'psych', t: 'Overtrading a range', d: 'Taking every wiggle in both directions.',
+  chart: {pts: [103, 104, 103.1, 104.05, 103.05, 104.1, 103, 103.6], legs: [4, 4, 4, 4, 4, 4, 4], seed: 2,
+    trades: [{E: 103.9, SL: 103.4, TP: 104.8, from: 0, expect: 'loss'}, {dir: -1, E: 103.25, SL: 103.75, TP: 102.4, from: 2, expect: 'loss'}, {E: 103.95, SL: 103.45, TP: 104.8, from: 3, expect: 'loss'}]},
+  what: 'Each trade was taken inside the same range. The range ate all of them.',
+  why: 'Confusing activity with progress.', fix: 'Cap trades per day (two or three). Only take setups that pass every checklist item.',
+  lessons: ['11-4', '8-1'], terms: ['checklist', 'a_setup'], drill: 'conf-time'},
+{id: 'averaging-down', cat: 'psych', t: 'Adding to a loser', d: 'Buying more as price falls to lower the average.',
+  chart: {pts: [104, 103, 103.4, 102.2, 102.5, 100.8], legs: [4, 3, 4, 3, 6], seed: 2,
+    trades: [{E: 103.1, SL: 101.5, TP: 105, from: 0, expect: 'loss', tag: 'entry'}, {E: 102.3, SL: 101.5, TP: 105, from: 2, expect: 'loss', tag: 'added'}]},
+  what: 'Two positions hit the same stop. The loss doubled.',
+  why: 'Refusing to accept being wrong.', fix: 'Add only to winners, and only at a new valid entry. Never add to a position that is moving against you.',
+  lessons: ['10-10', '11-6'], terms: ['position_size'], drill: null},
+{id: 'skip-a-plus', cat: 'psych', t: 'Skipping the A+ setup after losses', d: 'Fear makes you pass on the exact trade your plan describes.',
+  chart: {wt: 'm2022-bull', good: true}, what: 'Every checklist item was there. The skipped trade went to the target.',
+  why: 'Recent losses make the next trade feel dangerous.', fix: 'Your edge only works over many trades. If it passes the checklist, take it at normal size.',
+  lessons: ['11-11', '11-12'], terms: ['a_setup', 'expectancy'], drill: 'conf-take'},
+{id: 'no-stop', cat: 'psych', t: 'Hoping instead of using a stop', d: 'No stop because "it will come back".',
+  chart: {pts: [104, 102.6, 103.4, 98.5, 99.2], legs: [5, 4, 10, 3], seed: 2, trades: [{E: 103, SL: 102.4, noSL: true, TP: 105, from: 1, expect: 'open'}]},
+  what: 'A 1R loss at the planned stop became a loss of more than 7R.',
+  why: 'A stop makes the loss real; hope keeps it hypothetical.', fix: 'Every trade has a hard stop placed with the order. No exceptions.',
+  lessons: ['10-1', '8-5'], terms: ['stop_loss', 'risk_of_ruin'], drill: null},
+
+/* ---- Backtesting & process ---- */
+{id: 'hindsight', cat: 'process', t: 'Hindsight entries in backtests', d: 'Logging an entry at the exact low you can only see afterwards.',
+  chart: {pts: [104, 102, 106.5], legs: [6, 10], seed: 2, trades: [{E: 102.05, SL: 101.9, TP: 106, from: 0, expect: 'win', tag: 'hindsight entry'}]},
+  what: 'A 26R winner that no live rule could have produced. It inflates every statistic.',
+  why: 'The low is obvious once the right side of the chart is visible.', fix: 'Backtest bar by bar with future candles hidden. Enter only where your rules would have triggered live.',
+  lessons: ['12-2'], terms: ['r_multiple'], drill: null},
+{id: 'small-sample', cat: 'process', t: 'Judging a strategy on 10 trades', d: 'Ten good trades feel like proof. They are not.',
+  chart: {curve: [{pts: [0, 1.8, 1.2, 3.1, 2.4, 4.6, 6, 5.4, 7.1, 8.6], label: 'first 10'}, {pts: [0, 1.8, 1.2, 3.1, 2.4, 4.6, 6, 5.4, 7.1, 8.6, 7.4, 6.2, 7.8, 6.1, 4.9, 5.6, 3.8, 4.4, 2.6, 1.9], label: '20 trades', dash: true}], fmt: 'R'},
+  what: 'The first 10 trades were +8.6R. Over 20 the same rules were at +1.9R.',
+  why: 'Small samples are dominated by luck.', fix: 'Collect at least 50–100 trades per setup before judging it. Track expectancy, not streaks.',
+  lessons: ['12-2', '10-5'], terms: ['expectancy', 'win_rate'], drill: null},
+{id: 'cherry-pick', cat: 'process', t: 'Cherry-picking the log', d: 'Only recording the trades that look like the textbook.',
+  chart: {curve: [{pts: [0, 2, 4.5, 6, 8.8, 11, 13.5, 15.2, 18, 20.6], label: 'logged'}, {pts: [0, 1, 1.5, .4, 2.1, 1.2, 2.9, 2, 1.1, 1.6], label: 'all trades', dash: true}], fmt: 'R', legend: true},
+  what: 'The journal shows +20R. The account shows +1.6R.',
+  why: 'Losses that "did not count" quietly disappear.', fix: 'Log every trade you take, including the impulsive ones. Your results are your real trades.',
+  lessons: ['12-4', '11-10'], terms: ['expectancy'], drill: null},
+{id: 'rule-hopping', cat: 'process', t: 'Changing the rules every few trades', d: 'A new model after each losing streak.',
+  chart: {curve: [{pts: [0, -1, -2, -1.5, -3, -4, -3.2, -4.5, -5.6, -5, -6.4, -7.2], label: 'switching models'}, {pts: [0, -1, -2, -.4, 1.6, .6, 2.8, 1.8, 4.2, 3.2, 5.4, 6.8], label: 'one model, kept', dash: true}], fmt: 'R', legend: true},
+  what: 'Every switch reset the sample at the worst moment. The same first model, kept, recovered.',
+  why: 'Losing streaks feel like the strategy is broken.', fix: 'Commit to one model for a full sample (50+ trades). Change one variable at a time, with data.',
+  lessons: ['12-10', '11-11'], terms: ['expectancy', 'drawdown'], drill: null},
+{id: 'no-costs', cat: 'process', t: 'Backtesting without costs', d: 'Ignoring spread, commission and slippage.',
+  chart: {curve: [{pts: [0, 1.2, 1.9, 2.4, 3.6, 4.1, 4.9, 5.6, 6.2, 7], label: 'gross'}, {pts: [0, .9, 1.3, 1.5, 2.4, 2.6, 3.1, 3.5, 3.8, 4.3], label: 'after costs', dash: true}], fmt: 'R', legend: true},
+  what: 'Costs took almost 40% of the edge on a short-term strategy.',
+  why: 'Charting tools show prices without fees.', fix: 'Include commission, spread and a slippage estimate per trade in every backtest.',
+  lessons: ['12-2'], terms: ['commission', 'slippage', 'spread'], drill: null},
+{id: 'no-journal', cat: 'process', t: 'Not journaling, repeating the same mistake', d: 'Taking the same early entry again the next day.',
+  chart: {pts: [104, 102.5, 103.3, 101.6, 104.2, 102.6, 103.2, 101.9, 104.8], legs: [4, 3, 4, 4, 4, 3, 4, 6], seed: 2,
+    trades: [{E: 102.6, SL: 102.2, TP: 104, from: 0, expect: 'loss', tag: 'day 1'}, {E: 102.7, SL: 102.3, TP: 104.5, from: 4, expect: 'loss', tag: 'day 2'}], labels: [[3, 'sweep'], [7, 'sweep']]},
+  what: 'Same entry before the sweep, same result, twice. Nothing was written down, so nothing changed.',
+  why: 'Without a record, mistakes feel like bad luck.', fix: 'Journal every trade with a screenshot and the checklist. Review weekly and write one rule change.',
+  lessons: ['11-10', '12-4'], terms: ['checklist'], drill: 'conf-wait'},
+];
+CS.TW.cats = {bias: 'Bias & context', entries: 'Entries', stops: 'Stops & risk', targets: 'Targets & management', timing: 'Timing & killzones', psych: 'Psychology & discipline', process: 'Backtesting & process'};
+})();

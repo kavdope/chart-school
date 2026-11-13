@@ -185,3 +185,33 @@ mark{background:#000;color:#fff;padding:0 1px;border-radius:2px}
 .sheet li{font-size:12px;color:#222;margin-bottom:6px;line-height:1.45}
 body.noscroll{overflow:hidden}
 .lesson a{color:#000}
+/* v5: trades (walkthroughs + mistake library) */
+.chips a.chip{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:12px;font-size:11px;padding:3px 9px;color:#000;text-decoration:none}
+.chips a.chip.on{background:#000;border-color:#000;color:#fff}
+.twseg{display:flex}.twseg button{flex:1;padding:6px 10px;font-size:12px}
+.twl li{display:block}
+.twm>a{display:flex;align-items:flex-start;gap:10px;padding:10px 0 6px;color:#000;text-decoration:none}
+.twm>a span{display:block}
+.twm .dm,.drl .dm{width:16px;height:16px;border-radius:50%;border:1px solid #ccc;flex:none;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:2px}
+.twm .dm.ok{background:#000;border-color:#000}.twm .dm.x{border-color:#000}
+.twl .twv{padding:0 0 10px 26px}
+.tw a:not(.btn):not(.chip),.mi a:not(.btn):not(.chip){color:#000}
+.stp{display:flex;gap:3px;margin:10px 0 8px}
+.stp a{flex:1;text-align:center;font-size:10.5px;padding:5px 0 4px;border-bottom:2px solid var(--line);color:var(--mute);text-decoration:none;letter-spacing:.02em}
+.stp a.past{border-color:#999;color:#555}.stp a.on{border-color:#000;color:#000;font-weight:600}
+.stp a.bad.on{border-color:var(--bear);color:var(--bear)}
+.twh{justify-content:space-between;margin-bottom:2px}.twh b{font-size:13px}
+.ann{display:flex;align-items:center;gap:5px;font-size:11px;color:#555;cursor:pointer;user-select:none}
+.ann input{width:15px;height:15px;accent-color:#000;margin:0}
+#twbody{touch-action:pan-y}
+#twbody p{font-size:13.5px}
+.tw .chart{margin-top:6px}
+.tw-smt{margin-top:4px}
+.ck{list-style:none;margin:0 0 10px}
+.ck li{font-size:12.5px;padding:4px 0 4px 22px;position:relative;border-bottom:1px solid var(--line)}
+.ck li:before{content:'✓';position:absolute;left:3px;top:4px;font-weight:700;color:var(--bull)}
+.dont h2{color:var(--bear);margin-top:14px}
+.stepnav{margin-top:14px}.stepnav .btn{flex:1;text-align:center}
+.mil li{display:flex;align-items:center}
+.mi .callout{font-size:13px}
+.lesson a.btn{color:#fff}.lesson a.btn.ghost{color:#000}
